@@ -1,0 +1,17 @@
+[
+  {
+    "id": "rivalfinal",
+    "text": "Your old rival blocks your path, now your equal. Years of enmity come to a head.",
+    "minAge": 30, "minRealm": 2, "weight": 15, "once": true, "if": ["since:hasRival>=10"],
+    "choices": [
+      { "label": "Duel to the death", "outcomes": [
+        { "chance": 0.5, "scale": { "realm": 0.04, "luck": 0.0025 }, "text": "You defeat him and claim his treasures.", "effects": { "gold": 100, "qi": 60, "karma": -5, "setFlags": ["rivalDone"] } },
+        { "text": "He cuts you down.", "effects": { "health": -60, "setFlags": ["rivalDone"] } }
+      ]},
+      { "label": "Defeat him, then spare his life", "outcomes": [
+        { "chance": 0.4, "scale": { "realm": 0.04 }, "text": "You win and spare him. He bows and departs.", "effects": { "qi": 40, "karma": 10, "setFlags": ["rivalDone"] } },
+        { "text": "You lose narrowly, and he spares you instead.", "effects": { "health": -35, "karma": 2, "setFlags": ["rivalDone"] } }
+      ]}
+    ]
+  }
+]

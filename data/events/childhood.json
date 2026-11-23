@@ -1,0 +1,71 @@
+[
+  {
+    "id": "winter",
+    "text": "A bitter winter grips your village. Food and firewood run low.",
+    "minAge": 3, "maxAge": 12, "weight": 4,
+    "choices": [
+      { "label": "Brave the snow to gather firewood", "outcomes": [
+        { "chance": 0.7, "text": "You return frozen but proud. Your body grows tougher.", "effects": { "health": 3, "karma": 2 } },
+        { "text": "You catch a terrible chill.", "effects": { "health": -15 } }
+      ]},
+      { "label": "Huddle by the fire", "outcomes": [
+        { "text": "You stay warm and listen to the elders' tales of immortals.", "effects": { "intelligence": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "fever",
+    "text": "A raging fever lays you low.",
+    "minAge": 1, "maxAge": 14, "weight": 4,
+    "choices": [
+      { "label": "Pay the village healer (10 gold)", "if": ["gold>=10"], "outcomes": [
+        { "chance": 0.85, "text": "The herbs work. You recover quickly.", "effects": { "gold": -10, "health": 2 } },
+        { "text": "The medicine barely helps.", "effects": { "gold": -10, "health": -15 } }
+      ]},
+      { "label": "Tough it out", "outcomes": [
+        { "chance": 0.5, "text": "You survive on sheer will. A strange warmth lingers in your belly.", "effects": { "qi": 8, "health": -5 } },
+        { "text": "The fever ravages you.", "effects": { "health": -25 } }
+      ]}
+    ]
+  },
+  {
+    "id": "school",
+    "text": "The village teacher offers to tutor you after class.",
+    "minAge": 5, "maxAge": 12, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Study diligently", "outcomes": [
+        { "text": "You devour the scrolls.", "effects": { "intelligence": 6 } }
+      ]},
+      { "label": "Go play in the fields", "outcomes": [
+        { "text": "You have a wonderful day outdoors.", "effects": { "health": 3, "luck": 3 } }
+      ]}
+    ]
+  },
+  {
+    "id": "bully",
+    "text": "Older kids corner you and demand your lunch.",
+    "minAge": 6, "maxAge": 14, "weight": 3,
+    "choices": [
+      { "label": "Fight back", "outcomes": [
+        { "chance": 0.45, "text": "You win, bruised but respected.", "effects": { "health": -5, "luck": 3 } },
+        { "text": "You get beaten badly.", "effects": { "health": -15 } }
+      ]},
+      { "label": "Hand it over", "outcomes": [
+        { "text": "You go hungry but stay safe.", "effects": { "health": -2, "karma": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "wanderer",
+    "text": "A wandering cultivator passes through your village and stops to stare at you. 'This child has a rare spark,' he murmurs.",
+    "minAge": 6, "maxAge": 14, "weight": 8, "once": true,
+    "choices": [
+      { "label": "Beg him to teach you", "outcomes": [
+        { "text": "He shows you a basic breathing technique before leaving.", "effects": { "qi": 25, "intelligence": 4, "setFlags": ["taughtBasics"] } }
+      ]},
+      { "label": "Hide behind your mother", "outcomes": [
+        { "text": "The stranger shrugs and walks on. The moment passes.", "effects": { "luck": -2 } }
+      ]}
+    ]
+  }
+]

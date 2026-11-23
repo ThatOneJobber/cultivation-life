@@ -1,0 +1,27 @@
+[
+  {
+    "id": "mastertask",
+    "text": "Your master asks you to find a Soul Lotus to heal his failing health.",
+    "minAge": 20, "weight": 10, "once": true, "if": ["since:master>=5"],
+    "choices": [
+      { "label": "Brave the Misty Swamp", "outcomes": [
+        { "chance": 0.5, "text": "You return with the lotus. He is deeply moved.", "effects": { "karma": 6, "qi": 50, "setFlags": ["lotus"] } },
+        { "text": "The swamp nearly kills you.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Say you're too busy", "outcomes": [
+        { "text": "Master says nothing, but his eyes dim.", "effects": { "karma": -6 } }
+      ]}
+    ]
+  },
+  {
+    "id": "masterlegacy",
+    "text": "Your master lies on his deathbed and calls you close.",
+    "minAge": 30, "minRealm": 2, "weight": 15, "once": true, "if": ["since:master>=15"],
+    "choices": [
+      { "label": "Receive his legacy", "outcomes": [
+        { "if": ["flag:lotus"], "text": "He transfers a lifetime of qi and wisdom into you, grateful for the Soul Lotus you once brought him.", "effects": { "qi": 250, "lifespan": 20, "karma": 5, "intelligence": 5 } },
+        { "text": "He transfers a lifetime of qi and wisdom into you.", "effects": { "qi": 150, "lifespan": 20, "karma": 5, "intelligence": 5 } }
+      ]}
+    ]
+  }
+]

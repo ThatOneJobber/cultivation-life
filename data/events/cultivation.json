@@ -1,0 +1,71 @@
+[
+  {
+    "id": "retreat",
+    "text": "You consider a short seclusion to refine your cultivation.",
+    "minAge": 8, "weight": 5,
+    "choices": [
+      { "label": "Seclude yourself for a month", "outcomes": [
+        { "chance": 0.12, "text": "Qi deviation strikes during the retreat!", "effects": { "health": -20, "qi": 15 } },
+        { "text": "The retreat bears fruit.", "effects": { "qi": { "base": 20, "perRealm": 20 } } }
+      ]},
+      { "label": "Keep to your routine", "outcomes": [
+        { "text": "Steady habits keep you grounded.", "effects": { "health": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "alchemy",
+    "text": "You have the materials to try your hand at alchemy.",
+    "minAge": 14, "minRealm": 1, "weight": 3, "if": ["gold>=30"],
+    "choices": [
+      { "label": "Refine a pill (30 gold)", "if": ["gold>=30"], "outcomes": [
+        { "chance": 0.4, "scale": { "intelligence": 0.005 }, "bonus": [ { "if": ["root:Fire"], "add": 0.15 } ], "text": "A fragrant pill forms: a Breakthrough Pill!", "effects": { "gold": -30, "pills": 1 } },
+        { "text": "The furnace explodes in a cloud of smoke.", "effects": { "gold": -30, "health": -8 } }
+      ]},
+      { "label": "Not now", "outcomes": [
+        { "text": "You save your materials." }
+      ]}
+    ]
+  },
+  {
+    "id": "mission",
+    "text": "Your sect posts missions on the bounty board.",
+    "minAge": 14, "weight": 6, "if": ["sect"],
+    "choices": [
+      { "label": "Take a dangerous mission", "outcomes": [
+        { "chance": 0.6, "text": "You complete it brilliantly.", "effects": { "gold": 80, "qi": 30 } },
+        { "text": "The mission goes horribly wrong.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Take a safe mission", "outcomes": [
+        { "text": "A modest but steady reward.", "effects": { "gold": 20, "qi": 8 } }
+      ]}
+    ]
+  },
+  {
+    "id": "tribulation",
+    "text": "Dark clouds gather. A heavenly tribulation lightning descends upon you!",
+    "minAge": 20, "minRealm": 2, "weight": 2,
+    "choices": [
+      { "label": "Endure it head on", "outcomes": [
+        { "chance": 0.35, "scale": { "health": 0.005 }, "text": "You forge your body in lightning!", "effects": { "qi": { "base": 100, "perRealm": 30 }, "health": -15 } },
+        { "text": "The lightning devastates you.", "effects": { "health": -45, "qi": -40 } }
+      ]},
+      { "label": "Shelter underground", "outcomes": [
+        { "text": "You lose the chance but survive.", "effects": { "luck": -2, "qi": -10 } }
+      ]}
+    ]
+  },
+  {
+    "id": "frail",
+    "text": "Your body feels frail as the years weigh on you.",
+    "minAge": 40, "weight": 4, "if": ["ageRatio>0.7"],
+    "choices": [
+      { "label": "Buy a rejuvenating tonic (40 gold)", "if": ["gold>=40"], "outcomes": [
+        { "text": "The tonic restores some vigor.", "effects": { "gold": -40, "health": 20, "lifespan": 3 } }
+      ]},
+      { "label": "Cultivate harder", "outcomes": [
+        { "text": "You push your limits.", "effects": { "qi": 30, "health": -10 } }
+      ]}
+    ]
+  }
+]

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "beast",
+    "text": "A ferocious spirit beast blocks your path.",
+    "minAge": 10, "weight": 5,
+    "choices": [
+      { "label": "Fight it", "outcomes": [
+        { "chance": 0.35, "scale": { "realm": 0.12, "health": 0.0025 }, "text": "You slay the beast and harvest its core.", "effects": { "gold": { "base": 20, "perRealm": 15 }, "qi": { "base": 10, "perRealm": 10 } } },
+        { "text": "The beast wounds you badly.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Flee", "outcomes": [
+        { "chance": 0.7, "text": "You escape with your life." },
+        { "text": "It catches you before you break free.", "effects": { "health": -15 } }
+      ]}
+    ]
+  },
+  {
+    "id": "ambush",
+    "text": "Your rival's lackeys ambush you on a lonely road!",
+    "minAge": 14, "minRealm": 1, "weight": 7, "if": ["flag:hasRival", "!flag:rivalDone"],
+    "choices": [
+      { "label": "Fight them", "outcomes": [
+        { "chance": 0.5, "scale": { "realm": 0.05 }, "text": "You scatter them. The rival's enmity deepens.", "effects": { "qi": 15, "health": -8 } },
+        { "text": "You are outnumbered and beaten.", "effects": { "health": -28 } }
+      ]},
+      { "label": "Trust your luck and slip away", "outcomes": [
+        { "chance": 0, "scale": { "luck": 0.01 }, "text": "Fortune smiles; you vanish into the mist." },
+        { "text": "Bad luck! They catch you.", "effects": { "health": -20 } }
+      ]}
+    ]
+  },
+  {
+    "id": "deviation",
+    "text": "Mid-cultivation, your qi suddenly runs wild through your meridians!",
+    "minAge": 12, "minRealm": 1, "weight": 3, "if": ["qi>30"],
+    "choices": [
+      { "label": "Suppress it with your mind", "outcomes": [
+        { "chance": 0.3, "scale": { "intelligence": 0.0067 }, "text": "You wrestle the qi under control and emerge stronger.", "effects": { "qi": 20, "intelligence": 2 } },
+        { "text": "You fail; the backlash tears at you.", "effects": { "health": -25, "qi": -30 } }
+      ]},
+      { "label": "Vent the energy", "outcomes": [
+        { "text": "You release the surge, losing some progress.", "effects": { "qi": -20, "health": -5 } }
+      ]}
+    ]
+  },
+  {
+    "id": "poison",
+    "text": "You fall violently ill after a banquet. Someone has poisoned your cup!",
+    "minAge": 12, "weight": 2,
+    "choices": [
+      { "label": "Buy an antidote (20 gold)", "if": ["gold>=20"], "outcomes": [
+        { "text": "The antidote saves you.", "effects": { "gold": -20, "health": -5 } }
+      ]},
+      { "label": "Burn 20 qi to purge the toxin", "if": ["qi>=20"], "outcomes": [
+        { "text": "You force the poison out through your pores.", "effects": { "qi": -20, "health": -10 } }
+      ]},
+      { "label": "Endure it", "outcomes": [
+        { "chance": 0.8, "text": "You survive somehow.", "effects": { "health": -30 } },
+        { "text": "The poison is too strong.", "effects": { "die": "Died of poisoning" } }
+      ]}
+    ]
+  },
+  {
+    "id": "bandits",
+    "text": "Bandits demand your purse on a mountain road.",
+    "minAge": 12, "maxRealm": 2, "weight": 4,
+    "choices": [
+      { "label": "Pay them", "outcomes": [
+        { "text": "You hand over some coins.", "effects": { "gold": -20 } }
+      ]},
+      { "label": "Fight", "outcomes": [
+        { "chance": 0.4, "scale": { "realm": 0.2 }, "text": "You drive them off.", "effects": { "gold": 15, "karma": 2 } },
+        { "text": "They beat you and take everything.", "effects": { "health": -20, "gold": "-all" } }
+      ]}
+    ]
+  }
+]

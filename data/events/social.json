@@ -1,0 +1,56 @@
+[
+  {
+    "id": "hermit",
+    "text": "An old hermit watches you train and offers to take you as a disciple.",
+    "minAge": 12, "minRealm": 1, "weight": 4, "once": true, "if": ["!flag:master"],
+    "choices": [
+      { "label": "Kneel and accept him as master", "outcomes": [
+        { "text": "The hermit smiles. 'Good. Let us begin.'", "effects": { "intelligence": 8, "qi": 40, "setFlags": ["master"] } }
+      ]},
+      { "label": "Politely decline", "outcomes": [
+        { "text": "He shrugs and wanders off.", "effects": { "luck": -1 } }
+      ]}
+    ]
+  },
+  {
+    "id": "rivalmake",
+    "text": "A prideful young genius from a famous clan sneers at your humble origins.",
+    "minAge": 14, "weight": 4, "once": true, "if": ["!flag:hasRival"],
+    "choices": [
+      { "label": "Vow to surpass him one day", "outcomes": [
+        { "text": "You make an enemy, and a goal.", "effects": { "qi": 10, "setFlags": ["hasRival"] } }
+      ]},
+      { "label": "Ignore him", "outcomes": [
+        { "text": "You let the insult pass.", "effects": { "karma": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "companion",
+    "text": "A kind fellow cultivator has been traveling beside you for months. Your heart stirs.",
+    "minAge": 18, "maxAge": 150, "minRealm": 1, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Confess your feelings", "outcomes": [
+        { "chance": 0.55, "scale": { "luck": 0.005 }, "text": "They smile. You have found a dao companion!", "effects": { "luck": 8, "health": 5, "setFlags": ["companion"] } },
+        { "text": "They gently turn you down. It stings.", "effects": { "health": -3 } }
+      ]},
+      { "label": "Remain good friends", "outcomes": [
+        { "text": "A friendship that endures.", "effects": { "karma": 2, "luck": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "betray",
+    "text": "A trusted sect brother steals your pills and frames you for the theft.",
+    "minAge": 15, "weight": 3, "once": true, "if": ["sect"],
+    "choices": [
+      { "label": "Report him to the elders", "outcomes": [
+        { "chance": 0.5, "text": "The elders investigate and punish him.", "effects": { "karma": 3, "pills": 1 } },
+        { "text": "No one believes you.", "effects": { "luck": -3 } }
+      ]},
+      { "label": "Retaliate in secret", "outcomes": [
+        { "text": "You raid his stash. Justice, or revenge?", "effects": { "karma": -10, "qi": 20 } }
+      ]}
+    ]
+  }
+]

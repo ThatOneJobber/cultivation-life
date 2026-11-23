@@ -1,0 +1,28 @@
+[
+  {
+    "id": "stranger",
+    "text": "An old man lies wounded by the roadside, clutching a worn jade token.",
+    "minAge": 12, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Tend his wounds (10 gold)", "if": ["gold>=10"], "outcomes": [
+        { "text": "He thanks you weakly and disappears into the night.", "effects": { "gold": -10, "karma": 8, "setFlags": ["savedStranger"] } }
+      ]},
+      { "label": "Walk past", "outcomes": [
+        { "text": "It's none of your business.", "effects": { "karma": -3 } }
+      ]}
+    ]
+  },
+  {
+    "id": "stranger2",
+    "text": "A grand procession arrives at your door. The old man you saved is an elder of the Heavenly Pavilion, and he remembers you.",
+    "minAge": 20, "weight": 20, "once": true, "if": ["since:savedStranger>=6"],
+    "choices": [
+      { "label": "Accept his gift of spirit treasures", "outcomes": [
+        { "text": "He grants you a treasure trove.", "effects": { "qi": 120, "lifespan": 10, "luck": 8, "pills": 1 } }
+      ]},
+      { "label": "Ask him to teach you", "outcomes": [
+        { "text": "He guides your understanding.", "effects": { "intelligence": 10, "qi": 60, "karma": 3 } }
+      ]}
+    ]
+  }
+]

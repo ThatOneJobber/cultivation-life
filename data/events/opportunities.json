@@ -1,0 +1,76 @@
+[
+  {
+    "id": "festival",
+    "text": "The annual spirit festival fills the town with lanterns and merchants.",
+    "minAge": 5, "weight": 3,
+    "choices": [
+      { "label": "Browse the stalls (15 gold)", "if": ["gold>=15"], "outcomes": [
+        { "text": "You find a rare pill at a bargain.", "effects": { "gold": -15, "pills": 1 } }
+      ]},
+      { "label": "Show off cultivation tricks for coins", "outcomes": [
+        { "text": "The crowd cheers and tosses you coins.", "effects": { "gold": 15, "luck": 1 } }
+      ]},
+      { "label": "Simply enjoy the festivities", "outcomes": [
+        { "text": "A joyful night.", "effects": { "health": 3, "luck": 3 } }
+      ]}
+    ]
+  },
+  {
+    "id": "cave",
+    "text": "While wandering, you discover a hidden cave humming with spiritual energy.",
+    "minAge": 10, "weight": 4, "if": ["luck>=25"],
+    "choices": [
+      { "label": "Enter the cave", "outcomes": [
+        { "chance": 0.3, "scale": { "luck": 0.005 }, "text": "Inside you find a pool of spirit liquid!", "effects": { "qi": { "base": 20, "perRealm": 25 }, "luck": 2 } },
+        { "text": "A beast lairs inside and mauls you.", "effects": { "health": -25 } }
+      ]},
+      { "label": "Walk away", "outcomes": [
+        { "text": "Discretion is the better part of valor." }
+      ]}
+    ]
+  },
+  {
+    "id": "herb",
+    "text": "You spot a glowing spirit herb growing on a cliff.",
+    "minAge": 8, "weight": 5,
+    "choices": [
+      { "label": "Eat it", "outcomes": [
+        { "chance": 0.8, "text": "Warm energy floods your meridians.", "effects": { "qi": { "base": 15, "perRealm": 15 } } },
+        { "text": "It was toxic!", "effects": { "health": -20 } }
+      ]},
+      { "label": "Sell it at the market", "outcomes": [
+        { "text": "A herbalist pays well.", "effects": { "gold": { "base": 25, "perRealm": 20 } } }
+      ]}
+    ]
+  },
+  {
+    "id": "inherit",
+    "text": "A crumbling ancient altar offers a trial: solve its formation to claim a cultivator's inheritance.",
+    "minAge": 16, "minRealm": 1, "weight": 2,
+    "choices": [
+      { "label": "Attempt the trial", "outcomes": [
+        { "chance": 0.2, "scale": { "intelligence": 0.0067 }, "text": "The formation yields! A torrent of knowledge and qi fills you.", "effects": { "qi": { "base": 60, "perRealm": 40 }, "lifespan": 5, "intelligence": 3 } },
+        { "text": "The formation backlashes violently.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Leave it undisturbed", "outcomes": [
+        { "text": "You leave the ancient relics in peace.", "effects": { "karma": 1 } }
+      ]}
+    ]
+  },
+  {
+    "id": "recruit",
+    "text": "Elders from the Azure Cloud Sect are recruiting disciples in nearby towns and test your talent.",
+    "minAge": 13, "maxAge": 45, "weight": 6, "once": true, "if": ["!sect"],
+    "choices": [
+      { "label": "Join the righteous Azure Cloud Sect", "outcomes": [
+        { "text": "You are accepted as an outer disciple.", "effects": { "qi": 20, "intelligence": 3, "karma": 3, "sect": "Azure Cloud Sect" } }
+      ]},
+      { "label": "Join the shadowy Blood Moon Sect", "outcomes": [
+        { "text": "The Blood Moon Sect teaches fast but ruthless methods.", "effects": { "qi": 45, "karma": -15, "sect": "Blood Moon Sect" } }
+      ]},
+      { "label": "Remain a rogue cultivator", "outcomes": [
+        { "text": "Freedom is its own reward.", "effects": { "luck": 3 } }
+      ]}
+    ]
+  }
+]

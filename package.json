@@ -1,0 +1,12 @@
+{
+  "name": "cultivation-life",
+  "version": "0.2.0",
+  "description": "An open-source, text-based cultivation (xianxia) life simulator that runs in the browser.",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "node tools/build.js",
+    "simulate": "node tools/build.js && node tools/simulate.js",
+    "test": "node tools/build.js && node tools/simulate.js 200"
+  }
+}

@@ -1,0 +1,9 @@
+[
+  { "name": "Mortal",                   "need": 100,  "life": 0 },
+  { "name": "Qi Condensation",          "need": 250,  "life": 50 },
+  { "name": "Foundation Establishment", "need": 500,  "life": 80 },
+  { "name": "Golden Core",              "need": 1000, "life": 150 },
+  { "name": "Nascent Soul",             "need": 2000, "life": 250 },
+  { "name": "Soul Transformation",      "need": 4000, "life": 400 },
+  { "name": "Immortal Ascension",       "need": null, "life": 0 }
+]

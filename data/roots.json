@@ -1,0 +1,8 @@
+[
+  { "name": "Fire",     "mult": 1,   "brk": 0 },
+  { "name": "Water",    "mult": 1,   "brk": 0 },
+  { "name": "Wood",     "mult": 1,   "brk": 0 },
+  { "name": "Metal",    "mult": 1,   "brk": 0 },
+  { "name": "Earth",    "mult": 1,   "brk": 0 },
+  { "name": "Heavenly", "mult": 1.8, "brk": 0.15 }
+]
