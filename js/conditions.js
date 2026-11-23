@@ -11,13 +11,17 @@
      "sect"  /  "!sect"      is in any sect / is not
      "sect:Azure Cloud Sect" is in that specific sect
      "root:Fire"             spiritual root is Fire
+     "item:antidote"         you own at least one Antidote
+     "item:healing_pill>=3"  you own three or more Healing Pills
+   Stat names (health, luck, ...) include equipment bonuses. "power" is the total
+   fighting bonus from equipment.
 */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
   const U = G.util;
 
   const STAT_NAMES = ["health", "intelligence", "luck", "karma"];
-  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "pills", "age", "realm", "lifespan", "ageRatio", "qiRatio"]);
+  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "power", "age", "realm", "lifespan", "ageRatio", "qiRatio"]);
   const RE = /^(!?)([A-Za-z]+)(?::([A-Za-z0-9_ ]+?))?\s*(?:(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?))?$/;
 
   function parse(expr) {
@@ -40,9 +44,10 @@
 
   // Numeric value of a named quantity for the current player.
   function value(p, name) {
-    if (STAT_NAMES.includes(name)) return p.stats[name];
+    if (STAT_NAMES.includes(name)) return U.clamp(p.stats[name] + G.items.mod(p, name), 0, 100);
     switch (name) {
-      case "gold": case "qi": case "pills": case "age": case "realm": case "lifespan": return p[name];
+      case "power": return G.items.mod(p, "power");
+      case "gold": case "qi": case "age": case "realm": case "lifespan": return p[name];
       case "ageRatio": return p.age / p.lifespan;
       case "qiRatio": {
         const need = G.data.realms[p.realm].need;
@@ -61,6 +66,7 @@
       case "since": r = U.hasOwn(p.flags, e.arg) && compare(p.age - p.flags[e.arg], e.op, e.num); break;
       case "root": r = G.data.roots[p.root].name === e.arg; break;
       case "sect": r = e.arg ? p.sect === e.arg : !!p.sect; break;
+      case "item": { const n = G.items.count(p, e.arg); r = e.op ? compare(n, e.op, e.num) : n > 0; break; }
       default: r = e.op ? compare(value(p, e.name), e.op, e.num) : !!value(p, e.name);
     }
     return e.neg ? !r : r;
@@ -69,7 +75,7 @@
   const testAll = (p, list) => !list || list.every(c => test(p, c));
 
   // Returns an error message, or null when the expression is valid.
-  function validate(expr, rootNames) {
+  function validate(expr, rootNames, itemIds) {
     if (typeof expr !== "string") return "condition must be a string";
     const e = parse(expr);
     if (!e) return "cannot parse \"" + expr + "\"";
@@ -78,6 +84,7 @@
       case "since": return e.arg && e.op && e.num !== undefined ? null : "since needs e.g. since:master>=5";
       case "root": return rootNames.includes(e.arg) ? null : "unknown root \"" + e.arg + "\"";
       case "sect": return null;
+      case "item": return itemIds.includes(e.arg) ? null : "unknown item \"" + e.arg + "\" (see data/items.json)";
       default:
         if (!NUM_NAMES.includes(e.name)) return "unknown name \"" + e.name + "\" in \"" + expr + "\"";
         if (e.arg) return "\"" + e.name + "\" does not take a :argument";

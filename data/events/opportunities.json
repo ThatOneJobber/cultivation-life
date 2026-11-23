@@ -5,7 +5,7 @@
     "minAge": 5, "weight": 3,
     "choices": [
       { "label": "Browse the stalls (15 gold)", "if": ["gold>=15"], "outcomes": [
-        { "text": "You find a rare pill at a bargain.", "effects": { "gold": -15, "pills": 1 } }
+        { "text": "You find a rare pill at a bargain.", "effects": { "gold": -15, "items": { "breakthrough_pill": 1 } } }
       ]},
       { "label": "Show off cultivation tricks for coins", "outcomes": [
         { "text": "The crowd cheers and tosses you coins.", "effects": { "gold": 15, "luck": 1 } }

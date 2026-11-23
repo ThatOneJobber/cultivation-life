@@ -29,7 +29,7 @@
         luck: U.clamp(30 + U.rand(0, 40) + Math.min(20, Math.floor(meta.karma / 15)), 0, 100),
         karma: 50
       },
-      gold: 10, pills: 0, sect: null, flags: {}, log: [],
+      gold: 10, inv: {}, equip: {}, sect: null, flags: {}, log: [],
       meditated: false, pending: null, alive: true, ascended: false,
       deathCause: null, eventCount: 0
     });
@@ -52,10 +52,23 @@
       if (!raw) return false;
       const d = JSON.parse(raw);
       if (!isValidSave(d)) return false;
+      normalize(d.p);
       S.p = d.p; S.meta = d.meta;
       return true;
     } catch (e) { return false; }
   };
+
+  // Brings saves from older versions up to date (and drops items that no longer exist).
+  function normalize(p) {
+    if (!p.inv) {
+      p.inv = {};
+      if (p.pills) p.inv.breakthrough_pill = p.pills; // v0.2 saves had a plain pill counter
+    }
+    delete p.pills;
+    if (!p.equip) p.equip = {};
+    Object.keys(p.inv).forEach(id => { if (!G.items.def(id) || !(p.inv[id] > 0)) delete p.inv[id]; });
+    G.items.SLOTS.forEach(s => { if (p.equip[s] && !p.inv[p.equip[s]]) p.equip[s] = null; });
+  }
 
   function isValidSave(d) {
     return !!(d && d.p && d.meta && d.p.stats && typeof d.p.age === "number" &&
@@ -70,6 +83,7 @@
     let d;
     try { d = JSON.parse(text); } catch (e) { return "That file is not valid JSON."; }
     if (!isValidSave(d)) return "That file does not look like a Cultivation Life save.";
+    normalize(d.p);
     S.p = d.p; S.meta = d.meta;
     S.save();
     return null;

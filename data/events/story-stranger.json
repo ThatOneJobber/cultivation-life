@@ -18,7 +18,7 @@
     "minAge": 20, "weight": 20, "once": true, "if": ["since:savedStranger>=6"],
     "choices": [
       { "label": "Accept his gift of spirit treasures", "outcomes": [
-        { "text": "He grants you a treasure trove.", "effects": { "qi": 120, "lifespan": 10, "luck": 8, "pills": 1 } }
+        { "text": "He grants you a treasure trove, including a robe woven with spirit silk.", "effects": { "qi": 120, "lifespan": 10, "luck": 8, "items": { "breakthrough_pill": 1, "jade_robe": 1 } } }
       ]},
       { "label": "Ask him to teach you", "outcomes": [
         { "text": "He guides your understanding.", "effects": { "intelligence": 10, "qi": 60, "karma": 3 } }

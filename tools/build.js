@@ -22,6 +22,8 @@ function readJson(rel) {
 const realms = readJson("data/realms.json");
 const roots = readJson("data/roots.json");
 const flavor = readJson("data/flavor.json");
+const items = readJson("data/items.json");
+const balance = readJson("data/balance.json");
 const eventFiles = fs.readdirSync(path.join(ROOT, "data/events")).filter(f => f.endsWith(".json")).sort();
 const events = [];
 const eventFileOf = {};
@@ -32,11 +34,13 @@ for (const f of eventFiles) {
 }
 if (errors.length) done();
 
-/* Load the real condition parser so validation matches the game exactly. */
+/* Load the real helper modules so validation matches the game exactly. */
 const ctx = vm.createContext({ console });
 vm.runInContext("globalThis.Game = {}", ctx);
-for (const f of ["js/util.js", "js/conditions.js"]) vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
+for (const f of ["js/util.js", "js/items.js", "js/conditions.js"]) vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
 const cond = ctx.Game.cond;
+const SLOTS = ctx.Game.items.SLOTS;
+const MOD_KEYS = ctx.Game.items.MOD_KEYS;
 const rootNames = roots.map(r => r.name);
 
 /* ---------- validate realms / roots / flavor ---------- */
@@ -53,30 +57,30 @@ roots.forEach((r, i) => {
 if (!Array.isArray(flavor.names) || !flavor.names.length) err("data/flavor.json", "needs a non-empty \"names\" array");
 if (!Array.isArray(flavor.quiet) || !flavor.quiet.length) err("data/flavor.json", "needs a non-empty \"quiet\" array");
 
-/* ---------- validate events ---------- */
-const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
-const CHOICE_KEYS = ["label", "if", "outcomes"];
-const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
-const EFFECT_NUM = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan", "pills"];
-const EFFECT_KEYS = EFFECT_NUM.concat(["setFlags", "sect", "die"]);
-const SCALE_KEYS = cond.NUM_NAMES;
+/* ---------- validate balance ---------- */
+const BALANCE_PATHS = [
+  "eventChance", "regen.min", "regen.max", "regen.perRealm", "oldAge.start", "oldAge.drainMin", "oldAge.drainMax",
+  "seclusion.qiBonus", "seclusion.eventChance", "seclusion.stopBelowHealth",
+  "meditation.riskChance", "meditation.riskDamageMin", "meditation.riskDamageMax",
+  "breakthrough.base", "breakthrough.failDamageMin", "breakthrough.failDamageMax", "breakthrough.successHeal"
+];
+const getPath = (o, p) => p.split(".").reduce((x, k) => (x == null ? undefined : x[k]), o);
+for (const p of BALANCE_PATHS) if (!Number.isFinite(getPath(balance, p))) err("data/balance.json", "\"" + p + "\" must be a number");
+for (const [a, b] of [["regen.min", "regen.max"], ["oldAge.drainMin", "oldAge.drainMax"], ["meditation.riskDamageMin", "meditation.riskDamageMax"], ["breakthrough.failDamageMin", "breakthrough.failDamageMax"]]) {
+  if (getPath(balance, a) > getPath(balance, b)) err("data/balance.json", a + " is greater than " + b);
+}
+for (const p of ["eventChance", "seclusion.eventChance", "meditation.riskChance", "oldAge.start"]) {
+  const v = getPath(balance, p);
+  if (Number.isFinite(v) && (v < 0 || v > 1)) err("data/balance.json", "\"" + p + "\" must be between 0 and 1");
+}
 
-const seenIds = new Set();
-const setFlags = new Set();
-const flagRefs = [];
+/* ---------- validate items ---------- */
+const EFFECT_NUM = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan"];
+const USE_KEYS = ["health", "intelligence", "luck", "karma", "qi", "lifespan"];
+const itemIds = [];
 
 function checkUnknown(obj, allowed, where) {
   for (const k of Object.keys(obj)) if (!allowed.includes(k)) err(where, "unknown key \"" + k + "\" (allowed: " + allowed.join(", ") + ")");
-}
-function checkConds(list, where) {
-  if (list === undefined) return;
-  if (!Array.isArray(list)) return err(where, "\"if\" must be an array of strings");
-  for (const c of list) {
-    const e = cond.validate(c, rootNames);
-    if (e) err(where, e);
-    const flag = cond.referencedFlag(c);
-    if (flag) flagRefs.push({ flag, where });
-  }
 }
 function checkValue(v, key, where) {
   if (typeof v === "number") return;
@@ -84,6 +88,56 @@ function checkValue(v, key, where) {
   if (v === "-all") return;
   if (v && typeof v === "object") { checkUnknown(v, ["base", "perRealm"], where + "." + key); return; }
   err(where, key + ": must be a number, [min,max], {base,perRealm}, or \"-all\"");
+}
+
+if (!Array.isArray(items)) err("data/items.json", "must be an array");
+else items.forEach(it => {
+  const w = "item \"" + (it && it.id) + "\" (data/items.json)";
+  checkUnknown(it, ["id", "name", "type", "slot", "desc", "use", "onBreakthrough", "mods", "price"], w);
+  if (typeof it.id !== "string" || !/^[a-z0-9_]+$/.test(it.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
+  else if (itemIds.includes(it.id)) err(w, "duplicate id");
+  itemIds.push(it.id);
+  if (typeof it.name !== "string" || !it.name) err(w, "needs a \"name\"");
+  if (typeof it.desc !== "string" || !it.desc) err(w, "needs a \"desc\" (what the player reads)");
+  if (it.price !== undefined && !(Number.isInteger(it.price) && it.price > 0)) err(w, "\"price\" must be a positive whole number (only items with a price appear in the market)");
+  if (it.type === "consumable") {
+    if (it.slot || it.mods) err(w, "consumables cannot have \"slot\" or \"mods\"");
+    if (it.use !== undefined) {
+      checkUnknown(it.use, USE_KEYS, w + " use");
+      for (const k of USE_KEYS) if (it.use[k] !== undefined) checkValue(it.use[k], k, w);
+    }
+    if (it.onBreakthrough !== undefined && !(it.onBreakthrough > 0 && it.onBreakthrough <= 1)) err(w, "\"onBreakthrough\" must be between 0 and 1");
+  } else if (it.type === "equipment") {
+    if (!SLOTS.includes(it.slot)) err(w, "\"slot\" must be one of " + SLOTS.join(", "));
+    if (it.use || it.onBreakthrough) err(w, "equipment cannot have \"use\" or \"onBreakthrough\"");
+    if (!it.mods || typeof it.mods !== "object" || !Object.keys(it.mods).length) err(w, "equipment needs \"mods\"");
+    else {
+      checkUnknown(it.mods, MOD_KEYS, w + " mods");
+      for (const k of Object.keys(it.mods)) if (typeof it.mods[k] !== "number") err(w, "mods." + k + " must be a number");
+    }
+  } else err(w, "\"type\" must be \"consumable\" or \"equipment\"");
+});
+
+/* ---------- validate events ---------- */
+const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
+const CHOICE_KEYS = ["label", "if", "outcomes"];
+const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
+const EFFECT_KEYS = EFFECT_NUM.concat(["items", "setFlags", "sect", "die"]);
+const SCALE_KEYS = cond.NUM_NAMES;
+
+const seenIds = new Set();
+const setFlags = new Set();
+const flagRefs = [];
+
+function checkConds(list, where) {
+  if (list === undefined) return;
+  if (!Array.isArray(list)) return err(where, "\"if\" must be an array of strings");
+  for (const c of list) {
+    const e = cond.validate(c, rootNames, itemIds);
+    if (e) err(where, e);
+    const flag = cond.referencedFlag(c);
+    if (flag) flagRefs.push({ flag, where });
+  }
 }
 
 for (const ev of events) {
@@ -128,7 +182,14 @@ for (const ev of events) {
       checkUnknown(fx, EFFECT_KEYS, ow + " effects");
       for (const k of EFFECT_NUM) if (fx[k] !== undefined) {
         checkValue(fx[k], k, ow);
-        if (fx[k] === "-all" && !["gold", "qi", "pills"].includes(k)) err(ow, "\"-all\" only works for gold, qi and pills");
+        if (fx[k] === "-all" && !["gold", "qi"].includes(k)) err(ow, "\"-all\" only works for gold and qi");
+      }
+      if (fx.items !== undefined) {
+        if (!fx.items || typeof fx.items !== "object" || Array.isArray(fx.items)) err(ow, "items must be an object like { \"healing_pill\": 2 }");
+        else for (const id of Object.keys(fx.items)) {
+          if (!itemIds.includes(id)) err(ow, "items: unknown item \"" + id + "\" (see data/items.json)");
+          if (!Number.isInteger(fx.items[id]) || fx.items[id] === 0) err(ow, "items." + id + " must be a non-zero whole number (negative removes)");
+        }
       }
       if (fx.setFlags !== undefined) {
         if (!Array.isArray(fx.setFlags) || !fx.setFlags.every(s => typeof s === "string")) err(ow, "setFlags must be an array of strings");
@@ -158,9 +219,9 @@ function done() {
     console.error("\nbundle.js was NOT updated.");
     process.exit(1);
   }
-  const data = { realms, roots, flavor, events };
+  const data = { realms, roots, flavor, balance, items, events };
   const out = "/* AUTO-GENERATED by tools/build.js from the files in data/. Do not edit by hand. */\n" +
     "globalThis.Game = globalThis.Game || {};\nGame.data = " + JSON.stringify(data) + ";\n";
   fs.writeFileSync(path.join(ROOT, "data/bundle.js"), out);
-  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + realms.length + " realms, " + roots.length + " roots.");
+  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + items.length + " items, " + realms.length + " realms, " + roots.length + " roots.");
 }

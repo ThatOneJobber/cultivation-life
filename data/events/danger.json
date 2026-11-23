@@ -5,7 +5,7 @@
     "minAge": 10, "weight": 5,
     "choices": [
       { "label": "Fight it", "outcomes": [
-        { "chance": 0.35, "scale": { "realm": 0.12, "health": 0.0025 }, "text": "You slay the beast and harvest its core.", "effects": { "gold": { "base": 20, "perRealm": 15 }, "qi": { "base": 10, "perRealm": 10 } } },
+        { "chance": 0.35, "scale": { "realm": 0.12, "health": 0.0025, "power": 0.01 }, "text": "You slay the beast and harvest its core.", "effects": { "gold": { "base": 20, "perRealm": 15 }, "qi": { "base": 10, "perRealm": 10 } } },
         { "text": "The beast wounds you badly.", "effects": { "health": -30 } }
       ]},
       { "label": "Flee", "outcomes": [
@@ -20,7 +20,7 @@
     "minAge": 14, "minRealm": 1, "weight": 7, "if": ["flag:hasRival", "!flag:rivalDone"],
     "choices": [
       { "label": "Fight them", "outcomes": [
-        { "chance": 0.5, "scale": { "realm": 0.05 }, "text": "You scatter them. The rival's enmity deepens.", "effects": { "qi": 15, "health": -8 } },
+        { "chance": 0.5, "scale": { "realm": 0.05, "power": 0.01 }, "text": "You scatter them. The rival's enmity deepens.", "effects": { "qi": 15, "health": -8 } },
         { "text": "You are outnumbered and beaten.", "effects": { "health": -28 } }
       ]},
       { "label": "Trust your luck and slip away", "outcomes": [
@@ -51,11 +51,14 @@
       { "label": "Buy an antidote (20 gold)", "if": ["gold>=20"], "outcomes": [
         { "text": "The antidote saves you.", "effects": { "gold": -20, "health": -5 } }
       ]},
+      { "label": "Drink the antidote you carry", "if": ["item:antidote"], "outcomes": [
+        { "text": "You swallow your antidote just in time.", "effects": { "items": { "antidote": -1 }, "health": -3 } }
+      ]},
       { "label": "Burn 20 qi to purge the toxin", "if": ["qi>=20"], "outcomes": [
         { "text": "You force the poison out through your pores.", "effects": { "qi": -20, "health": -10 } }
       ]},
       { "label": "Endure it", "outcomes": [
-        { "chance": 0.8, "text": "You survive somehow.", "effects": { "health": -30 } },
+        { "chance": 0.8, "scale": { "realm": 0.04 }, "text": "You survive somehow.", "effects": { "health": -30 } },
         { "text": "The poison is too strong.", "effects": { "die": "Died of poisoning" } }
       ]}
     ]
@@ -69,7 +72,7 @@
         { "text": "You hand over some coins.", "effects": { "gold": -20 } }
       ]},
       { "label": "Fight", "outcomes": [
-        { "chance": 0.4, "scale": { "realm": 0.2 }, "text": "You drive them off.", "effects": { "gold": 15, "karma": 2 } },
+        { "chance": 0.4, "scale": { "realm": 0.2, "power": 0.01 }, "text": "You drive them off.", "effects": { "gold": 15, "karma": 2 } },
         { "text": "They beat you and take everything.", "effects": { "health": -20, "gold": "-all" } }
       ]}
     ]

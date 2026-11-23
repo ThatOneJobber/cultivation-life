@@ -65,7 +65,7 @@ Outcomes are tried **in order**. The first one whose `if` holds and whose `chanc
 
 - An outcome with `"chance": 0.7` happens 70% of the time.
 - The **last outcome must have no `chance` and no `if`**. It is the fallback.
-- `"scale"` adjusts the chance by the player's stats: `"scale": { "luck": 0.005 }` adds 0.5% per point of luck. Names: `health intelligence luck karma gold qi pills age realm`.
+- `"scale"` adjusts the chance by the player's stats: `"scale": { "luck": 0.005 }` adds 0.5% per point of luck. Names: `health intelligence luck karma gold qi power age realm`. Use `"power": 0.01` on fights so a weapon helps (each point of power adds 1%).
 - `"bonus"` adds to the chance when a condition holds: `"bonus": [ { "if": ["root:Fire"], "add": 0.15 } ]`.
 
 ### Effects
@@ -75,8 +75,9 @@ Inside an outcome's `"effects"`:
 | Key | Meaning |
 |---|---|
 | `health`, `intelligence`, `luck`, `karma` | Change a stat (kept between 0 and 100). |
-| `qi`, `gold`, `pills` | Change the amount (never below 0). |
+| `qi`, `gold` | Change the amount (never below 0). |
 | `lifespan` | Change how many years the character can live. |
+| `items` | Give or take items: `{ "healing_pill": 2 }` gives two, `{ "antidote": -1 }` removes one. Ids come from `data/items.json`. |
 | `setFlags` | List of story flags to set, e.g. `["savedStranger"]`. |
 | `sect` | Join a sect, e.g. `"Azure Cloud Sect"`. |
 | `die` | Kill the character with this cause of death, e.g. `"Died of poisoning"`. |
@@ -86,7 +87,9 @@ A number can be written four ways:
 - `-15` a fixed number
 - `[5, 15]` a random number between 5 and 15
 - `{ "base": 20, "perRealm": 25 }` scales with the player's realm (20 at Mortal, 45 at Qi Condensation, ...)
-- `"-all"` removes everything (gold, qi, pills only)
+- `"-all"` removes everything (gold and qi only)
+
+Armor reduces any negative `health` effect an event deals, so write damage as plain numbers and the game applies the armor.
 
 ### Conditions (`"if"`)
 
@@ -100,6 +103,27 @@ A number can be written four ways:
 | `"sect"` / `"!sect"` | In any sect / in no sect. |
 | `"sect:Azure Cloud Sect"` | In that specific sect. |
 | `"root:Fire"` | Spiritual root is Fire. |
+| `"item:antidote"` | The player owns at least one Antidote. Also `"item:healing_pill>=3"`. Great for "use your item" choices. |
+
+## Items (`data/items.json`)
+
+Two kinds. Items with a `price` are sold in the market, and the rest can only be found in events.
+
+```json
+{ "id": "healing_pill", "name": "Healing Pill", "type": "consumable",
+  "desc": "Restores 25 health.", "use": { "health": 25 }, "price": 25 }
+
+{ "id": "iron_sword", "name": "Iron Sword", "type": "equipment", "slot": "weapon",
+  "desc": "+6 power in fights.", "mods": { "power": 6 }, "price": 80 }
+```
+
+- **Consumables** can have `use` (effects applied when the player taps Use; same numbers as event effects, limited to health, intelligence, luck, karma, qi and lifespan) or `onBreakthrough` (a bonus chance, used up automatically on a breakthrough attempt). A consumable with neither, like the Antidote, is only used by events through `"item:..."` choices.
+- **Equipment** goes in the `weapon`, `armor` or `talisman` slot and gives `mods`: `power` (fight chance), `guard` (fraction of damage ignored, capped at 0.6), `regen` (extra health per year), `qiMult` (extra fraction of qi), `breakBonus` (breakthrough chance), `luck`, `intelligence`.
+- Write a clear `desc`. It is what the player reads.
+
+## Balance (`data/balance.json` and `data/realms.json`)
+
+Health regeneration, old-age decline, event frequency, meditation and breakthrough risk are all numbers in `balance.json`. How much qi each realm needs and how many years it adds are in `realms.json`. Change them, then run `node tools/simulate.js` to see the effect. Pass `--set=path=value` to try a number first without editing a file.
 
 ## Story chains
 

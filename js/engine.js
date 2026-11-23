@@ -1,28 +1,40 @@
-/* Game rules: aging, events, choices, breakthroughs, death. No DOM access, so the
-   same code runs in the browser and in Node (see tools/simulate.js). */
+/* Game rules: aging, events, choices, items, breakthroughs, death. No DOM access, so
+   the same code runs in the browser and in Node (see tools/simulate.js).
+   Tunable numbers live in data/balance.json. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, U = G.util, C = G.cond;
+  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items;
+  const B = D.balance;
 
-  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan", "pills"];
-  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan", pills: "Pills" };
+  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan"];
+  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan" };
   const NEG_IS_BAD = ["health", "intelligence", "luck", "karma", "qi", "lifespan"];
-  const SECLUSION_QI_BONUS = 1.5;
-  const SECLUSION_EVENT_CHANCE = 0.25;
-  const NORMAL_EVENT_CHANCE = 0.75;
 
   const eventById = id => D.events.find(e => e.id === id);
   const lastRealm = () => D.realms.length - 1;
+  const eff = (p, k) => C.value(p, k); // stat including equipment bonuses
 
   /* ---------- derived numbers ---------- */
   function passiveQi(p) {
     if (p.age < 6) return 0;
-    return Math.round((3 + p.realm * 6) * D.roots[p.root].mult * (1 + p.stats.intelligence / 250));
+    return Math.round((3 + p.realm * 6) * D.roots[p.root].mult * (1 + eff(p, "intelligence") / 250) * (1 + I.mod(p, "qiMult")));
+  }
+
+  // The owned pill with the best breakthrough bonus, or null.
+  function bestPill(p) {
+    let best = null;
+    for (const id of Object.keys(p.inv)) {
+      const d = I.def(id);
+      if (d && d.onBreakthrough && (!best || d.onBreakthrough > best.onBreakthrough)) best = d;
+    }
+    return best;
   }
 
   function breakChance(p) {
-    let c = 0.35 + p.stats.intelligence / 300 + p.stats.luck / 400 + D.roots[p.root].brk - p.realm * 0.03;
-    if (p.pills > 0) c += 0.15;
+    let c = B.breakthrough.base + eff(p, "intelligence") / 300 + eff(p, "luck") / 400 +
+      D.roots[p.root].brk - p.realm * 0.03 + I.mod(p, "breakBonus");
+    const pill = bestPill(p);
+    if (pill) c += pill.onBreakthrough;
     return U.clamp(c, 0.1, 0.95);
   }
 
@@ -32,6 +44,12 @@
   }
 
   const canSeclude = p => p.alive && !p.pending && p.age >= 6 && !isBreakthroughReady(p);
+
+  // True when a failed breakthrough could kill the character right now.
+  const breakthroughIsRisky = p => p.stats.health <= B.breakthrough.failDamageMax;
+
+  // Armor: reduces a damage amount (positive number) by the player's guard.
+  const guarded = (p, dmg) => { const g = I.mod(p, "guard"); return g ? Math.max(1, Math.round(dmg * (1 - g))) : dmg; };
 
   /* ---------- events ---------- */
   function eligibleEvents(p) {
@@ -98,10 +116,19 @@
     const deltas = {};
     for (const k of NUM_KEYS) {
       if (fx[k] === undefined) continue;
+      let amount = resolveValue(fx[k], p, k);
+      if (k === "health" && amount < 0) amount = -guarded(p, -amount);
       const before = current(p, k);
-      setValue(p, k, before + resolveValue(fx[k], p, k));
+      setValue(p, k, before + amount);
       const d = current(p, k) - before;
       if (d) deltas[k] = d;
+    }
+    const gained = [];
+    if (fx.items) {
+      for (const id in fx.items) {
+        const got = I.add(p, id, fx.items[id]);
+        if (got) gained.push({ n: got, name: I.def(id).name });
+      }
     }
     if (fx.setFlags) fx.setFlags.forEach(f => (p.flags[f] = p.age));
     if (fx.sect) p.sect = fx.sect;
@@ -109,9 +136,11 @@
 
     const keys = Object.keys(deltas);
     const bad = !!fx.die || NEG_IS_BAD.some(k => deltas[k] < 0);
-    const good = keys.some(k => deltas[k] > 0);
+    const good = keys.some(k => deltas[k] > 0) || gained.some(g => g.n > 0);
     const cls = fx.die ? "bad" : bad && !good ? "bad" : good && !bad ? "good" : "";
-    S.addLog(text || "Nothing much happens.", cls, keys.map(k => LABEL[k] + " " + (deltas[k] > 0 ? "+" : "") + deltas[k]).join(", "));
+    const parts = keys.map(k => LABEL[k] + " " + (deltas[k] > 0 ? "+" : "") + deltas[k])
+      .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name));
+    S.addLog(text || "Nothing much happens.", cls, parts.join(", "));
   }
 
   /* ---------- time ---------- */
@@ -119,11 +148,14 @@
   function advanceYear(p, secluded) {
     p.age++;
     p.meditated = false;
-    const gain = Math.round(passiveQi(p) * (secluded ? SECLUSION_QI_BONUS : 1));
+    const gain = Math.round(passiveQi(p) * (secluded ? B.seclusion.qiBonus : 1));
     p.qi += gain;
-    const old = p.age > p.lifespan * 0.8;
-    p.stats.health = U.clamp(p.stats.health + (old ? -U.rand(1, 5) : U.rand(-1, 2) + (p.realm > 0 ? 1 : 0)), 0, 100);
-    const ev = U.chance(secluded ? SECLUSION_EVENT_CHANCE : NORMAL_EVENT_CHANCE) ? pickEvent(p) : null;
+    const old = p.age > p.lifespan * B.oldAge.start;
+    const change = old
+      ? -U.rand(B.oldAge.drainMin, B.oldAge.drainMax)
+      : U.rand(B.regen.min, B.regen.max) + Math.round(p.realm * B.regen.perRealm);
+    p.stats.health = U.clamp(p.stats.health + change + I.mod(p, "regen"), 0, 100);
+    const ev = U.chance(secluded ? B.seclusion.eventChance : B.eventChance) ? pickEvent(p) : null;
     return { gain, event: ev };
   }
 
@@ -149,7 +181,7 @@
       if (r.event) { ev = r.event; reason = "An event interrupts your seclusion."; break; }
       if (isDead(p)) break;
       if (isBreakthroughReady(p)) { reason = "You sense a breakthrough is near and emerge."; break; }
-      if (p.stats.health < 30) { reason = "Your body is weak, so you end the seclusion early."; break; }
+      if (p.stats.health < B.seclusion.stopBelowHealth) { reason = "Your body is weak, so you end the seclusion early."; break; }
     }
     S.addLog("You spend " + n + " year" + (n > 1 ? "s" : "") + " in seclusion." + (reason ? " " + reason : ""), "dim", "Qi +" + total);
     if (ev) startEvent(p, ev);
@@ -161,8 +193,8 @@
     if (!p.alive || p.pending || p.meditated) return;
     p.meditated = true;
     const gain = passiveQi(p) * 2 + U.rand(5, 15);
-    if (U.chance(0.1)) {
-      const dmg = U.rand(8, 22), half = Math.round(gain / 2);
+    if (U.chance(B.meditation.riskChance)) {
+      const dmg = U.rand(B.meditation.riskDamageMin, B.meditation.riskDamageMax), half = Math.round(gain / 2);
       p.qi += half; p.stats.health = U.clamp(p.stats.health - dmg, 0, 100);
       S.addLog("Your qi deviates during meditation!", "bad", "Health -" + dmg + ", Qi +" + half);
     } else {
@@ -188,28 +220,68 @@
   function breakthrough() {
     const p = S.p;
     if (!p.alive || p.pending || !isBreakthroughReady(p)) return;
-    const usedPill = p.pills > 0;
+    const pill = bestPill(p);
     const chance = breakChance(p);
-    if (usedPill) p.pills--;
+    if (pill) I.add(p, pill.id, -1);
     if (U.random() < chance) {
       p.realm++; p.highest = Math.max(p.highest, p.realm); p.qi = 0;
-      const bonus = D.realms[p.realm].life;
+      const bonus = D.realms[p.realm].life, heal = B.breakthrough.successHeal;
       p.lifespan += bonus;
-      S.addLog("BREAKTHROUGH! You ascend to " + D.realms[p.realm].name + "!" + (usedPill ? " (a pill aided you)" : ""), "good", "Lifespan +" + bonus);
+      if (heal) p.stats.health = U.clamp(p.stats.health + heal, 0, 100);
+      S.addLog("BREAKTHROUGH! You ascend to " + D.realms[p.realm].name + "!" + (pill ? " (" + pill.name + " aided you)" : ""), "good",
+        "Lifespan +" + bonus + (heal ? ", Health +" + heal : ""));
       if (p.realm === lastRealm()) { p.ascended = true; p.deathCause = "Ascended to the Immortal Realm"; }
     } else {
-      const dmg = U.rand(10, 25), lost = Math.floor(p.qi * 0.3), lifeLoss = p.realm >= 2 ? U.rand(2, 8) : 0;
+      const dmg = guarded(p, U.rand(B.breakthrough.failDamageMin, B.breakthrough.failDamageMax));
+      const lost = Math.floor(p.qi * 0.3), lifeLoss = p.realm >= 2 ? U.rand(2, 8) : 0;
       p.stats.health = U.clamp(p.stats.health - dmg, 0, 100);
       p.qi -= lost; p.lifespan -= lifeLoss;
-      S.addLog("The breakthrough fails! Your meridians shudder.", "bad", "Health -" + dmg + ", Qi -" + lost + (lifeLoss ? ", Lifespan -" + lifeLoss : ""));
+      S.addLog("The breakthrough fails! Your meridians shudder." + (pill ? " (" + pill.name + " was wasted)" : ""), "bad",
+        "Health -" + dmg + ", Qi -" + lost + (lifeLoss ? ", Lifespan -" + lifeLoss : ""));
     }
     checkDeath(); S.save();
+  }
+
+  /* ---------- items ---------- */
+  function useItem(id) {
+    const p = S.p, d = I.def(id);
+    if (!p.alive || !d || d.type !== "consumable" || !d.use || I.count(p, id) < 1) return;
+    I.add(p, id, -1);
+    applyEffects(p, d.use, "You use a " + d.name + ".");
+    checkDeath(); S.save();
+  }
+
+  function equipItem(id) {
+    const p = S.p, d = I.def(id);
+    if (!p.alive || !d || d.type !== "equipment" || I.count(p, id) < 1) return;
+    p.equip[d.slot] = id;
+    S.addLog("You equip the " + d.name + ".", "dim", d.desc);
+    S.save();
+  }
+
+  function unequipSlot(slot) {
+    const p = S.p, id = p.equip[slot], d = id && I.def(id);
+    if (!p.alive || !d) return;
+    p.equip[slot] = null;
+    S.addLog("You put away the " + d.name + ".", "dim");
+    S.save();
+  }
+
+  const canBuy = (p, d) => !!d && p.alive && !p.pending && d.price > 0 && p.gold >= d.price && !(d.type === "equipment" && I.count(p, d.id) > 0);
+
+  function buyItem(id) {
+    const p = S.p, d = I.def(id);
+    if (!canBuy(p, d)) return;
+    p.gold -= d.price;
+    I.add(p, id, 1);
+    S.addLog("You buy a " + d.name + " at the market.", "dim", "Gold -" + d.price);
+    S.save();
   }
 
   /* ---------- death ---------- */
   function deathCause(p) {
     if (p.deathCause) return p.deathCause;
-    if (p.stats.health <= 0) return "Succumbed to wounds and exhaustion";
+    if (p.stats.health <= 0) return p.age > p.lifespan * B.oldAge.start ? "Died of old age" : "Succumbed to wounds and exhaustion";
     if (p.age >= p.lifespan) return "Died of old age";
     return null;
   }
@@ -232,7 +304,8 @@
   }
 
   G.engine = {
-    passiveQi, breakChance, isBreakthroughReady, canSeclude, eventById, eligibleEvents,
-    ageUp, seclude, meditate, choose, breakthrough, checkDeath
+    passiveQi, breakChance, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
+    ageUp, seclude, meditate, choose, breakthrough, checkDeath,
+    useItem, equipItem, unequipSlot, buyItem, canBuy
   };
 })();

@@ -19,8 +19,8 @@
     "minAge": 30, "minRealm": 2, "weight": 15, "once": true, "if": ["since:master>=15"],
     "choices": [
       { "label": "Receive his legacy", "outcomes": [
-        { "if": ["flag:lotus"], "text": "He transfers a lifetime of qi and wisdom into you, grateful for the Soul Lotus you once brought him.", "effects": { "qi": 250, "lifespan": 20, "karma": 5, "intelligence": 5 } },
-        { "text": "He transfers a lifetime of qi and wisdom into you.", "effects": { "qi": 150, "lifespan": 20, "karma": 5, "intelligence": 5 } }
+        { "if": ["flag:lotus"], "text": "He transfers a lifetime of qi and wisdom into you, grateful for the Soul Lotus you once brought him.", "effects": { "qi": 250, "lifespan": 20, "karma": 5, "intelligence": 5, "items": { "sage_jade": 1 } } },
+        { "text": "He transfers a lifetime of qi and wisdom into you, and presses his old jade pendant into your palm.", "effects": { "qi": 150, "lifespan": 20, "karma": 5, "intelligence": 5, "items": { "sage_jade": 1 } } }
       ]}
     ]
   }

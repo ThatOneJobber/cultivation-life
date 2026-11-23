@@ -45,7 +45,7 @@
     "minAge": 15, "weight": 3, "once": true, "if": ["sect"],
     "choices": [
       { "label": "Report him to the elders", "outcomes": [
-        { "chance": 0.5, "text": "The elders investigate and punish him.", "effects": { "karma": 3, "pills": 1 } },
+        { "chance": 0.5, "text": "The elders investigate and punish him.", "effects": { "karma": 3, "items": { "breakthrough_pill": 1 } } },
         { "text": "No one believes you.", "effects": { "luck": -3 } }
       ]},
       { "label": "Retaliate in secret", "outcomes": [

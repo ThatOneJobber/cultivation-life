@@ -1,0 +1,32 @@
+[
+  {
+    "id": "hot_spring",
+    "text": "You find a steaming spring rich with spiritual energy, perfect for soothing aching bones.",
+    "minAge": 8, "weight": 6, "if": ["health<60"],
+    "choices": [
+      { "label": "Soak for a few days", "outcomes": [
+        { "text": "The warmth seeps into your wounds.", "effects": { "health": 30 } }
+      ]},
+      { "label": "Press on", "outcomes": [
+        { "text": "There is no time to rest.", "effects": { "qi": 5 } }
+      ]}
+    ]
+  },
+  {
+    "id": "wandering_healer",
+    "text": "A traveling healer notices how worn you look and offers his help.",
+    "minAge": 6, "weight": 8, "if": ["health<45"],
+    "choices": [
+      { "label": "Accept treatment (20 gold)", "if": ["gold>=20"], "outcomes": [
+        { "text": "His needles and herbs work wonders.", "effects": { "gold": -20, "health": 35 } }
+      ]},
+      { "label": "Ask for charity", "outcomes": [
+        { "chance": 0.6, "text": "He sighs, then treats you anyway.", "effects": { "health": 25, "karma": -1 } },
+        { "text": "He shakes his head and moves on." }
+      ]},
+      { "label": "Politely refuse", "outcomes": [
+        { "text": "You wave him off.", "effects": { "karma": 1 } }
+      ]}
+    ]
+  }
+]

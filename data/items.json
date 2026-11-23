@@ -1,0 +1,31 @@
+[
+  { "id": "healing_pill", "name": "Healing Pill", "type": "consumable",
+    "desc": "Restores 25 health.", "use": { "health": 25 }, "price": 25 },
+  { "id": "qi_pill", "name": "Qi Gathering Pill", "type": "consumable",
+    "desc": "Gain qi. Stronger at higher realms.", "use": { "qi": { "base": 30, "perRealm": 30 } }, "price": 35 },
+  { "id": "clarity_pill", "name": "Clarity Pill", "type": "consumable",
+    "desc": "Permanently gain 4 intelligence.", "use": { "intelligence": 4 } },
+  { "id": "longevity_pill", "name": "Longevity Pill", "type": "consumable",
+    "desc": "Extends your lifespan by 10 years.", "use": { "lifespan": 10 } },
+  { "id": "breakthrough_pill", "name": "Breakthrough Pill", "type": "consumable",
+    "desc": "Used automatically when you attempt a breakthrough: +15% success chance.", "onBreakthrough": 0.15, "price": 70 },
+  { "id": "antidote", "name": "Antidote", "type": "consumable",
+    "desc": "Neutralizes poison. Some events let you use it.", "price": 15 },
+
+  { "id": "iron_sword", "name": "Iron Sword", "type": "equipment", "slot": "weapon",
+    "desc": "+6 power in fights.", "mods": { "power": 6 }, "price": 80 },
+  { "id": "spirit_blade", "name": "Spirit Blade", "type": "equipment", "slot": "weapon",
+    "desc": "+14 power in fights.", "mods": { "power": 14 } },
+
+  { "id": "leather_vest", "name": "Leather Vest", "type": "equipment", "slot": "armor",
+    "desc": "Reduces damage you take by 10%.", "mods": { "guard": 0.1 }, "price": 60 },
+  { "id": "jade_robe", "name": "Jade Silk Robe", "type": "equipment", "slot": "armor",
+    "desc": "Reduces damage by 20% and restores 1 extra health a year.", "mods": { "guard": 0.2, "regen": 1 } },
+
+  { "id": "lucky_charm", "name": "Lucky Charm", "type": "equipment", "slot": "talisman",
+    "desc": "+8 luck.", "mods": { "luck": 8 }, "price": 70 },
+  { "id": "qi_pendant", "name": "Qi Pendant", "type": "equipment", "slot": "talisman",
+    "desc": "+15% qi from cultivation.", "mods": { "qiMult": 0.15 } },
+  { "id": "sage_jade", "name": "Sage's Jade", "type": "equipment", "slot": "talisman",
+    "desc": "+8 intelligence and +5% breakthrough chance.", "mods": { "intelligence": 8, "breakBonus": 0.05 } }
+]

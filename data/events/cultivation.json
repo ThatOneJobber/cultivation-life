@@ -19,7 +19,7 @@
     "minAge": 14, "minRealm": 1, "weight": 3, "if": ["gold>=30"],
     "choices": [
       { "label": "Refine a pill (30 gold)", "if": ["gold>=30"], "outcomes": [
-        { "chance": 0.4, "scale": { "intelligence": 0.005 }, "bonus": [ { "if": ["root:Fire"], "add": 0.15 } ], "text": "A fragrant pill forms: a Breakthrough Pill!", "effects": { "gold": -30, "pills": 1 } },
+        { "chance": 0.4, "scale": { "intelligence": 0.005 }, "bonus": [ { "if": ["root:Fire"], "add": 0.15 } ], "text": "A fragrant pill forms: a Breakthrough Pill!", "effects": { "gold": -30, "items": { "breakthrough_pill": 1 } } },
         { "text": "The furnace explodes in a cloud of smoke.", "effects": { "gold": -30, "health": -8 } }
       ]},
       { "label": "Not now", "outcomes": [
@@ -33,7 +33,7 @@
     "minAge": 14, "weight": 6, "if": ["sect"],
     "choices": [
       { "label": "Take a dangerous mission", "outcomes": [
-        { "chance": 0.6, "text": "You complete it brilliantly.", "effects": { "gold": 80, "qi": 30 } },
+        { "chance": 0.6, "text": "You complete it brilliantly.", "effects": { "gold": 80, "qi": 30, "items": { "healing_pill": 1 } } },
         { "text": "The mission goes horribly wrong.", "effects": { "health": -30 } }
       ]},
       { "label": "Take a safe mission", "outcomes": [

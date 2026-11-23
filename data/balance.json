@@ -1,0 +1,8 @@
+{
+  "eventChance": 0.75,
+  "regen": { "min": 0, "max": 3, "perRealm": 1 },
+  "oldAge": { "start": 0.8, "drainMin": 1, "drainMax": 5 },
+  "seclusion": { "qiBonus": 1.5, "eventChance": 0.25, "stopBelowHealth": 30 },
+  "meditation": { "riskChance": 0.1, "riskDamageMin": 8, "riskDamageMax": 22 },
+  "breakthrough": { "base": 0.35, "failDamageMin": 10, "failDamageMax": 25, "successHeal": 0 }
+}

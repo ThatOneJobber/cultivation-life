@@ -1,0 +1,79 @@
+[
+  {
+    "id": "peddler",
+    "text": "A traveling peddler spreads his wares on a blanket: charms, pills and curios.",
+    "minAge": 10, "weight": 4,
+    "choices": [
+      { "label": "Buy a lucky charm (40 gold)", "if": ["gold>=40"], "outcomes": [
+        { "text": "The peddler swears it brought him luck, and now it is yours.", "effects": { "gold": -40, "items": { "lucky_charm": 1 } } }
+      ]},
+      { "label": "Buy three healing pills (30 gold)", "if": ["gold>=30"], "outcomes": [
+        { "text": "A fair deal. You tuck the pills away.", "effects": { "gold": -30, "items": { "healing_pill": 3 } } }
+      ]},
+      { "label": "Haggle for a free sample", "outcomes": [
+        { "chance": 0.35, "scale": { "luck": 0.004 }, "text": "Amused, he tosses you a healing pill.", "effects": { "items": { "healing_pill": 1 } } },
+        { "text": "He waves you off with a laugh." }
+      ]}
+    ]
+  },
+  {
+    "id": "old_tomb",
+    "text": "You stumble upon an unsealed tomb. A weathered coffin rests inside, with a faint blade glow beneath its lid.",
+    "minAge": 16, "minRealm": 1, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Open the coffin", "outcomes": [
+        { "chance": 0.35, "scale": { "luck": 0.004 }, "text": "The guardian spirit is long gone, and its blade is yours.", "effects": { "karma": -3, "items": { "spirit_blade": 1 } } },
+        { "text": "A curse lashes out as the lid lifts.", "effects": { "health": -25 } }
+      ]},
+      { "label": "Pay respects and leave", "outcomes": [
+        { "text": "You bow to the dead and move on.", "effects": { "karma": 3 } }
+      ]}
+    ]
+  },
+  {
+    "id": "sect_armory",
+    "text": "Your sect opens its armory to disciples who have proven themselves. You may take one reward.",
+    "minAge": 16, "weight": 4, "once": true, "if": ["sect"],
+    "choices": [
+      { "label": "Take an Iron Sword", "outcomes": [
+        { "text": "The steel is plain but well forged.", "effects": { "items": { "iron_sword": 1 } } }
+      ]},
+      { "label": "Take a Leather Vest", "outcomes": [
+        { "text": "Sturdy and surprisingly light.", "effects": { "items": { "leather_vest": 1 } } }
+      ]},
+      { "label": "Take a bundle of Healing Pills", "outcomes": [
+        { "text": "Three pills wrapped in oiled paper.", "effects": { "items": { "healing_pill": 3 } } }
+      ]}
+    ]
+  },
+  {
+    "id": "hidden_alchemist",
+    "text": "A reclusive alchemist beckons you into his hut, shelves heavy with rare pills.",
+    "minAge": 20, "minRealm": 1, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Buy a Longevity Pill (120 gold)", "if": ["gold>=120"], "outcomes": [
+        { "text": "He wraps it carefully. 'Do not waste it.'", "effects": { "gold": -120, "items": { "longevity_pill": 1 } } }
+      ]},
+      { "label": "Buy a Clarity Pill (60 gold)", "if": ["gold>=60"], "outcomes": [
+        { "text": "A faint chill and then a sharp mind.", "effects": { "gold": -60, "items": { "clarity_pill": 1 } } }
+      ]},
+      { "label": "Just browse", "outcomes": [
+        { "text": "You leave with nothing but an education.", "effects": { "intelligence": 1 } }
+      ]}
+    ]
+  },
+  {
+    "id": "shrine",
+    "text": "In a forgotten grove you find a mossy shrine with an empty offering bowl.",
+    "minAge": 14, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Offer 50 gold", "if": ["gold>=50"], "outcomes": [
+        { "chance": 0.6, "text": "The bowl glows. A pendant of cold jade rests where your coins lay.", "effects": { "gold": -50, "karma": 3, "items": { "qi_pendant": 1 } } },
+        { "text": "The shrine stays silent, but you feel lighter for the gesture.", "effects": { "gold": -50, "karma": 5 } }
+      ]},
+      { "label": "Pray without an offering", "outcomes": [
+        { "text": "A quiet moment of peace.", "effects": { "karma": 1 } }
+      ]}
+    ]
+  }
+]
