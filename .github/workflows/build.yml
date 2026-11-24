@@ -1,0 +1,86 @@
+# Keeps data/bundle.js in sync with the JSON files in data/.
+#
+# - Pull requests: checks that the data is valid (so a typo is caught before merging).
+# - Pushes to main: validates, rebuilds data/bundle.js and commits it back if it changed.
+#   This is what lets you edit events directly on github.com and have the game update itself.
+#
+# If the data is invalid the job fails (red X in the Actions tab with the error messages),
+# nothing is committed, and the live game keeps using the last good bundle.
+
+name: Build data bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "data/**"
+      - "!data/bundle.js"      # the bot's own commit must not trigger another run
+      - "js/**"
+      - "tools/build.js"
+      - ".github/workflows/build.yml"
+  pull_request:
+    paths:
+      - "data/**"
+      - "!data/bundle.js"
+      - "js/**"
+      - "tools/**"
+  workflow_dispatch:          # "Run workflow" button in the Actions tab
+
+concurrency:
+  group: bundle-${{ github.ref }}
+  cancel-in-progress: false   # let runs finish one after another
+
+jobs:
+  validate:
+    name: Validate data (pull requests)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate data and build the bundle
+        run: node tools/build.js
+      - name: Smoke test (simulate 200 lives)
+        run: node tools/simulate.js 200
+
+  rebuild:
+    name: Rebuild data/bundle.js
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write          # to commit the rebuilt bundle
+      pages: write             # to ask GitHub Pages to republish
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}   # the newest commit on main, even if others landed meanwhile
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate data and build the bundle
+        run: node tools/build.js
+      - name: Commit the bundle if it changed
+        id: commit
+        run: |
+          if [ -z "$(git status --porcelain data/bundle.js)" ]; then
+            echo "data/bundle.js is already up to date."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/bundle.js
+            git commit -m "Rebuild data/bundle.js [skip ci]"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Ask GitHub Pages to republish
+        # Commits made with the built-in token do not always trigger a Pages build by themselves.
+        if: steps.commit.outputs.changed == 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "/repos/${{ github.repository }}/pages/builds"
