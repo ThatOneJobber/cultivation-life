@@ -1,9 +1,9 @@
 [
   { "name": "Mortal",                   "need": 100,   "life": 0 },
-  { "name": "Qi Condensation",          "need": 300,   "life": 5 },
-  { "name": "Foundation Establishment", "need": 850,   "life": 8 },
-  { "name": "Golden Core",              "need": 2200,  "life": 12 },
-  { "name": "Nascent Soul",             "need": 6000,  "life": 22 },
-  { "name": "Soul Transformation",      "need": 18000, "life": 40 },
+  { "name": "Qi Condensation",          "need": 400,   "life": 5 },
+  { "name": "Foundation Establishment", "need": 1100,  "life": 8 },
+  { "name": "Golden Core",              "need": 2900,  "life": 12 },
+  { "name": "Nascent Soul",             "need": 7500,  "life": 22 },
+  { "name": "Soul Transformation",      "need": 23000, "life": 40 },
   { "name": "Immortal Ascension",       "need": null,  "life": 0 }
 ]

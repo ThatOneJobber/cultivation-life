@@ -12,6 +12,7 @@ No build step is needed to play. **Open `index.html` in any browser.** Your prog
 - When your qi bar fills, **Attempt Breakthrough** to reach the next realm. Pills improve the odds. Failure hurts.
 - When you die, you earn **karma** that makes your next life a little better. Reach *Immortal Ascension* to win a life.
 - **🎒 Bag** holds your pills and equipment. Use pills, and equip a weapon, armor and talisman for bonuses. The **Market** tab sells common items for gold, and rarer ones turn up in events.
+- **📜 Arts** are cultivation techniques. You can learn many, but only equip a few at a time (more slots open as your realm grows). Equipped arts are practiced every year and level up from Initiate to Adept to Master. Elemental arts are strongest when they match your spiritual root. Find arts in sect pavilions and rare events, or buy manuals at the Market.
 - **Export Save / Import Save** let you back up your game or move it between devices.
 
 ## Project layout
@@ -22,6 +23,7 @@ css/style.css       look and feel
 js/
   util.js           small helpers (random, clamp)
   items.js          inventory and equipment helpers
+  techniques.js     learning, equipping and mastering arts
   conditions.js     the "if" mini-language used by the data files
   state.js          player state, log, save/load
   engine.js         game rules (no DOM, so it can be tested in Node)
@@ -31,7 +33,8 @@ data/
   realms.json       cultivation realms (qi needed, lifespan gained)
   roots.json        spiritual roots
   items.json        pills and equipment
-  balance.json      tuning numbers: health regen, old-age decline, risks
+  techniques.json   arts (techniques) and the manuals sold at the market
+  balance.json      tuning numbers: health regen, old-age decline, risks, art slots and mastery
   flavor.json       names and "quiet year" text
   events/*.json     all life events (this is where most contributions go)
   bundle.js         GENERATED from the above by tools/build.js
@@ -50,6 +53,15 @@ node tools/build.js
 
 This checks your data for mistakes (typos in flag names, missing fields, and so on) and regenerates `data/bundle.js`. Then refresh `index.html`.
 
+### Editing directly on GitHub (nothing to install)
+
+You can also edit any file in `data/` on github.com: open it, click the pencil icon, change it, and commit. A workflow called **Build data bundle** then validates your JSON and rebuilds `data/bundle.js` for you, so the live game updates about a minute later.
+
+- Watch the **Actions** tab. A green check means it worked.
+- A red X means the data has a mistake. Click the run to read the error (it names the file, the event and the line). The game keeps using the last good version until you fix it.
+- Pull requests get the same validation as a check, so mistakes are caught before merging.
+- The workflow lives in `.github/workflows/build.yml`.
+
 ## Testing balance
 
 ```
@@ -64,7 +76,11 @@ You can try numbers **without editing any file**, and compare runs by fixing the
 node tools/simulate.js 1000 --seed=5 --set=balance.regen.max=2 --set=realms.3.need=3000
 node tools/simulate.js 1000 --meditate=0.3     # a player who meditates only 30% of years
 node tools/simulate.js 1000 --no-items         # ignore the inventory system
+node tools/simulate.js 1000 --no-techniques    # the bot stops buying and swapping arts
+node tools/simulate.js 1000 --grant=void_meditation   # everyone starts with this art
 ```
+
+`--grant` is handy for checking one art's strength. To compare arts fairly, also remove the slot limit, for example with `--no-techniques` plus `--set=balance.techniques.slots.0=10` for each realm slot.
 
 Current target (bot that meditates every year): about 10% of lives reach Immortal Ascension, most others end of old age, and under 10% die young or from danger. A player who meditates less usually peaks around Nascent Soul.
 
@@ -75,7 +91,7 @@ Requires [Node.js](https://nodejs.org) 16 or newer for the tools. The game itsel
 - [x] Playable core loop, 29 events, 3 story chains, realms, reincarnation
 - [x] Content in JSON, validation, balance simulator, time skip, save export/import
 - [x] Health and lifespan balance pass, inventory (pills, equipment), market
-- [ ] Techniques
+- [x] Techniques: learn, equip in limited slots, mastery levels, root affinity
 - [ ] Sect ranks and missions
 - [ ] Relationships and heirs
 - [ ] Karma upgrade tree and achievements

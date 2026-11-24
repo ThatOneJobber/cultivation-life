@@ -4,8 +4,8 @@ Thank you for helping! The easiest and most valuable contribution is **writing e
 
 ## Quick start
 
-1. Edit or add a file in `data/events/`.
-2. Run `node tools/build.js`. It tells you exactly what is wrong, if anything.
+1. Edit or add a file in `data/events/`. You can do this right on github.com (pencil icon), with no tools installed.
+2. Run `node tools/build.js`. It tells you exactly what is wrong, if anything. *(If you edited on github.com you can skip this: the **Build data bundle** workflow runs the same check and rebuilds `data/bundle.js` automatically. Its result shows in the Actions tab and on your pull request.)*
 3. Open `index.html` and play until your event appears.
 4. (Optional) Run `node tools/simulate.js 500` to check you did not break the balance.
 
@@ -77,6 +77,7 @@ Inside an outcome's `"effects"`:
 | `health`, `intelligence`, `luck`, `karma` | Change a stat (kept between 0 and 100). |
 | `qi`, `gold` | Change the amount (never below 0). |
 | `lifespan` | Change how many years the character can live. |
+| `learn` | Teach the player arts: `["blazing_palm"]`. Ids come from `data/techniques.json`. It is equipped automatically if a slot is free. |
 | `items` | Give or take items: `{ "healing_pill": 2 }` gives two, `{ "antidote": -1 }` removes one. Ids come from `data/items.json`. |
 | `setFlags` | List of story flags to set, e.g. `["savedStranger"]`. |
 | `sect` | Join a sect, e.g. `"Azure Cloud Sect"`. |
@@ -103,6 +104,7 @@ Armor reduces any negative `health` effect an event deals, so write damage as pl
 | `"sect"` / `"!sect"` | In any sect / in no sect. |
 | `"sect:Azure Cloud Sect"` | In that specific sect. |
 | `"root:Fire"` | Spiritual root is Fire. |
+| `"tech:blazing_palm"` | The player knows that art (use `!tech:...` for "does not know"). |
 | `"item:antidote"` | The player owns at least one Antidote. Also `"item:healing_pill>=3"`. Great for "use your item" choices. |
 
 ## Items (`data/items.json`)
@@ -120,6 +122,21 @@ Two kinds. Items with a `price` are sold in the market, and the rest can only be
 - **Consumables** can have `use` (effects applied when the player taps Use; same numbers as event effects, limited to health, intelligence, luck, karma, qi and lifespan) or `onBreakthrough` (a bonus chance, used up automatically on a breakthrough attempt). A consumable with neither, like the Antidote, is only used by events through `"item:..."` choices.
 - **Equipment** goes in the `weapon`, `armor` or `talisman` slot and gives `mods`: `power` (fight chance), `guard` (fraction of damage ignored, capped at 0.6), `regen` (extra health per year), `qiMult` (extra fraction of qi), `breakBonus` (breakthrough chance), `luck`, `intelligence`.
 - Write a clear `desc`. It is what the player reads.
+
+## Techniques / arts (`data/techniques.json`)
+
+```json
+{ "id": "blazing_palm", "name": "Blazing Palm", "element": "Fire",
+  "desc": "Strikes wreathed in true flame.",
+  "mods": { "power": 14 }, "price": 170, "minRealm": 1 }
+```
+
+- `mods` uses the same bonus keys as equipment (`power guard regen qiMult breakBonus luck intelligence`) plus three that arts and gear can both use: `meditation` (extra fraction of qi from meditating), `safety` (lowers the meditation deviation chance, in points, capped at 0.10) and `vitality` (slows old-age health decline, capped at 0.8).
+- `element` (optional) names a spiritual root. The art is stronger (x1.3) for that root and weaker (x0.7) for others.
+- `price` (optional) puts the art in the Market's Manuals list. Arts without a price can only be learned from events, which is how to make rare, special ones. `minRealm` (optional) is the realm index needed to buy it.
+- Players only equip a few at once, so each art needs a clear identity: what kind of life does it suit?
+- To teach an art from an event, add `"learn": ["art_id"]` to an outcome's effects. Look at `data/events/techniques.json` for examples, including one that gives a different art depending on the player's root.
+- Numbers for slots per realm, mastery years and level multipliers are in `data/balance.json` under `techniques`.
 
 ## Balance (`data/balance.json` and `data/realms.json`)
 

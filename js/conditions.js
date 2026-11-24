@@ -13,6 +13,7 @@
      "root:Fire"             spiritual root is Fire
      "item:antidote"         you own at least one Antidote
      "item:healing_pill>=3"  you own three or more Healing Pills
+     "tech:blazing_palm"     you know the Blazing Palm technique
    Stat names (health, luck, ...) include equipment bonuses. "power" is the total
    fighting bonus from equipment.
 */
@@ -67,6 +68,7 @@
       case "root": r = G.data.roots[p.root].name === e.arg; break;
       case "sect": r = e.arg ? p.sect === e.arg : !!p.sect; break;
       case "item": { const n = G.items.count(p, e.arg); r = e.op ? compare(n, e.op, e.num) : n > 0; break; }
+      case "tech": r = G.tech.known(p, e.arg); break;
       default: r = e.op ? compare(value(p, e.name), e.op, e.num) : !!value(p, e.name);
     }
     return e.neg ? !r : r;
@@ -75,7 +77,7 @@
   const testAll = (p, list) => !list || list.every(c => test(p, c));
 
   // Returns an error message, or null when the expression is valid.
-  function validate(expr, rootNames, itemIds) {
+  function validate(expr, rootNames, itemIds, techIds) {
     if (typeof expr !== "string") return "condition must be a string";
     const e = parse(expr);
     if (!e) return "cannot parse \"" + expr + "\"";
@@ -85,6 +87,7 @@
       case "root": return rootNames.includes(e.arg) ? null : "unknown root \"" + e.arg + "\"";
       case "sect": return null;
       case "item": return itemIds.includes(e.arg) ? null : "unknown item \"" + e.arg + "\" (see data/items.json)";
+      case "tech": return techIds.includes(e.arg) ? null : "unknown technique \"" + e.arg + "\" (see data/techniques.json)";
       default:
         if (!NUM_NAMES.includes(e.name)) return "unknown name \"" + e.name + "\" in \"" + expr + "\"";
         if (e.arg) return "\"" + e.name + "\" does not take a :argument";

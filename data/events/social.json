@@ -5,7 +5,7 @@
     "minAge": 12, "minRealm": 1, "weight": 4, "once": true, "if": ["!flag:master"],
     "choices": [
       { "label": "Kneel and accept him as master", "outcomes": [
-        { "text": "The hermit smiles. 'Good. Let us begin.'", "effects": { "intelligence": 8, "qi": 40, "setFlags": ["master"] } }
+        { "text": "The hermit smiles. 'Good. Let us begin.'", "effects": { "intelligence": 8, "qi": 40, "setFlags": ["master"], "learn": ["clear_mind"] } }
       ]},
       { "label": "Politely decline", "outcomes": [
         { "text": "He shrugs and wanders off.", "effects": { "luck": -1 } }

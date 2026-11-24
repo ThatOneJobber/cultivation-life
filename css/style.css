@@ -18,9 +18,10 @@ body{background:radial-gradient(circle at top,#12241d,#070d0b);color:var(--text)
 .row.down{animation:flashDown .9s}
 @keyframes flashUp{0%{background:rgba(61,220,151,.35)}100%{background:transparent}}
 @keyframes flashDown{0%{background:rgba(224,96,94,.35)}100%{background:transparent}}
-#inv{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--dim);padding:0 4px;margin-top:2px}
+#inv{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--dim);padding:0 4px;margin-top:2px}
 #inv b{color:var(--gold);font-weight:normal}
 #inv button{font-size:12px;padding:4px 10px;border-radius:8px}
+.invbtns{display:flex;gap:6px}
 
 #log{flex:1;min-height:80px;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;line-height:1.45}
 .entry{margin-bottom:8px;padding-left:8px;border-left:2px solid var(--line)}
@@ -69,5 +70,7 @@ button.choice{text-align:left}
 .irow .nm i{font-style:normal;color:var(--gold);margin-left:4px}
 .irow .ds{font-size:12px;color:var(--dim);margin-top:1px;line-height:1.35}
 .irow button{font-size:13px;padding:6px 12px;white-space:nowrap}
+.irow.worn{border-left:2px solid var(--jade);padding-left:8px}
+.irow .ds.fxline{color:var(--jade)}
 .irow .slot{width:74px;font-size:12px;color:var(--dim);text-transform:capitalize}
 .note{font-size:12px;color:var(--dim);margin:6px 0}

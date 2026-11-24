@@ -2,7 +2,8 @@
 /* Balance tester: plays many lives with a simple bot using the real game engine,
    then prints statistics so you can see how a change affects the game.
 
-   Usage:  node tools/simulate.js [lives=500] [--seed=N] [--no-items] [--meditate=0..1] [--set=path=value ...]
+   Usage:  node tools/simulate.js [lives=500] [--seed=N] [--no-items] [--no-techniques] [--meditate=0..1]
+                                  [--grant=art_id,art_id] [--set=path=value ...]
            --meditate is the share of years the bot meditates (1 = every year, like a dedicated player)
    (Run `node tools/build.js` first if you changed anything in data/.)
 
@@ -25,10 +26,11 @@ const meditateRate = medArg ? parseFloat(medArg.slice(11)) : 1; // share of year
 
 const ctx = vm.createContext({ console, Math });
 vm.runInContext("globalThis.Game = {}", ctx);
-for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
+for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/techniques.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
 }
-const G = ctx.Game, S = G.state, E = G.engine, C = G.cond, U = G.util, D = G.data, I = G.items;
+const G = ctx.Game, S = G.state, E = G.engine, C = G.cond, U = G.util, D = G.data, I = G.items, T = G.tech;
+const useTech = !args.includes("--no-techniques");
 
 // Try numbers without editing files:  --set=balance.breakthrough.base=0.3 --set=realms.2.life=40
 for (const arg of args.filter(x => x.startsWith("--set="))) {
@@ -44,7 +46,26 @@ for (const arg of args.filter(x => x.startsWith("--set="))) {
 let a = seed >>> 0;
 U.random = () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 
+// Rough value of an art for the bot: how much it is worth to a careful player.
+const ART_WEIGHT = { power: 1, guard: 60, regen: 6, qiMult: 100, breakBonus: 100, luck: 1, intelligence: 1, meditation: 50, safety: 100, vitality: 40 };
+const artScore = (p, id) => { const d = T.def(id), s = T.scale(p, id); return Object.keys(d.mods).reduce((sum, k) => sum + d.mods[k] * s * (ART_WEIGHT[k] || 0), 0); };
+
+function manageArts(p) {
+  // buy a manual when rich enough (sometimes), then keep the best arts equipped
+  if (!p.pending && U.chance(0.3)) {
+    const options = T.all().filter(d => E.canBuyTechnique(p, d));
+    if (options.length) E.buyTechnique(options[U.rand(0, options.length - 1)].id);
+  }
+  for (const id of Object.keys(p.tech)) {
+    if (T.equipped(p).includes(id)) continue;
+    if (T.equipped(p).length < T.slots(p)) { E.equipTechnique(id); continue; }
+    const weakest = T.equipped(p).reduce((w, x) => (artScore(p, x) < artScore(p, w) ? x : w));
+    if (artScore(p, id) > artScore(p, weakest) * 1.2) { E.unequipTechnique(weakest); E.equipTechnique(id); }
+  }
+}
+
 function manageItems(p) {
+  if (useTech) manageArts(p);
   // equip anything that fits an empty slot, preferring pricier/rarer gear
   for (const d of I.all()) if (d.type === "equipment" && I.count(p, d.id) && !p.equip[d.slot]) E.equipItem(d.id);
   // upgrade weapons/armor/talismans by simple rule: higher total of mods wins
@@ -69,7 +90,12 @@ const eventCount = {}, causes = {}, realmHist = D.realms.map(() => 0);
 let ascended = 0, ageSum = 0, eventSum = 0, healthDeaths = 0, oldAgeDeaths = 0;
 const ageByCause = {}, killer = {}, youngDeaths = { n: 0 };
 
-S.newLife();
+// --grant=art_id,art_id gives every life those arts at birth (to test how strong an art is on its own)
+const grantArg = args.find(a => a.startsWith("--grant="));
+const grant = grantArg ? grantArg.slice(8).split(",") : [];
+function startLife() { S.newLife(); for (const id of grant) T.learn(S.p, id); }
+
+startLife();
 for (let l = 0; l < lives; l++) {
   let guard = 0, lastAction = "";
   while (S.p.alive && guard++ < 5000) {
@@ -98,7 +124,7 @@ for (let l = 0; l < lives; l++) {
   const cause = p.ascended ? "Ascended" : p.deathCause;
   causes[cause] = (causes[cause] || 0) + 1;
   (ageByCause[cause] = ageByCause[cause] || []).push(p.age);
-  S.newLife();
+  startLife();
 }
 
 const pct = n => ((n / lives) * 100).toFixed(1) + "%";

@@ -21,7 +21,7 @@
         { "text": "He grants you a treasure trove, including a robe woven with spirit silk.", "effects": { "qi": 120, "lifespan": 10, "luck": 8, "items": { "breakthrough_pill": 1, "jade_robe": 1 } } }
       ]},
       { "label": "Ask him to teach you", "outcomes": [
-        { "text": "He guides your understanding.", "effects": { "intelligence": 10, "qi": 60, "karma": 3 } }
+        { "text": "He guides your understanding and shares his star charts.", "effects": { "intelligence": 10, "qi": 60, "karma": 3, "learn": ["fortune_star"] } }
       ]}
     ]
   }

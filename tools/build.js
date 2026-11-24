@@ -24,6 +24,7 @@ const roots = readJson("data/roots.json");
 const flavor = readJson("data/flavor.json");
 const items = readJson("data/items.json");
 const balance = readJson("data/balance.json");
+const techniques = readJson("data/techniques.json");
 const eventFiles = fs.readdirSync(path.join(ROOT, "data/events")).filter(f => f.endsWith(".json")).sort();
 const events = [];
 const eventFileOf = {};
@@ -118,11 +119,48 @@ else items.forEach(it => {
   } else err(w, "\"type\" must be \"consumable\" or \"equipment\"");
 });
 
+/* ---------- validate techniques ---------- */
+const techIds = [];
+if (!Array.isArray(techniques)) err("data/techniques.json", "must be an array");
+else techniques.forEach(t => {
+  const w = "technique \"" + (t && t.id) + "\" (data/techniques.json)";
+  checkUnknown(t, ["id", "name", "desc", "element", "mods", "price", "minRealm"], w);
+  if (typeof t.id !== "string" || !/^[a-z0-9_]+$/.test(t.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
+  else if (techIds.includes(t.id)) err(w, "duplicate id");
+  techIds.push(t.id);
+  if (typeof t.name !== "string" || !t.name) err(w, "needs a \"name\"");
+  if (typeof t.desc !== "string" || !t.desc) err(w, "needs a \"desc\"");
+  if (t.element !== undefined && !rootNames.includes(t.element)) err(w, "\"element\" must be one of the spiritual roots: " + rootNames.join(", "));
+  if (t.price !== undefined && !(Number.isInteger(t.price) && t.price > 0)) err(w, "\"price\" must be a positive whole number (only arts with a price are sold as manuals)");
+  if (t.minRealm !== undefined && !(Number.isInteger(t.minRealm) && t.minRealm >= 0 && t.minRealm < realms.length)) err(w, "\"minRealm\" must be a valid realm index");
+  if (!t.mods || typeof t.mods !== "object" || !Object.keys(t.mods).length) err(w, "needs \"mods\"");
+  else {
+    checkUnknown(t.mods, MOD_KEYS, w + " mods");
+    for (const k of Object.keys(t.mods)) if (typeof t.mods[k] !== "number") err(w, "mods." + k + " must be a number");
+  }
+});
+
+/* technique numbers in balance.json */
+{
+  const tc = balance.techniques, w = "data/balance.json techniques";
+  if (!tc || typeof tc !== "object") err("data/balance.json", "needs a \"techniques\" section");
+  else {
+    if (!Array.isArray(tc.starter) || !tc.starter.every(id => techIds.includes(id))) err(w, "\"starter\" must list technique ids");
+    const numArr = (k, len) => { if (!Array.isArray(tc[k]) || !tc[k].every(Number.isFinite)) { err(w, "\"" + k + "\" must be an array of numbers"); return false; } if (len !== undefined && tc[k].length !== len) { err(w, "\"" + k + "\" must have " + len + " entries"); return false; } return true; };
+    numArr("slots", realms.length);
+    if (numArr("masteryYears") && (tc.masteryYears[0] !== 0 || tc.masteryYears.some((v, i) => i && v <= tc.masteryYears[i - 1]))) err(w, "masteryYears must start at 0 and increase");
+    if (numArr("levelMult", Array.isArray(tc.masteryYears) ? tc.masteryYears.length : undefined) === false) { /* reported */ }
+    if (!Array.isArray(tc.levelNames) || !tc.levelNames.every(s => typeof s === "string") || (Array.isArray(tc.masteryYears) && tc.levelNames.length !== tc.masteryYears.length)) err(w, "\"levelNames\" needs one name per mastery level");
+    for (const k of ["match", "mismatch"]) if (!tc.affinity || !Number.isFinite(tc.affinity[k])) err(w, "affinity." + k + " must be a number");
+    for (const k of ["year", "meditate", "seclusion"]) if (!tc.practice || !Number.isFinite(tc.practice[k])) err(w, "practice." + k + " must be a number");
+  }
+}
+
 /* ---------- validate events ---------- */
 const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
 const CHOICE_KEYS = ["label", "if", "outcomes"];
 const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
-const EFFECT_KEYS = EFFECT_NUM.concat(["items", "setFlags", "sect", "die"]);
+const EFFECT_KEYS = EFFECT_NUM.concat(["items", "learn", "setFlags", "sect", "die"]);
 const SCALE_KEYS = cond.NUM_NAMES;
 
 const seenIds = new Set();
@@ -133,7 +171,7 @@ function checkConds(list, where) {
   if (list === undefined) return;
   if (!Array.isArray(list)) return err(where, "\"if\" must be an array of strings");
   for (const c of list) {
-    const e = cond.validate(c, rootNames, itemIds);
+    const e = cond.validate(c, rootNames, itemIds, techIds);
     if (e) err(where, e);
     const flag = cond.referencedFlag(c);
     if (flag) flagRefs.push({ flag, where });
@@ -191,6 +229,10 @@ for (const ev of events) {
           if (!Number.isInteger(fx.items[id]) || fx.items[id] === 0) err(ow, "items." + id + " must be a non-zero whole number (negative removes)");
         }
       }
+      if (fx.learn !== undefined) {
+        if (!Array.isArray(fx.learn) || !fx.learn.every(s => typeof s === "string")) err(ow, "learn must be an array of technique ids");
+        else fx.learn.forEach(id => { if (!techIds.includes(id)) err(ow, "learn: unknown technique \"" + id + "\" (see data/techniques.json)"); });
+      }
       if (fx.setFlags !== undefined) {
         if (!Array.isArray(fx.setFlags) || !fx.setFlags.every(s => typeof s === "string")) err(ow, "setFlags must be an array of strings");
         else fx.setFlags.forEach(f => setFlags.add(f));
@@ -219,9 +261,9 @@ function done() {
     console.error("\nbundle.js was NOT updated.");
     process.exit(1);
   }
-  const data = { realms, roots, flavor, balance, items, events };
+  const data = { realms, roots, flavor, balance, items, techniques, events };
   const out = "/* AUTO-GENERATED by tools/build.js from the files in data/. Do not edit by hand. */\n" +
     "globalThis.Game = globalThis.Game || {};\nGame.data = " + JSON.stringify(data) + ";\n";
   fs.writeFileSync(path.join(ROOT, "data/bundle.js"), out);
-  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + items.length + " items, " + realms.length + " realms, " + roots.length + " roots.");
+  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + items.length + " items, " + techniques.length + " techniques, " + realms.length + " realms, " + roots.length + " roots.");
 }

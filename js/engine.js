@@ -3,7 +3,7 @@
    Tunable numbers live in data/balance.json. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items;
+  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items, T = G.tech;
   const B = D.balance;
 
   const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan"];
@@ -130,16 +130,19 @@
         if (got) gained.push({ n: got, name: I.def(id).name });
       }
     }
+    const learned = [];
+    if (fx.learn) for (const id of fx.learn) if (T.learn(p, id)) learned.push({ name: T.def(id).name, worn: p.techEquip.includes(id) });
     if (fx.setFlags) fx.setFlags.forEach(f => (p.flags[f] = p.age));
     if (fx.sect) p.sect = fx.sect;
     if (fx.die) p.deathCause = fx.die;
 
     const keys = Object.keys(deltas);
     const bad = !!fx.die || NEG_IS_BAD.some(k => deltas[k] < 0);
-    const good = keys.some(k => deltas[k] > 0) || gained.some(g => g.n > 0);
+    const good = keys.some(k => deltas[k] > 0) || gained.some(g => g.n > 0) || learned.length > 0;
     const cls = fx.die ? "bad" : bad && !good ? "bad" : good && !bad ? "good" : "";
     const parts = keys.map(k => LABEL[k] + " " + (deltas[k] > 0 ? "+" : "") + deltas[k])
-      .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name));
+      .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name))
+      .concat(learned.map(l => "Learned " + l.name + (l.worn ? "" : " (no free slot, see Arts)")));
     S.addLog(text || "Nothing much happens.", cls, parts.join(", "));
   }
 
@@ -152,17 +155,23 @@
     p.qi += gain;
     const old = p.age > p.lifespan * B.oldAge.start;
     const change = old
-      ? -U.rand(B.oldAge.drainMin, B.oldAge.drainMax)
+      ? -Math.round(U.rand(B.oldAge.drainMin, B.oldAge.drainMax) * (1 - I.mod(p, "vitality")))
       : U.rand(B.regen.min, B.regen.max) + Math.round(p.realm * B.regen.perRealm);
     p.stats.health = U.clamp(p.stats.health + change + I.mod(p, "regen"), 0, 100);
+    const ups = T.practice(p, secluded ? B.techniques.practice.seclusion : B.techniques.practice.year);
     const ev = U.chance(secluded ? B.seclusion.eventChance : B.eventChance) ? pickEvent(p) : null;
-    return { gain, event: ev };
+    return { gain, event: ev, ups };
+  }
+
+  function logLevelUps(ups) {
+    for (const u of ups) S.addLog("Your " + u.name + " reaches the " + u.levelName + " level.", "good");
   }
 
   function ageUp() {
     const p = S.p;
     if (!p.alive || p.pending) return;
     const r = advanceYear(p, false);
+    logLevelUps(r.ups);
     if (r.event) startEvent(p, r.event);
     else S.addLog(U.pick(D.flavor.quiet), "dim", r.gain ? "Qi +" + r.gain : "");
     checkDeath(); S.save();
@@ -174,16 +183,17 @@
     const p = S.p;
     if (!canSeclude(p)) return;
     years = years || 10;
-    let total = 0, n = 0, reason = "", ev = null;
+    let total = 0, n = 0, reason = "", ev = null, ups = [];
     for (let i = 0; i < years; i++) {
       const r = advanceYear(p, true);
-      total += r.gain; n++;
+      total += r.gain; n++; ups = ups.concat(r.ups);
       if (r.event) { ev = r.event; reason = "An event interrupts your seclusion."; break; }
       if (isDead(p)) break;
       if (isBreakthroughReady(p)) { reason = "You sense a breakthrough is near and emerge."; break; }
       if (p.stats.health < B.seclusion.stopBelowHealth) { reason = "Your body is weak, so you end the seclusion early."; break; }
     }
     S.addLog("You spend " + n + " year" + (n > 1 ? "s" : "") + " in seclusion." + (reason ? " " + reason : ""), "dim", "Qi +" + total);
+    logLevelUps(ups);
     if (ev) startEvent(p, ev);
     checkDeath(); S.save();
   }
@@ -192,8 +202,10 @@
     const p = S.p;
     if (!p.alive || p.pending || p.meditated) return;
     p.meditated = true;
-    const gain = passiveQi(p) * 2 + U.rand(5, 15);
-    if (U.chance(B.meditation.riskChance)) {
+    const gain = Math.round((passiveQi(p) * 2 + U.rand(5, 15)) * (1 + I.mod(p, "meditation")));
+    const risk = Math.max(0, B.meditation.riskChance - I.mod(p, "safety"));
+    logLevelUps(T.practice(p, B.techniques.practice.meditate));
+    if (U.chance(risk)) {
       const dmg = U.rand(B.meditation.riskDamageMin, B.meditation.riskDamageMax), half = Math.round(gain / 2);
       p.qi += half; p.stats.health = U.clamp(p.stats.health - dmg, 0, 100);
       S.addLog("Your qi deviates during meditation!", "bad", "Health -" + dmg + ", Qi +" + half);
@@ -224,12 +236,14 @@
     const chance = breakChance(p);
     if (pill) I.add(p, pill.id, -1);
     if (U.random() < chance) {
+      const slotsBefore = T.slots(p);
       p.realm++; p.highest = Math.max(p.highest, p.realm); p.qi = 0;
       const bonus = D.realms[p.realm].life, heal = B.breakthrough.successHeal;
       p.lifespan += bonus;
       if (heal) p.stats.health = U.clamp(p.stats.health + heal, 0, 100);
       S.addLog("BREAKTHROUGH! You ascend to " + D.realms[p.realm].name + "!" + (pill ? " (" + pill.name + " aided you)" : ""), "good",
         "Lifespan +" + bonus + (heal ? ", Health +" + heal : ""));
+      if (T.slots(p) > slotsBefore) S.addLog("Your understanding deepens: you can now hold " + T.slots(p) + " arts.", "good", "Open the Arts tab to equip");
       if (p.realm === lastRealm()) { p.ascended = true; p.deathCause = "Ascended to the Immortal Realm"; }
     } else {
       const dmg = guarded(p, U.rand(B.breakthrough.failDamageMin, B.breakthrough.failDamageMax));
@@ -278,6 +292,33 @@
     S.save();
   }
 
+  /* ---------- techniques ---------- */
+  function equipTechnique(id) {
+    const p = S.p;
+    if (!p.alive || !T.equip(p, id)) return;
+    S.addLog("You settle into the " + T.def(id).name + ".", "dim");
+    S.save();
+  }
+
+  function unequipTechnique(id) {
+    const p = S.p;
+    if (!p.alive || !T.unequip(p, id)) return;
+    S.addLog("You set aside the " + T.def(id).name + ".", "dim");
+    S.save();
+  }
+
+  const canBuyTechnique = (p, d) => !!d && p.alive && !p.pending && d.price > 0 && p.gold >= d.price &&
+    !T.known(p, d.id) && p.realm >= (d.minRealm || 0);
+
+  function buyTechnique(id) {
+    const p = S.p, d = T.def(id);
+    if (!canBuyTechnique(p, d)) return;
+    p.gold -= d.price;
+    T.learn(p, id);
+    S.addLog("You buy and study the " + d.name + " manual.", "good", "Gold -" + d.price + (p.techEquip.includes(id) ? "" : ", no free slot (see Arts)"));
+    S.save();
+  }
+
   /* ---------- death ---------- */
   function deathCause(p) {
     if (p.deathCause) return p.deathCause;
@@ -306,6 +347,7 @@
   G.engine = {
     passiveQi, breakChance, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
     ageUp, seclude, meditate, choose, breakthrough, checkDeath,
-    useItem, equipItem, unequipSlot, buyItem, canBuy
+    useItem, equipItem, unequipSlot, buyItem, canBuy,
+    equipTechnique, unequipTechnique, buyTechnique, canBuyTechnique
   };
 })();

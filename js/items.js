@@ -13,8 +13,11 @@
   //   power       added to fight chances        guard      fraction of damage ignored (max 0.6)
   //   regen       extra health healed per year  qiMult     extra fraction of qi gained
   //   breakBonus  added to breakthrough chance  luck, intelligence   added to those stats
-  const MOD_KEYS = ["power", "guard", "regen", "qiMult", "breakBonus", "luck", "intelligence"];
-  const GUARD_CAP = 0.6;
+  //   meditation  extra fraction of qi from meditating   safety  lower chance of meditation deviation
+  //   vitality    slows the health decline of old age (fraction)
+  // Equipment and equipped techniques both use these keys.
+  const MOD_KEYS = ["power", "guard", "regen", "qiMult", "breakBonus", "luck", "intelligence", "meditation", "safety", "vitality"];
+  const CAPS = { guard: 0.6, vitality: 0.8, safety: 0.1 };
 
   let cache = null;
   function def(id) {
@@ -39,14 +42,32 @@
 
   const equippedIds = p => SLOTS.map(s => p.equip[s]).filter(id => id && count(p, id) > 0);
 
+  // Total bonus for a key from worn equipment AND equipped techniques.
   function mod(p, key) {
-    let sum = 0;
+    let sum = G.tech ? G.tech.mod(p, key) : 0;
     for (const id of equippedIds(p)) {
       const d = def(id);
       if (d && d.mods && d.mods[key]) sum += d.mods[key];
     }
-    return key === "guard" ? Math.min(sum, GUARD_CAP) : sum;
+    return CAPS[key] !== undefined ? Math.min(sum, CAPS[key]) : sum;
   }
 
-  G.items = { SLOTS, MOD_KEYS, def, count, total, add, mod, equippedIds, all: () => G.data.items || [] };
+  // Human-readable bonuses, e.g. "+9 power, +12% qi".
+  const r1 = n => Math.round(n * 10) / 10;
+  const pct = n => Math.round(n * 100) + "%";
+  const FMT = {
+    power: n => "+" + Math.round(n) + " power",
+    guard: n => pct(n) + " less damage",
+    regen: n => "+" + r1(n) + " health a year",
+    qiMult: n => "+" + pct(n) + " qi",
+    breakBonus: n => "+" + pct(n) + " breakthrough chance",
+    luck: n => "+" + Math.round(n) + " luck",
+    intelligence: n => "+" + Math.round(n) + " intelligence",
+    meditation: n => "+" + pct(n) + " qi from meditating",
+    safety: n => pct(n) + " lower meditation risk",
+    vitality: n => pct(n) + " slower old-age decline"
+  };
+  const modText = (mods, scale) => Object.keys(mods).map(k => FMT[k](mods[k] * (scale || 1))).join(", ");
+
+  G.items = { SLOTS, MOD_KEYS, def, count, total, add, mod, modText, equippedIds, all: () => G.data.items || [] };
 })();

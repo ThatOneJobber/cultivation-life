@@ -2,7 +2,7 @@
    button presses to the engine. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items;
+  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items, T = G.tech;
   const $ = id => document.getElementById(id);
 
   const BARS = [
@@ -68,10 +68,18 @@
     flash("qi", p.qi);
 
     const inv = $("inv");
-    inv.innerHTML = "<span>Gold: <b>" + p.gold + "</b></span><span>Sect: <b>" + esc(p.sect || "None") + "</b></span>";
+    inv.innerHTML = "";
+    const info = el("span");
+    info.innerHTML = "Gold: <b>" + p.gold + "</b> · Sect: <b>" + esc(p.sect || "None") + "</b>";
+    inv.appendChild(info);
+    const btns = el("span", "invbtns");
     const bagBtn = el("button", "", "🎒 Bag (" + I.total(p) + ")");
     bagBtn.onclick = () => openBag("bag");
-    inv.appendChild(bagBtn);
+    const artsBtn = el("button", "", "📜 Arts (" + T.equipped(p).length + "/" + T.slots(p) + ")");
+    artsBtn.onclick = () => openBag("arts");
+    btns.appendChild(bagBtn);
+    btns.appendChild(artsBtn);
+    inv.appendChild(btns);
 
     const log = $("log");
     log.innerHTML = "";
@@ -155,7 +163,7 @@
     const p = S.p, card = $("bagCard");
     card.innerHTML = "";
     const tabs = el("div", "tabs");
-    [["bag", "🎒 Bag"], ["market", "🏮 Market"]].forEach(([id, label]) => {
+    [["bag", "🎒 Bag"], ["arts", "📜 Arts"], ["market", "🏮 Market"]].forEach(([id, label]) => {
       const b = el("button", bagTab === id ? "active" : "", label);
       b.onclick = () => { bagTab = id; renderBag(); };
       tabs.appendChild(b);
@@ -197,14 +205,63 @@
       });
       const bonus = I.mod(p, "power");
       if (bonus) card.appendChild(el("div", "note", "Fighting power from equipment: +" + bonus));
+    } else if (bagTab === "arts") {
+      renderArts(card, p);
     } else {
       card.appendChild(el("div", "note", "Gold: " + p.gold + (p.pending ? " · Finish what you are doing before shopping." : "")));
+      card.appendChild(el("h3", "", "Goods"));
       I.all().filter(d => d.price).sort((a, b) => a.price - b.price).forEach(d => {
         const owned = d.type === "equipment" && I.count(p, d.id) > 0;
         const label = owned ? "Owned" : "Buy · " + d.price + "g";
         card.appendChild(itemRow(d, 0, [button(label, bagAct(() => E.buyItem(d.id)), owned || !E.canBuy(p, d))]));
       });
+      card.appendChild(el("h3", "", "Manuals"));
+      T.all().filter(d => d.price).sort((a, b) => a.price - b.price).forEach(d => {
+        const locked = p.realm < (d.minRealm || 0);
+        const label = T.known(p, d.id) ? "Known" : locked ? "Locked" : "Buy · " + d.price + "g";
+        card.appendChild(artRow(p, d, button(label, bagAct(() => E.buyTechnique(d.id)), T.known(p, d.id) || locked || !E.canBuyTechnique(p, d)), false));
+      });
     }
+  }
+
+  // One technique: name, level, effects at the current level, and practice progress.
+  function artRow(p, d, btn, showProgress) {
+    const known = T.known(p, d.id);
+    const lv = known ? T.level(p, d.id) : 1;
+    const row = el("div", "irow");
+    const info = el("div", "info");
+    const nm = el("div", "nm", d.name);
+    const tags = (known ? " · " + T.levelName(lv) : "") + (d.element ? " · " + d.element : "");
+    if (tags) nm.appendChild(el("i", "", tags));
+    info.appendChild(nm);
+    info.appendChild(el("div", "ds", d.desc));
+    let fx = I.modText(d.mods, known ? T.scale(p, d.id) : 1);
+    if (d.element) fx += D.roots[p.root].name === d.element ? " (matches your root)" : " (weaker: not your root)";
+    info.appendChild(el("div", "ds fxline", fx));
+    if (!known && p.realm < (d.minRealm || 0)) info.appendChild(el("div", "ds", "Requires the " + D.realms[d.minRealm].name + " realm"));
+    if (known && showProgress) {
+      const steps = D.balance.techniques.masteryYears, years = p.tech[d.id] || 0;
+      info.appendChild(el("div", "ds", steps[lv] !== undefined ? "Practice " + years + "/" + steps[lv] + " years to the next level" : "Mastered"));
+    }
+    row.appendChild(info);
+    row.appendChild(btn);
+    return row;
+  }
+
+  function renderArts(card, p) {
+    const eq = T.equipped(p), slots = T.slots(p);
+    card.appendChild(el("div", "note", "Equipped " + eq.length + " of " + slots + " slots. More slots open as your realm grows. Equipped arts are practiced every year and level up from Initiate to Master."));
+    const known = Object.keys(p.tech).map(T.def).filter(Boolean)
+      .sort((a, b) => (eq.includes(b.id) ? 1 : 0) - (eq.includes(a.id) ? 1 : 0));
+    known.forEach(d => {
+      const worn = eq.includes(d.id);
+      const btn = worn ? button("Set aside", bagAct(() => E.unequipTechnique(d.id)))
+        : button(eq.length >= slots ? "No slot" : "Equip", bagAct(() => E.equipTechnique(d.id)), eq.length >= slots);
+      const row = artRow(p, d, btn, true);
+      if (worn) row.classList.add("worn");
+      card.appendChild(row);
+    });
+    card.appendChild(el("div", "note", "Find more arts in sect pavilions and rare events, or buy manuals at the Market."));
   }
 
   /* ---------- death, saves ---------- */

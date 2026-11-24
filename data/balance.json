@@ -4,5 +4,14 @@
   "oldAge": { "start": 0.8, "drainMin": 1, "drainMax": 5 },
   "seclusion": { "qiBonus": 1.5, "eventChance": 0.25, "stopBelowHealth": 30 },
   "meditation": { "riskChance": 0.1, "riskDamageMin": 8, "riskDamageMax": 22 },
-  "breakthrough": { "base": 0.35, "failDamageMin": 10, "failDamageMax": 25, "successHeal": 0 }
+  "breakthrough": { "base": 0.35, "failDamageMin": 10, "failDamageMax": 25, "successHeal": 0 },
+  "techniques": {
+    "starter": ["basic_breathing"],
+    "slots": [2, 2, 3, 3, 4, 4, 4],
+    "masteryYears": [0, 12, 40],
+    "levelMult": [1, 1.5, 2],
+    "levelNames": ["Initiate", "Adept", "Master"],
+    "affinity": { "match": 1.3, "mismatch": 0.7 },
+    "practice": { "year": 1, "meditate": 2, "seclusion": 2 }
+  }
 }

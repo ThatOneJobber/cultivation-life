@@ -29,10 +29,11 @@
         luck: U.clamp(30 + U.rand(0, 40) + Math.min(20, Math.floor(meta.karma / 15)), 0, 100),
         karma: 50
       },
-      gold: 10, inv: {}, equip: {}, sect: null, flags: {}, log: [],
+      gold: 10, inv: {}, equip: {}, tech: {}, techEquip: [], sect: null, flags: {}, log: [],
       meditated: false, pending: null, alive: true, ascended: false,
       deathCause: null, eventCount: 0
     });
+    D.balance.techniques.starter.forEach(id => G.tech.learn(p, id));
     const r = D.roots[root].name;
     S.addLog("Born in a small mountain village, " + p.name + " opens their eyes. Spiritual root: " + r + (root === heavenlyIdx ? " (a legendary talent!)" : "") + ".", "sys");
     if (meta.karma > 0) S.addLog("Karma from past lives gently shapes your fate.", "sys");
@@ -68,6 +69,13 @@
     if (!p.equip) p.equip = {};
     Object.keys(p.inv).forEach(id => { if (!G.items.def(id) || !(p.inv[id] > 0)) delete p.inv[id]; });
     G.items.SLOTS.forEach(s => { if (p.equip[s] && !p.inv[p.equip[s]]) p.equip[s] = null; });
+    if (!p.tech) { // v0.3 saves had no techniques: give them the starter art(s)
+      p.tech = {}; p.techEquip = [];
+      D.balance.techniques.starter.forEach(id => G.tech.learn(p, id));
+    }
+    if (!p.techEquip) p.techEquip = [];
+    Object.keys(p.tech).forEach(id => { if (!G.tech.def(id)) delete p.tech[id]; });
+    p.techEquip = p.techEquip.filter(id => U.hasOwn(p.tech, id)).slice(0, G.tech.slots(p));
   }
 
   function isValidSave(d) {
