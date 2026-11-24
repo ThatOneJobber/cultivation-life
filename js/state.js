@@ -29,7 +29,7 @@
         luck: U.clamp(30 + U.rand(0, 40) + Math.min(20, Math.floor(meta.karma / 15)), 0, 100),
         karma: 50
       },
-      gold: 10, inv: {}, equip: {}, tech: {}, techEquip: [], sect: null, flags: {}, log: [],
+      gold: 10, inv: {}, equip: {}, tech: {}, techEquip: [], sect: null, sectRank: 0, merit: 0, board: null, flags: {}, log: [],
       meditated: false, pending: null, alive: true, ascended: false,
       deathCause: null, eventCount: 0
     });
@@ -76,6 +76,11 @@
     if (!p.techEquip) p.techEquip = [];
     Object.keys(p.tech).forEach(id => { if (!G.tech.def(id)) delete p.tech[id]; });
     p.techEquip = p.techEquip.filter(id => U.hasOwn(p.tech, id)).slice(0, G.tech.slots(p));
+    if (!G.sects.def(p.sect)) p.sect = null; // v0.4 saves: sects had no ranks, so members start at the bottom
+    if (!p.sect || !(p.sectRank >= 0)) p.sectRank = 0;
+    if (p.sect) p.sectRank = Math.min(p.sectRank, G.sects.def(p.sect).ranks.length - 1);
+    if (!p.sect || !(p.merit >= 0)) p.merit = 0;
+    p.board = null;
   }
 
   function isValidSave(d) {

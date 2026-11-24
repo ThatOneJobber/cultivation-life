@@ -42,9 +42,9 @@
 
   const equippedIds = p => SLOTS.map(s => p.equip[s]).filter(id => id && count(p, id) > 0);
 
-  // Total bonus for a key from worn equipment AND equipped techniques.
+  // Total bonus for a key from worn equipment, equipped techniques AND sect rank.
   function mod(p, key) {
-    let sum = G.tech ? G.tech.mod(p, key) : 0;
+    let sum = (G.tech ? G.tech.mod(p, key) : 0) + (G.sects ? G.sects.mod(p, key) : 0);
     for (const id of equippedIds(p)) {
       const d = def(id);
       if (d && d.mods && d.mods[key]) sum += d.mods[key];

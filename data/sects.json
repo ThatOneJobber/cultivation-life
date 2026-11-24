@@ -1,0 +1,274 @@
+[
+  {
+    "name": "Azure Cloud Sect",
+    "alignment": "righteous",
+    "desc": "A mountain order that values discipline, protection of the weak and steady progress. Its robes and formations shield disciples from harm.",
+    "ranks": [
+      {
+        "name": "Outer Disciple",
+        "merit": 0,
+        "minRealm": 0,
+        "stipend": 0,
+        "mods": {}
+      },
+      {
+        "name": "Inner Disciple",
+        "merit": 150,
+        "minRealm": 1,
+        "stipend": 2,
+        "mods": {
+          "guard": 0.05
+        },
+        "reward": {
+          "text": "The sect issues you an inner disciple's kit.",
+          "effects": {
+            "items": {
+              "healing_pill": 2
+            },
+            "qi": 30
+          }
+        }
+      },
+      {
+        "name": "Core Disciple",
+        "merit": 550,
+        "minRealm": 2,
+        "stipend": 4,
+        "mods": {
+          "guard": 0.08,
+          "regen": 1
+        },
+        "reward": {
+          "text": "The sect gifts you a robe woven with protective formations.",
+          "effects": {
+            "items": {
+              "jade_robe": 1
+            },
+            "karma": 3
+          }
+        }
+      },
+      {
+        "name": "Elder",
+        "merit": 1500,
+        "minRealm": 3,
+        "stipend": 7,
+        "mods": {
+          "guard": 0.1,
+          "regen": 1,
+          "breakBonus": 0.02
+        },
+        "reward": {
+          "text": "As an Elder you may draw on the sect's treasury.",
+          "effects": {
+            "items": {
+              "breakthrough_pill": 1
+            },
+            "gold": 100,
+            "lifespan": 5
+          }
+        }
+      },
+      {
+        "name": "Sect Master",
+        "merit": 3000,
+        "minRealm": 4,
+        "stipend": 12,
+        "mods": {
+          "guard": 0.12,
+          "regen": 2,
+          "breakBonus": 0.03
+        },
+        "reward": {
+          "text": "You take up the master's seat and the sect's founding legacy.",
+          "effects": {
+            "qi": 300,
+            "lifespan": 10,
+            "karma": 5
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Blood Moon Sect",
+    "alignment": "demonic",
+    "desc": "A ruthless order where the strong devour the weak. It teaches brutal methods that raise power and qi quickly, at a cost to your karma.",
+    "ranks": [
+      {
+        "name": "Fledgling",
+        "merit": 0,
+        "minRealm": 0,
+        "stipend": 0,
+        "mods": {}
+      },
+      {
+        "name": "Blood Disciple",
+        "merit": 150,
+        "minRealm": 1,
+        "stipend": 2,
+        "mods": {
+          "power": 3
+        },
+        "reward": {
+          "text": "You are marked with the crimson crescent and given a tainted tonic.",
+          "effects": {
+            "qi": 60,
+            "karma": -3
+          }
+        }
+      },
+      {
+        "name": "Crimson Warrior",
+        "merit": 550,
+        "minRealm": 2,
+        "stipend": 4,
+        "mods": {
+          "power": 6,
+          "qiMult": 0.03
+        },
+        "reward": {
+          "text": "The sect arms you with a blade tempered in blood.",
+          "effects": {
+            "items": {
+              "spirit_blade": 1
+            },
+            "karma": -3
+          }
+        }
+      },
+      {
+        "name": "Blood Elder",
+        "merit": 1500,
+        "minRealm": 3,
+        "stipend": 8,
+        "mods": {
+          "power": 9,
+          "qiMult": 0.05
+        },
+        "reward": {
+          "text": "The elders share a hoard looted from fallen rivals.",
+          "effects": {
+            "items": {
+              "breakthrough_pill": 1
+            },
+            "gold": 120,
+            "karma": -4
+          }
+        }
+      },
+      {
+        "name": "Blood Moon Lord",
+        "merit": 3000,
+        "minRealm": 4,
+        "stipend": 14,
+        "mods": {
+          "power": 12,
+          "qiMult": 0.08
+        },
+        "reward": {
+          "text": "You claim the Blood Moon throne and drink deep of its ancient power.",
+          "effects": {
+            "qi": 300,
+            "lifespan": 8,
+            "karma": -6
+          }
+        }
+      }
+    ]
+  },
+  {
+    "name": "Verdant Pill Pavilion",
+    "alignment": "neutral",
+    "desc": "A wealthy guild of alchemists who care about herbs and profit more than sects and feuds. Its members study hard and gain insight and safer cultivation.",
+    "ranks": [
+      {
+        "name": "Herb Gatherer",
+        "merit": 0,
+        "minRealm": 0,
+        "stipend": 1,
+        "mods": {}
+      },
+      {
+        "name": "Apprentice Alchemist",
+        "merit": 150,
+        "minRealm": 1,
+        "stipend": 3,
+        "mods": {
+          "intelligence": 2
+        },
+        "reward": {
+          "text": "Your master presses a few of the pavilion's pills into your hands.",
+          "effects": {
+            "items": {
+              "qi_pill": 2,
+              "antidote": 1
+            }
+          }
+        }
+      },
+      {
+        "name": "Pill Master",
+        "merit": 550,
+        "minRealm": 2,
+        "stipend": 5,
+        "mods": {
+          "intelligence": 4,
+          "meditation": 0.04
+        },
+        "reward": {
+          "text": "You are granted a refined pill of clarity.",
+          "effects": {
+            "items": {
+              "clarity_pill": 1
+            },
+            "intelligence": 2
+          }
+        }
+      },
+      {
+        "name": "Grand Alchemist",
+        "merit": 1500,
+        "minRealm": 3,
+        "stipend": 9,
+        "mods": {
+          "intelligence": 6,
+          "meditation": 0.06,
+          "safety": 0.03
+        },
+        "reward": {
+          "text": "The pavilion opens its vault of rare pills.",
+          "effects": {
+            "items": {
+              "breakthrough_pill": 1,
+              "longevity_pill": 1
+            },
+            "gold": 100
+          }
+        }
+      },
+      {
+        "name": "Pavilion Master",
+        "merit": 3000,
+        "minRealm": 4,
+        "stipend": 16,
+        "mods": {
+          "intelligence": 8,
+          "meditation": 0.08,
+          "safety": 0.04,
+          "breakBonus": 0.02
+        },
+        "reward": {
+          "text": "You inherit the pavilion's greatest recipe, a pill that rewrites lifespans.",
+          "effects": {
+            "items": {
+              "longevity_pill": 2
+            },
+            "qi": 250,
+            "intelligence": 3
+          }
+        }
+      }
+    ]
+  }
+]

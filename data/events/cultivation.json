@@ -28,20 +28,6 @@
     ]
   },
   {
-    "id": "mission",
-    "text": "Your sect posts missions on the bounty board.",
-    "minAge": 14, "weight": 6, "if": ["sect"],
-    "choices": [
-      { "label": "Take a dangerous mission", "outcomes": [
-        { "chance": 0.6, "text": "You complete it brilliantly.", "effects": { "gold": 80, "qi": 30, "items": { "healing_pill": 1 } } },
-        { "text": "The mission goes horribly wrong.", "effects": { "health": -30 } }
-      ]},
-      { "label": "Take a safe mission", "outcomes": [
-        { "text": "A modest but steady reward.", "effects": { "gold": 20, "qi": 8 } }
-      ]}
-    ]
-  },
-  {
     "id": "tribulation",
     "text": "Dark clouds gather. A heavenly tribulation lightning descends upon you!",
     "minAge": 20, "minRealm": 2, "weight": 2,

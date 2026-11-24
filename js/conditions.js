@@ -10,6 +10,8 @@
      "since:master>=5"       years since that flag was set
      "sect"  /  "!sect"      is in any sect / is not
      "sect:Azure Cloud Sect" is in that specific sect
+     "rank>=2"               sect rank (0 = lowest; 0 also when in no sect)
+     "merit>=100"            merit earned with the sect
      "root:Fire"             spiritual root is Fire
      "item:antidote"         you own at least one Antidote
      "item:healing_pill>=3"  you own three or more Healing Pills
@@ -22,7 +24,7 @@
   const U = G.util;
 
   const STAT_NAMES = ["health", "intelligence", "luck", "karma"];
-  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "power", "age", "realm", "lifespan", "ageRatio", "qiRatio"]);
+  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "power", "age", "realm", "lifespan", "ageRatio", "qiRatio", "rank", "merit"]);
   const RE = /^(!?)([A-Za-z]+)(?::([A-Za-z0-9_ ]+?))?\s*(?:(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?))?$/;
 
   function parse(expr) {
@@ -49,6 +51,8 @@
     switch (name) {
       case "power": return G.items.mod(p, "power");
       case "gold": case "qi": case "age": case "realm": case "lifespan": return p[name];
+      case "rank": return G.sects.rank(p);
+      case "merit": return p.sect ? p.merit || 0 : 0;
       case "ageRatio": return p.age / p.lifespan;
       case "qiRatio": {
         const need = G.data.realms[p.realm].need;
@@ -77,7 +81,7 @@
   const testAll = (p, list) => !list || list.every(c => test(p, c));
 
   // Returns an error message, or null when the expression is valid.
-  function validate(expr, rootNames, itemIds, techIds) {
+  function validate(expr, rootNames, itemIds, techIds, sectNames) {
     if (typeof expr !== "string") return "condition must be a string";
     const e = parse(expr);
     if (!e) return "cannot parse \"" + expr + "\"";
@@ -85,7 +89,7 @@
       case "flag": return e.arg ? null : "flag needs a name, e.g. flag:master";
       case "since": return e.arg && e.op && e.num !== undefined ? null : "since needs e.g. since:master>=5";
       case "root": return rootNames.includes(e.arg) ? null : "unknown root \"" + e.arg + "\"";
-      case "sect": return null;
+      case "sect": return !e.arg || !sectNames || sectNames.includes(e.arg) ? null : "unknown sect \"" + e.arg + "\" (see data/sects.json)";
       case "item": return itemIds.includes(e.arg) ? null : "unknown item \"" + e.arg + "\" (see data/items.json)";
       case "tech": return techIds.includes(e.arg) ? null : "unknown technique \"" + e.arg + "\" (see data/techniques.json)";
       default:

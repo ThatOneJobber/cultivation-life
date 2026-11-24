@@ -33,7 +33,7 @@
   {
     "id": "sect_armory",
     "text": "Your sect opens its armory to disciples who have proven themselves. You may take one reward.",
-    "minAge": 16, "weight": 4, "once": true, "if": ["sect"],
+    "minAge": 16, "weight": 4, "once": true, "if": ["rank>=1"],
     "choices": [
       { "label": "Take an Iron Sword", "outcomes": [
         { "text": "The steel is plain but well forged.", "effects": { "items": { "iron_sword": 1 } } }

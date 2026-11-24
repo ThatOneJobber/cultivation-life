@@ -3,7 +3,8 @@
    then prints statistics so you can see how a change affects the game.
 
    Usage:  node tools/simulate.js [lives=500] [--seed=N] [--no-items] [--no-techniques] [--meditate=0..1]
-                                  [--grant=art_id,art_id] [--set=path=value ...]
+                                  [--grant=art_id,art_id] [--missions=0..1] [--set=path=value ...]
+           --missions is the share of years a sect member spends on missions (default 0.5); 0 means no sect actions
            --meditate is the share of years the bot meditates (1 = every year, like a dedicated player)
    (Run `node tools/build.js` first if you changed anything in data/.)
 
@@ -22,14 +23,16 @@ const seedArg = args.find(a => a.startsWith("--seed="));
 const seed = seedArg ? parseInt(seedArg.slice(7), 10) : 1;
 const useItems = !args.includes("--no-items");
 const medArg = args.find(a => a.startsWith("--meditate="));
+const missArg = args.find(a => a.startsWith("--missions="));
+const missionRate = missArg ? parseFloat(missArg.slice(11)) : 0.5;
 const meditateRate = medArg ? parseFloat(medArg.slice(11)) : 1; // share of years the bot meditates
 
 const ctx = vm.createContext({ console, Math });
 vm.runInContext("globalThis.Game = {}", ctx);
-for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/techniques.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
+for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/techniques.js", "js/sects.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
 }
-const G = ctx.Game, S = G.state, E = G.engine, C = G.cond, U = G.util, D = G.data, I = G.items, T = G.tech;
+const G = ctx.Game, X = ctx.Game.sects, S = G.state, E = G.engine, C = G.cond, U = G.util, D = G.data, I = G.items, T = G.tech;
 const useTech = !args.includes("--no-techniques");
 
 // Try numbers without editing files:  --set=balance.breakthrough.base=0.3 --set=realms.2.life=40
@@ -86,6 +89,7 @@ function manageItems(p) {
   }
 }
 
+const missionCount = {}, sectStats = {}, goldAtEnd = [];
 const eventCount = {}, causes = {}, realmHist = D.realms.map(() => 0);
 let ascended = 0, ageSum = 0, eventSum = 0, healthDeaths = 0, oldAgeDeaths = 0;
 const ageByCause = {}, killer = {}, youngDeaths = { n: 0 };
@@ -112,13 +116,20 @@ for (let l = 0; l < lives; l++) {
     else {
       // a careful-ish player only meditates while healthy, and rests (ages up) before risky breakthroughs
       if (!p.meditated && p.age >= 3 && p.stats.health > 50 && U.chance(meditateRate)) { lastAction = "meditation"; E.meditate(); }
-      if (S.p.alive) { lastAction = "aging"; (U.chance(0.3) && E.canSeclude(S.p) ? E.seclude(10) : E.ageUp()); }
+      if (S.p.alive && p.sect && missionRate > 0 && p.stats.health > 50 && X.promotion(p) && X.promotion(p).ready) { lastAction = "promotion trial"; E.promotionTrial(); }
+      else if (S.p.alive && p.sect && missionRate > 0 && p.stats.health > 50 && U.chance(missionRate)) {
+        const b = X.board(p);
+        if (b.length) { const m = b[U.rand(0, b.length - 1)]; lastAction = "mission: " + m.id; missionCount[m.id] = (missionCount[m.id] || 0) + 1; E.doMission(m.id); }
+        else E.ageUp();
+      }
+      else if (S.p.alive) { lastAction = "aging"; (U.chance(0.3) && E.canSeclude(S.p) ? E.seclude(10) : E.ageUp()); }
     }
   }
   const p = S.p;
   if (p.deathCause === "Succumbed to wounds and exhaustion") killer[lastAction] = (killer[lastAction] || 0) + 1;
   if (!p.ascended && p.age < 25) youngDeaths.n++;
   realmHist[p.highest]++;
+  { const k = p.sect || "(no sect)", st = (sectStats[k] = sectStats[k] || { n: 0, asc: 0, rank: [0, 0, 0, 0, 0] }); st.n++; if (p.ascended) st.asc++; st.rank[p.sectRank || 0]++; }
   if (p.ascended) ascended++;
   ageSum += p.age; eventSum += p.eventCount;
   const cause = p.ascended ? "Ascended" : p.deathCause;
@@ -145,3 +156,9 @@ console.log("\nEvents seen: " + (D.events.length - never.length) + "/" + D.event
 const sorted = Object.entries(eventCount).sort((x, y) => x[1] - y[1]);
 console.log("Rarest 3 : " + sorted.slice(0, 3).map(([k, v]) => k + " (" + v + ")").join(", "));
 console.log("Commonest 3: " + sorted.slice(-3).reverse().map(([k, v]) => k + " (" + v + ")").join(", "));
+
+console.log("\nBy sect (end of life):");
+Object.entries(sectStats).sort((x, y) => y[1].n - x[1].n).forEach(([k, st]) =>
+  console.log("  " + k.padEnd(24) + String(st.n).padStart(5) + "  " + pct(st.n).padStart(6) + "   ascended " + (st.asc / st.n * 100).toFixed(1).padStart(5) + "%" + (k === "(no sect)" ? "" : "   final ranks " + st.rank.join("/"))));
+const mTotal = Object.values(missionCount).reduce((a, b) => a + b, 0);
+if (mTotal) console.log("Missions taken: " + mTotal + " (" + (mTotal / lives).toFixed(1) + "/life). Least taken: " + Object.entries(missionCount).sort((x, y) => x[1] - y[1]).slice(0, 3).map(([k, v]) => k + " (" + v + ")").join(", "));

@@ -4,6 +4,6 @@
   { "name": "Foundation Establishment", "need": 1100,  "life": 8 },
   { "name": "Golden Core",              "need": 2900,  "life": 12 },
   { "name": "Nascent Soul",             "need": 7500,  "life": 22 },
-  { "name": "Soul Transformation",      "need": 23000, "life": 40 },
+  { "name": "Soul Transformation",      "need": 27000, "life": 40 },
   { "name": "Immortal Ascension",       "need": null,  "life": 0 }
 ]

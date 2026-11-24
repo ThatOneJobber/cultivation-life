@@ -59,7 +59,7 @@
   },
   {
     "id": "recruit",
-    "text": "Elders from the Azure Cloud Sect are recruiting disciples in nearby towns and test your talent.",
+    "text": "Recruiters from three great sects tour the nearby towns, testing the talent of young cultivators.",
     "minAge": 13, "maxAge": 45, "weight": 6, "once": true, "if": ["!sect"],
     "choices": [
       { "label": "Join the righteous Azure Cloud Sect", "outcomes": [
@@ -67,6 +67,9 @@
       ]},
       { "label": "Join the shadowy Blood Moon Sect", "outcomes": [
         { "text": "The Blood Moon Sect teaches fast but ruthless methods.", "effects": { "qi": 45, "karma": -15, "sect": "Blood Moon Sect" } }
+      ]},
+      { "label": "Join the scholarly Verdant Pill Pavilion", "outcomes": [
+        { "text": "The alchemists take you in as a herb gatherer and hand you a heavy book.", "effects": { "intelligence": 5, "gold": 10, "sect": "Verdant Pill Pavilion" } }
       ]},
       { "label": "Remain a rogue cultivator", "outcomes": [
         { "text": "Freedom is its own reward.", "effects": { "luck": 3 } }

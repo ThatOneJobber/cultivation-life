@@ -3,12 +3,12 @@
    Tunable numbers live in data/balance.json. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items, T = G.tech;
+  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items, T = G.tech, X = G.sects;
   const B = D.balance;
 
-  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan"];
-  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan" };
-  const NEG_IS_BAD = ["health", "intelligence", "luck", "karma", "qi", "lifespan"];
+  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan", "merit"];
+  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan", merit: "Merit" };
+  const NEG_IS_BAD = ["health", "intelligence", "luck", "karma", "qi", "lifespan", "merit"];
 
   const eventById = id => D.events.find(e => e.id === id);
   const lastRealm = () => D.realms.length - 1;
@@ -114,8 +114,9 @@
   function applyEffects(p, fx, text) {
     fx = fx || {};
     const deltas = {};
+    const promoBefore = X.promotion(p);
     for (const k of NUM_KEYS) {
-      if (fx[k] === undefined) continue;
+      if (fx[k] === undefined || (k === "merit" && !p.sect)) continue;
       let amount = resolveValue(fx[k], p, k);
       if (k === "health" && amount < 0) amount = -guarded(p, -amount);
       const before = current(p, k);
@@ -133,7 +134,8 @@
     const learned = [];
     if (fx.learn) for (const id of fx.learn) if (T.learn(p, id)) learned.push({ name: T.def(id).name, worn: p.techEquip.includes(id) });
     if (fx.setFlags) fx.setFlags.forEach(f => (p.flags[f] = p.age));
-    if (fx.sect) p.sect = fx.sect;
+    if (fx.sect && fx.sect !== p.sect) X.join(p, fx.sect);
+    if (fx.leaveSect) X.leave(p);
     if (fx.die) p.deathCause = fx.die;
 
     const keys = Object.keys(deltas);
@@ -144,23 +146,28 @@
       .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name))
       .concat(learned.map(l => "Learned " + l.name + (l.worn ? "" : " (no free slot, see Arts)")));
     S.addLog(text || "Nothing much happens.", cls, parts.join(", "));
+    const promoAfter = X.promotion(p);
+    if (promoAfter && promoAfter.ready && !(promoBefore && promoBefore.ready && promoBefore.next === promoAfter.next))
+      S.addLog("You are ready for promotion to " + promoAfter.next.name + ". Open the Sect tab to take the trial.", "good");
   }
 
   /* ---------- time ---------- */
   // Advances one year. Returns the event that triggered (not yet shown), if any.
-  function advanceYear(p, secluded) {
+  function advanceYear(p, secluded, eventChance) {
     p.age++;
     p.meditated = false;
     const gain = Math.round(passiveQi(p) * (secluded ? B.seclusion.qiBonus : 1));
     p.qi += gain;
+    const stipend = X.stipend(p);
+    p.gold += stipend;
     const old = p.age > p.lifespan * B.oldAge.start;
     const change = old
       ? -Math.round(U.rand(B.oldAge.drainMin, B.oldAge.drainMax) * (1 - I.mod(p, "vitality")))
       : U.rand(B.regen.min, B.regen.max) + Math.round(p.realm * B.regen.perRealm);
     p.stats.health = U.clamp(p.stats.health + change + I.mod(p, "regen"), 0, 100);
     const ups = T.practice(p, secluded ? B.techniques.practice.seclusion : B.techniques.practice.year);
-    const ev = U.chance(secluded ? B.seclusion.eventChance : B.eventChance) ? pickEvent(p) : null;
-    return { gain, event: ev, ups };
+    const ev = U.chance(eventChance !== undefined ? eventChance : secluded ? B.seclusion.eventChance : B.eventChance) ? pickEvent(p) : null;
+    return { gain, stipend, event: ev, ups };
   }
 
   function logLevelUps(ups) {
@@ -173,7 +180,7 @@
     const r = advanceYear(p, false);
     logLevelUps(r.ups);
     if (r.event) startEvent(p, r.event);
-    else S.addLog(U.pick(D.flavor.quiet), "dim", r.gain ? "Qi +" + r.gain : "");
+    else S.addLog(U.pick(D.flavor.quiet), "dim", [r.gain ? "Qi +" + r.gain : "", r.stipend ? "Gold +" + r.stipend + " (sect stipend)" : ""].filter(Boolean).join(", "));
     checkDeath(); S.save();
   }
 
@@ -183,16 +190,16 @@
     const p = S.p;
     if (!canSeclude(p)) return;
     years = years || 10;
-    let total = 0, n = 0, reason = "", ev = null, ups = [];
+    let total = 0, pay = 0, n = 0, reason = "", ev = null, ups = [];
     for (let i = 0; i < years; i++) {
       const r = advanceYear(p, true);
-      total += r.gain; n++; ups = ups.concat(r.ups);
+      total += r.gain; pay += r.stipend; n++; ups = ups.concat(r.ups);
       if (r.event) { ev = r.event; reason = "An event interrupts your seclusion."; break; }
       if (isDead(p)) break;
       if (isBreakthroughReady(p)) { reason = "You sense a breakthrough is near and emerge."; break; }
       if (p.stats.health < B.seclusion.stopBelowHealth) { reason = "Your body is weak, so you end the seclusion early."; break; }
     }
-    S.addLog("You spend " + n + " year" + (n > 1 ? "s" : "") + " in seclusion." + (reason ? " " + reason : ""), "dim", "Qi +" + total);
+    S.addLog("You spend " + n + " year" + (n > 1 ? "s" : "") + " in seclusion." + (reason ? " " + reason : ""), "dim", "Qi +" + total + (pay ? ", Gold +" + pay : ""));
     logLevelUps(ups);
     if (ev) startEvent(p, ev);
     checkDeath(); S.save();
@@ -226,6 +233,44 @@
     const o = resolveOutcome(p, c);
     p.pending = null;
     applyEffects(p, o.effects, o.text);
+    checkDeath(); S.save();
+  }
+
+  /* ---------- sect missions and promotion ---------- */
+  const canSectAct = p => p.alive && !p.pending && !!X.current(p);
+
+  // Spend a year on a mission from this year's board. No random event rolls that year: the mission is the event.
+  function doMission(id) {
+    const p = S.p;
+    if (!canSectAct(p) || !X.board(p).some(m => m.id === id)) return;
+    const m = X.missionById(id);
+    const r = advanceYear(p, false, 0);
+    logLevelUps(r.ups);
+    S.addLog("Mission: " + m.name + ".", "dim", [r.gain ? "Qi +" + r.gain : "", r.stipend ? "Gold +" + r.stipend + " (stipend)" : ""].filter(Boolean).join(", "));
+    const o = resolveOutcome(p, m);
+    applyEffects(p, o.effects, o.text);
+    checkDeath(); S.save();
+  }
+
+  // Spend a year on the trial for the next rank.
+  function promotionTrial() {
+    const p = S.p;
+    if (!canSectAct(p)) return;
+    const pr = X.promotion(p);
+    if (!pr || !pr.ready) return;
+    const chance = X.trialChance(p), bs = B.sect;
+    const r = advanceYear(p, false);
+    logLevelUps(r.ups);
+    S.addLog("You sit the trial for " + pr.next.name + ".", "dim", r.stipend ? "Gold +" + r.stipend + " (stipend)" : "");
+    if (U.random() < chance) {
+      p.sectRank++;
+      applyEffects(p, pr.next.reward && pr.next.reward.effects, "PROMOTED! You are now " + pr.next.name + " of the " + p.sect + ". " + (pr.next.reward ? pr.next.reward.text : ""));
+    } else {
+      const dmg = guarded(p, U.rand(bs.failHealthMin, bs.failHealthMax)), lost = Math.round(p.merit * bs.failMeritLoss);
+      p.stats.health = U.clamp(p.stats.health - dmg, 0, 100);
+      p.merit -= lost;
+      S.addLog("You fail the trial. The examiners send you back to train.", "bad", "Health -" + dmg + ", Merit -" + lost);
+    }
     checkDeath(); S.save();
   }
 
@@ -348,6 +393,7 @@
     passiveQi, breakChance, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
     ageUp, seclude, meditate, choose, breakthrough, checkDeath,
     useItem, equipItem, unequipSlot, buyItem, canBuy,
-    equipTechnique, unequipTechnique, buyTechnique, canBuyTechnique
+    equipTechnique, unequipTechnique, buyTechnique, canBuyTechnique,
+    doMission, promotionTrial, canSectAct
   };
 })();

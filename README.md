@@ -13,6 +13,7 @@ No build step is needed to play. **Open `index.html` in any browser.** Your prog
 - When you die, you earn **karma** that makes your next life a little better. Reach *Immortal Ascension* to win a life.
 - **🎒 Bag** holds your pills and equipment. Use pills, and equip a weapon, armor and talisman for bonuses. The **Market** tab sells common items for gold, and rarer ones turn up in events.
 - **📜 Arts** are cultivation techniques. You can learn many, but only equip a few at a time (more slots open as your realm grows). Equipped arts are practiced every year and level up from Initiate to Adept to Master. Elemental arts are strongest when they match your spiritual root. Find arts in sect pavilions and rare events, or buy manuals at the Market.
+- **🏯 Sects**: join one of three sects (righteous Azure Cloud, demonic Blood Moon, or the alchemist Verdant Pill Pavilion) through recruitment events. Each has five ranks. Take missions from the **mission board** (a year each, with low, some or high risk) to earn **merit**, then pass a promotion trial to rise. Every rank pays a yearly gold stipend, gives bonuses, and rewards you with items, qi or lifespan. Joining a different sect starts you over at the bottom.
 - **Export Save / Import Save** let you back up your game or move it between devices.
 
 ## Project layout
@@ -24,6 +25,7 @@ js/
   util.js           small helpers (random, clamp)
   items.js          inventory and equipment helpers
   techniques.js     learning, equipping and mastering arts
+  sects.js          sect ranks, merit, stipends and the mission board
   conditions.js     the "if" mini-language used by the data files
   state.js          player state, log, save/load
   engine.js         game rules (no DOM, so it can be tested in Node)
@@ -34,6 +36,8 @@ data/
   roots.json        spiritual roots
   items.json        pills and equipment
   techniques.json   arts (techniques) and the manuals sold at the market
+  sects.json        sects, their ranks, stipends and bonuses
+  missions.json     the missions on the sect mission board
   balance.json      tuning numbers: health regen, old-age decline, risks, art slots and mastery
   flavor.json       names and "quiet year" text
   events/*.json     all life events (this is where most contributions go)
@@ -77,12 +81,13 @@ node tools/simulate.js 1000 --seed=5 --set=balance.regen.max=2 --set=realms.3.ne
 node tools/simulate.js 1000 --meditate=0.3     # a player who meditates only 30% of years
 node tools/simulate.js 1000 --no-items         # ignore the inventory system
 node tools/simulate.js 1000 --no-techniques    # the bot stops buying and swapping arts
+node tools/simulate.js 1000 --missions=0       # sect members never take missions (default 0.5 of years)
 node tools/simulate.js 1000 --grant=void_meditation   # everyone starts with this art
 ```
 
 `--grant` is handy for checking one art's strength. To compare arts fairly, also remove the slot limit, for example with `--no-techniques` plus `--set=balance.techniques.slots.0=10` for each realm slot.
 
-Current target (bot that meditates every year): about 10% of lives reach Immortal Ascension, most others end of old age, and under 10% die young or from danger. A player who meditates less usually peaks around Nascent Soul.
+Current target (bot that meditates every year): about 12-14% of lives reach Immortal Ascension, most others end of old age, and under 10% die young or from danger. A player who meditates less usually peaks around Nascent Soul.
 
 Requires [Node.js](https://nodejs.org) 16 or newer for the tools. The game itself needs only a browser.
 
@@ -92,7 +97,7 @@ Requires [Node.js](https://nodejs.org) 16 or newer for the tools. The game itsel
 - [x] Content in JSON, validation, balance simulator, time skip, save export/import
 - [x] Health and lifespan balance pass, inventory (pills, equipment), market
 - [x] Techniques: learn, equip in limited slots, mastery levels, root affinity
-- [ ] Sect ranks and missions
+- [x] Sect ranks and missions: three sects, five ranks each, mission board, promotion trials
 - [ ] Relationships and heirs
 - [ ] Karma upgrade tree and achievements
 - [ ] 150+ events

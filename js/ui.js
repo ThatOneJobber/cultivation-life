@@ -2,7 +2,7 @@
    button presses to the engine. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items, T = G.tech;
+  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items, T = G.tech, X = G.sects;
   const $ = id => document.getElementById(id);
 
   const BARS = [
@@ -70,7 +70,7 @@
     const inv = $("inv");
     inv.innerHTML = "";
     const info = el("span");
-    info.innerHTML = "Gold: <b>" + p.gold + "</b> · Sect: <b>" + esc(p.sect || "None") + "</b>";
+    info.innerHTML = "Gold: <b>" + p.gold + "</b> · Sect: <b>" + esc(p.sect ? p.sect + " · " + X.rankName(p) : "None") + "</b>";
     inv.appendChild(info);
     const btns = el("span", "invbtns");
     const bagBtn = el("button", "", "🎒 Bag (" + I.total(p) + ")");
@@ -79,6 +79,11 @@
     artsBtn.onclick = () => openBag("arts");
     btns.appendChild(bagBtn);
     btns.appendChild(artsBtn);
+    if (p.sect) {
+      const sectBtn = el("button", "", "🏯 Sect");
+      sectBtn.onclick = () => openBag("sect");
+      btns.appendChild(sectBtn);
+    }
     inv.appendChild(btns);
 
     const log = $("log");
@@ -130,6 +135,10 @@
     addBtn(row, p.meditated ? "Meditated" : "🧘 Meditate", act(E.meditate), "", p.meditated || p.age < 3);
     addBtn(row, "🏔 Seclude 10 yrs", act(() => E.seclude(10)), "", !E.canSeclude(p));
     a.appendChild(row);
+    if (p.sect) {
+      const pr = X.promotion(p);
+      addBtn(a, pr && pr.ready ? "🎖 Promotion trial available · " + pr.next.name : "📋 Sect Missions", () => openBag("sect"), pr && pr.ready ? "gold" : "");
+    }
     addBtn(a, "Age Up ▶", act(E.ageUp), "primary");
   }
 
@@ -162,8 +171,9 @@
   function renderBag() {
     const p = S.p, card = $("bagCard");
     card.innerHTML = "";
+    if (bagTab === "sect" && !p.sect) bagTab = "bag";
     const tabs = el("div", "tabs");
-    [["bag", "🎒 Bag"], ["arts", "📜 Arts"], ["market", "🏮 Market"]].forEach(([id, label]) => {
+    [["bag", "🎒 Bag"], ["arts", "📜 Arts"], ["sect", "🏯 Sect"], ["market", "🏮 Market"]].filter(t => t[0] !== "sect" || p.sect).forEach(([id, label]) => {
       const b = el("button", bagTab === id ? "active" : "", label);
       b.onclick = () => { bagTab = id; renderBag(); };
       tabs.appendChild(b);
@@ -207,6 +217,8 @@
       if (bonus) card.appendChild(el("div", "note", "Fighting power from equipment: +" + bonus));
     } else if (bagTab === "arts") {
       renderArts(card, p);
+    } else if (bagTab === "sect") {
+      renderSect(card, p);
     } else {
       card.appendChild(el("div", "note", "Gold: " + p.gold + (p.pending ? " · Finish what you are doing before shopping." : "")));
       card.appendChild(el("h3", "", "Goods"));
@@ -264,12 +276,74 @@
     card.appendChild(el("div", "note", "Find more arts in sect pavilions and rare events, or buy manuals at the Market."));
   }
 
+  /* ---------- sect ---------- */
+  const RISK_LABEL = { low: "Low risk", medium: "Some risk", high: "Dangerous" };
+  // Accepting a mission or trial takes a year, so close the window to show the result in the log.
+  const takeSect = fn => () => { fn(); closeBag(); render(); };
+
+  function renderSect(card, p) {
+    const sect = X.current(p), rank = X.rankDef(p), pr = X.promotion(p), busy = !E.canSectAct(p);
+    card.appendChild(el("h3", "", sect.name));
+    card.appendChild(el("div", "note", sect.desc));
+    const info = el("div", "irow");
+    const left = el("div", "info");
+    const nm = el("div", "nm", rank.name);
+    nm.appendChild(el("i", "", "rank " + (X.rank(p) + 1) + "/" + sect.ranks.length));
+    left.appendChild(nm);
+    left.appendChild(el("div", "ds fxline", Object.keys(rank.mods).length ? I.modText(rank.mods) : "No rank bonuses yet"));
+    left.appendChild(el("div", "ds", "Stipend: " + rank.stipend + " gold a year · Merit: " + p.merit));
+    info.appendChild(left);
+    card.appendChild(info);
+
+    card.appendChild(el("h3", "", "Promotion"));
+    if (!pr) card.appendChild(el("div", "note", "You hold the highest rank the sect can give."));
+    else {
+      const need = [];
+      if (!pr.meritOk) need.push((pr.next.merit - p.merit) + " more merit");
+      if (!pr.realmOk) need.push("the " + D.realms[pr.next.minRealm].name + " realm");
+      const row = el("div", "irow");
+      const left2 = el("div", "info");
+      left2.appendChild(el("div", "nm", pr.next.name));
+      left2.appendChild(el("div", "ds fxline", Object.keys(pr.next.mods).length ? I.modText(pr.next.mods) + " · " + pr.next.stipend + " gold a year" : pr.next.stipend + " gold a year"));
+      left2.appendChild(el("div", "ds", pr.ready ? "Merit " + p.merit + "/" + pr.next.merit + ". The trial takes a year and failing hurts." : "Needs " + need.join(" and ") + " (merit " + p.merit + "/" + pr.next.merit + ")"));
+      row.appendChild(left2);
+      row.appendChild(button(pr.ready ? "Trial · " + Math.round(X.trialChance(p) * 100) + "%" : "Locked", takeSect(E.promotionTrial), !pr.ready || busy));
+      card.appendChild(row);
+    }
+
+    card.appendChild(el("h3", "", "Mission board"));
+    const board = X.board(p);
+    if (!board.length) card.appendChild(el("div", "note", "No missions are posted for you right now."));
+    card.appendChild(el("div", "note", "A mission takes a year. You still gain qi and your stipend, but no other event happens. The board changes every year." + (p.pending ? " Finish what you are doing first." : "")));
+    board.forEach(m => {
+      const row = el("div", "irow");
+      const left3 = el("div", "info");
+      const n = el("div", "nm", m.name);
+      n.appendChild(el("i", "risk-" + m.risk, " · " + RISK_LABEL[m.risk]));
+      left3.appendChild(n);
+      left3.appendChild(el("div", "ds", m.desc));
+      row.appendChild(left3);
+      row.appendChild(button("Accept", takeSect(() => E.doMission(m.id)), busy));
+      card.appendChild(row);
+    });
+
+    card.appendChild(el("h3", "", "Ranks"));
+    sect.ranks.forEach((r, i) => {
+      const row = el("div", "irow" + (i === X.rank(p) ? " worn" : ""));
+      const l = el("div", "info");
+      l.appendChild(el("div", "nm", (i + 1) + ". " + r.name));
+      l.appendChild(el("div", "ds", (i ? "Merit " + r.merit + " · " + D.realms[r.minRealm].name + " · " : "") + r.stipend + " gold a year" + (Object.keys(r.mods).length ? " · " + I.modText(r.mods) : "")));
+      row.appendChild(l);
+      card.appendChild(row);
+    });
+  }
+
   /* ---------- death, saves ---------- */
   function showDeath() {
     closeBag();
     const p = S.p, hi = D.realms[p.highest].name;
     const cause = p.deathCause.charAt(0).toLowerCase() + p.deathCause.slice(1);
-    const story = p.name + ", born with a " + D.roots[p.root].name + " root, " + (p.sect ? "joined the " + p.sect : "walked the path alone") +
+    const story = p.name + ", born with a " + D.roots[p.root].name + " root, " + (p.sect ? "joined the " + p.sect + " and rose to " + X.rankName(p) : "walked the path alone") +
       ", reached the " + hi + " realm, and " + (p.ascended ? "ascended to immortality" : cause) + " at age " + p.age + ".";
     $("deathCard").innerHTML =
       "<h2>" + (p.ascended ? "Ascension!" : "Your Life Has Ended") + "</h2>" +

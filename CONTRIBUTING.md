@@ -80,7 +80,9 @@ Inside an outcome's `"effects"`:
 | `learn` | Teach the player arts: `["blazing_palm"]`. Ids come from `data/techniques.json`. It is equipped automatically if a slot is free. |
 | `items` | Give or take items: `{ "healing_pill": 2 }` gives two, `{ "antidote": -1 }` removes one. Ids come from `data/items.json`. |
 | `setFlags` | List of story flags to set, e.g. `["savedStranger"]`. |
-| `sect` | Join a sect, e.g. `"Azure Cloud Sect"`. |
+| `sect` | Join a sect, e.g. `"Azure Cloud Sect"` (names come from `data/sects.json`). You start at its lowest rank. Joining a different sect resets your rank. |
+| `leaveSect` | `true` leaves the current sect and loses rank and merit. |
+| `merit` | Change merit with your sect (ignored if you are in no sect). Same number formats as below. |
 | `die` | Kill the character with this cause of death, e.g. `"Died of poisoning"`. |
 
 A number can be written four ways:
@@ -103,6 +105,8 @@ Armor reduces any negative `health` effect an event deals, so write damage as pl
 | `"since:master>=5"` | At least 5 years have passed since that flag was set. |
 | `"sect"` / `"!sect"` | In any sect / in no sect. |
 | `"sect:Azure Cloud Sect"` | In that specific sect. |
+| `"rank>=2"` | Sect rank, 0 being the lowest. `"rank>=1"` is also a quick way to say "in a sect and promoted at least once". |
+| `"merit>=100"` | Merit earned with the current sect. |
 | `"root:Fire"` | Spiritual root is Fire. |
 | `"tech:blazing_palm"` | The player knows that art (use `!tech:...` for "does not know"). |
 | `"item:antidote"` | The player owns at least one Antidote. Also `"item:healing_pill>=3"`. Great for "use your item" choices. |
@@ -122,6 +126,37 @@ Two kinds. Items with a `price` are sold in the market, and the rest can only be
 - **Consumables** can have `use` (effects applied when the player taps Use; same numbers as event effects, limited to health, intelligence, luck, karma, qi and lifespan) or `onBreakthrough` (a bonus chance, used up automatically on a breakthrough attempt). A consumable with neither, like the Antidote, is only used by events through `"item:..."` choices.
 - **Equipment** goes in the `weapon`, `armor` or `talisman` slot and gives `mods`: `power` (fight chance), `guard` (fraction of damage ignored, capped at 0.6), `regen` (extra health per year), `qiMult` (extra fraction of qi), `breakBonus` (breakthrough chance), `luck`, `intelligence`.
 - Write a clear `desc`. It is what the player reads.
+
+## Sects and missions (`data/sects.json`, `data/missions.json`)
+
+A sect has a `name` (letters, numbers and spaces only), `alignment` (`righteous`, `demonic` or `neutral`), a `desc`, and a list of `ranks`, lowest first:
+
+```json
+{ "name": "Inner Disciple", "merit": 150, "minRealm": 1, "stipend": 2,
+  "mods": { "guard": 0.05 },
+  "reward": { "text": "The sect issues you an inner disciple's kit.",
+              "effects": { "items": { "healing_pill": 2 }, "qi": 30 } } }
+```
+
+- `merit` is the total merit needed (the first rank needs 0, and each rank needs more than the one before). `minRealm` is the realm index required too.
+- `stipend` is the gold paid every year. `mods` uses the same bonus keys as equipment and apply only while the rank is held. `reward` uses normal effects and is given when promoted.
+- A new sect also needs recruiting: add a choice with `"sect": "Your Sect"` to an event such as `recruit` and `sect_invitation`.
+
+A mission is a one-year job with outcomes, written just like an event choice:
+
+```json
+{ "id": "escort_caravan", "name": "Escort a Caravan", "risk": "medium", "weight": 5, "minRealm": 1,
+  "desc": "Guard a merchant caravan across bandit country.",
+  "outcomes": [
+    { "chance": 0.7, "scale": { "power": 0.01 }, "text": "The bandits think twice.",
+      "effects": { "merit": { "base": 20, "perRealm": 8 }, "gold": 25 } },
+    { "text": "An ambush!", "effects": { "merit": 8, "health": -20 } }
+  ] }
+```
+
+- `risk` is `low`, `medium` or `high` (shown to the player). `sects` (optional) restricts it to those sects, `minRank` and `minRealm` limit who sees it, and `if` takes the usual conditions.
+- Missions replace the random event for that year, so the outcome text is the event. Keep merit rewards roughly: low 8-12, medium 20-25, high 40-55 (plus `perRealm`). Ranks are paced for about 34 missions in a life.
+- The build checks that every sect has at least two missions at every rank.
 
 ## Techniques / arts (`data/techniques.json`)
 

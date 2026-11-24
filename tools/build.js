@@ -25,6 +25,8 @@ const flavor = readJson("data/flavor.json");
 const items = readJson("data/items.json");
 const balance = readJson("data/balance.json");
 const techniques = readJson("data/techniques.json");
+const sects = readJson("data/sects.json");
+const missions = readJson("data/missions.json");
 const eventFiles = fs.readdirSync(path.join(ROOT, "data/events")).filter(f => f.endsWith(".json")).sort();
 const events = [];
 const eventFileOf = {};
@@ -43,6 +45,7 @@ const cond = ctx.Game.cond;
 const SLOTS = ctx.Game.items.SLOTS;
 const MOD_KEYS = ctx.Game.items.MOD_KEYS;
 const rootNames = roots.map(r => r.name);
+const sectNames = Array.isArray(sects) ? sects.map(s => s && s.name) : [];
 
 /* ---------- validate realms / roots / flavor ---------- */
 realms.forEach((r, i) => {
@@ -160,7 +163,7 @@ else techniques.forEach(t => {
 const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
 const CHOICE_KEYS = ["label", "if", "outcomes"];
 const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
-const EFFECT_KEYS = EFFECT_NUM.concat(["items", "learn", "setFlags", "sect", "die"]);
+const EFFECT_KEYS = EFFECT_NUM.concat(["merit", "items", "learn", "setFlags", "sect", "leaveSect", "die"]);
 const SCALE_KEYS = cond.NUM_NAMES;
 
 const seenIds = new Set();
@@ -171,11 +174,64 @@ function checkConds(list, where) {
   if (list === undefined) return;
   if (!Array.isArray(list)) return err(where, "\"if\" must be an array of strings");
   for (const c of list) {
-    const e = cond.validate(c, rootNames, itemIds, techIds);
+    const e = cond.validate(c, rootNames, itemIds, techIds, sectNames);
     if (e) err(where, e);
     const flag = cond.referencedFlag(c);
     if (flag) flagRefs.push({ flag, where });
   }
+}
+
+/* The "effects" object of an outcome or a rank reward. */
+function checkEffects(fx, ow) {
+  if (!fx || typeof fx !== "object" || Array.isArray(fx)) return err(ow, "effects must be an object");
+  checkUnknown(fx, EFFECT_KEYS, ow + " effects");
+  for (const k of EFFECT_NUM.concat(["merit"])) if (fx[k] !== undefined) {
+    checkValue(fx[k], k, ow);
+    if (fx[k] === "-all" && !["gold", "qi"].includes(k)) err(ow, "\"-all\" only works for gold and qi");
+  }
+  if (fx.items !== undefined) {
+    if (!fx.items || typeof fx.items !== "object" || Array.isArray(fx.items)) err(ow, "items must be an object like { \"healing_pill\": 2 }");
+    else for (const id of Object.keys(fx.items)) {
+      if (!itemIds.includes(id)) err(ow, "items: unknown item \"" + id + "\" (see data/items.json)");
+      if (!Number.isInteger(fx.items[id]) || fx.items[id] === 0) err(ow, "items." + id + " must be a non-zero whole number (negative removes)");
+    }
+  }
+  if (fx.learn !== undefined) {
+    if (!Array.isArray(fx.learn) || !fx.learn.every(s => typeof s === "string")) err(ow, "learn must be an array of technique ids");
+    else fx.learn.forEach(id => { if (!techIds.includes(id)) err(ow, "learn: unknown technique \"" + id + "\" (see data/techniques.json)"); });
+  }
+  if (fx.setFlags !== undefined) {
+    if (!Array.isArray(fx.setFlags) || !fx.setFlags.every(s => typeof s === "string")) err(ow, "setFlags must be an array of strings");
+    else fx.setFlags.forEach(f => setFlags.add(f));
+  }
+  if (fx.sect !== undefined && !sectNames.includes(fx.sect)) err(ow, "sect: unknown sect \"" + fx.sect + "\" (see data/sects.json)");
+  if (fx.leaveSect !== undefined && fx.leaveSect !== true) err(ow, "leaveSect must be true");
+  if (fx.die !== undefined && typeof fx.die !== "string") err(ow, "die must be a string (the cause of death)");
+}
+
+/* Outcomes are shared by events and missions. `cw` names where they live (for messages). */
+function checkOutcomes(outcomes, cw) {
+  outcomes.forEach((o, oi) => {
+    const ow = cw + " outcome " + (oi + 1);
+    checkUnknown(o, OUTCOME_KEYS, ow);
+    if (o.chance !== undefined && !(o.chance >= 0 && o.chance <= 1)) err(ow, "\"chance\" must be between 0 and 1");
+    if (o.scale !== undefined) {
+      if (o.chance === undefined) err(ow, "\"scale\" needs a \"chance\" to scale");
+      for (const k of Object.keys(o.scale || {})) {
+        if (!SCALE_KEYS.includes(k)) err(ow, "scale: unknown name \"" + k + "\"");
+        else if (typeof o.scale[k] !== "number") err(ow, "scale." + k + " must be a number");
+      }
+    }
+    if (o.bonus !== undefined) {
+      if (!Array.isArray(o.bonus)) err(ow, "\"bonus\" must be an array of {if, add}");
+      else o.bonus.forEach(b => { checkUnknown(b, ["if", "add"], ow + " bonus"); checkConds(b.if, ow + " bonus"); if (typeof b.add !== "number") err(ow, "bonus needs a numeric \"add\""); });
+    }
+    checkConds(o.if, ow);
+    if (typeof o.text !== "string" || !o.text) err(ow, "needs \"text\"");
+    checkEffects(o.effects || {}, ow);
+  });
+  const last = outcomes[outcomes.length - 1];
+  if (last.chance !== undefined || last.if !== undefined) err(cw, "the LAST outcome must be a fallback: no \"chance\" and no \"if\"");
 }
 
 for (const ev of events) {
@@ -199,50 +255,78 @@ for (const ev of events) {
     if (typeof c.label !== "string" || !c.label) err(cw, "needs a \"label\"");
     checkConds(c.if, cw);
     if (!Array.isArray(c.outcomes) || !c.outcomes.length) { err(cw, "needs at least one outcome"); return; }
-    c.outcomes.forEach((o, oi) => {
-      const ow = cw + " outcome " + (oi + 1);
-      checkUnknown(o, OUTCOME_KEYS, ow);
-      if (o.chance !== undefined && !(o.chance >= 0 && o.chance <= 1)) err(ow, "\"chance\" must be between 0 and 1");
-      if (o.scale !== undefined) {
-        if (o.chance === undefined) err(ow, "\"scale\" needs a \"chance\" to scale");
-        for (const k of Object.keys(o.scale || {})) {
-          if (!SCALE_KEYS.includes(k)) err(ow, "scale: unknown name \"" + k + "\"");
-          else if (typeof o.scale[k] !== "number") err(ow, "scale." + k + " must be a number");
-        }
-      }
-      if (o.bonus !== undefined) {
-        if (!Array.isArray(o.bonus)) err(ow, "\"bonus\" must be an array of {if, add}");
-        else o.bonus.forEach(b => { checkUnknown(b, ["if", "add"], ow + " bonus"); checkConds(b.if, ow + " bonus"); if (typeof b.add !== "number") err(ow, "bonus needs a numeric \"add\""); });
-      }
-      checkConds(o.if, ow);
-      if (typeof o.text !== "string" || !o.text) err(ow, "needs \"text\"");
-      const fx = o.effects || {};
-      checkUnknown(fx, EFFECT_KEYS, ow + " effects");
-      for (const k of EFFECT_NUM) if (fx[k] !== undefined) {
-        checkValue(fx[k], k, ow);
-        if (fx[k] === "-all" && !["gold", "qi"].includes(k)) err(ow, "\"-all\" only works for gold and qi");
-      }
-      if (fx.items !== undefined) {
-        if (!fx.items || typeof fx.items !== "object" || Array.isArray(fx.items)) err(ow, "items must be an object like { \"healing_pill\": 2 }");
-        else for (const id of Object.keys(fx.items)) {
-          if (!itemIds.includes(id)) err(ow, "items: unknown item \"" + id + "\" (see data/items.json)");
-          if (!Number.isInteger(fx.items[id]) || fx.items[id] === 0) err(ow, "items." + id + " must be a non-zero whole number (negative removes)");
-        }
-      }
-      if (fx.learn !== undefined) {
-        if (!Array.isArray(fx.learn) || !fx.learn.every(s => typeof s === "string")) err(ow, "learn must be an array of technique ids");
-        else fx.learn.forEach(id => { if (!techIds.includes(id)) err(ow, "learn: unknown technique \"" + id + "\" (see data/techniques.json)"); });
-      }
-      if (fx.setFlags !== undefined) {
-        if (!Array.isArray(fx.setFlags) || !fx.setFlags.every(s => typeof s === "string")) err(ow, "setFlags must be an array of strings");
-        else fx.setFlags.forEach(f => setFlags.add(f));
-      }
-      if (fx.sect !== undefined && typeof fx.sect !== "string") err(ow, "sect must be a string");
-      if (fx.die !== undefined && typeof fx.die !== "string") err(ow, "die must be a string (the cause of death)");
-    });
-    const last = c.outcomes[c.outcomes.length - 1];
-    if (last.chance !== undefined || last.if !== undefined) err(cw, "the LAST outcome must be a fallback: no \"chance\" and no \"if\"");
+    checkOutcomes(c.outcomes, cw);
   });
+}
+
+/* ---------- validate sects and missions ---------- */
+const RISKS = ["low", "medium", "high"];
+if (!Array.isArray(sects) || !sects.length) err("data/sects.json", "must be a non-empty array");
+else sects.forEach(sc => {
+  const w = "sect \"" + (sc && sc.name) + "\" (data/sects.json)";
+  checkUnknown(sc, ["name", "alignment", "desc", "ranks"], w);
+  if (typeof sc.name !== "string" || !sc.name || !/^[A-Za-z0-9 ]+$/.test(sc.name)) err(w, "\"name\" must use only letters, numbers and spaces (it is used in conditions)");
+  if (sectNames.indexOf(sc.name) !== sectNames.lastIndexOf(sc.name)) err(w, "duplicate name");
+  if (typeof sc.desc !== "string" || !sc.desc) err(w, "needs a \"desc\"");
+  if (!["righteous", "demonic", "neutral"].includes(sc.alignment)) err(w, "\"alignment\" must be righteous, demonic or neutral");
+  if (!Array.isArray(sc.ranks) || sc.ranks.length < 2) return err(w, "needs at least 2 ranks");
+  sc.ranks.forEach((r, i) => {
+    const rw = w + " rank " + (i + 1);
+    checkUnknown(r, ["name", "merit", "minRealm", "stipend", "mods", "reward"], rw);
+    if (typeof r.name !== "string" || !r.name) err(rw, "needs a \"name\"");
+    if (!Number.isFinite(r.merit) || r.merit < 0) err(rw, "\"merit\" must be a number of 0 or more");
+    else if (i === 0 && r.merit !== 0) err(rw, "the first rank must need 0 merit");
+    else if (i > 0 && r.merit <= sc.ranks[i - 1].merit) err(rw, "merit must be higher than the previous rank");
+    if (!Number.isInteger(r.minRealm) || r.minRealm < 0 || r.minRealm >= realms.length) err(rw, "\"minRealm\" must be a valid realm index");
+    else if (i > 0 && r.minRealm < sc.ranks[i - 1].minRealm) err(rw, "minRealm must not go down as ranks rise");
+    if (!Number.isFinite(r.stipend) || r.stipend < 0) err(rw, "\"stipend\" (gold a year) must be 0 or more");
+    if (!r.mods || typeof r.mods !== "object") err(rw, "needs \"mods\" (use {} for none)");
+    else {
+      checkUnknown(r.mods, MOD_KEYS, rw + " mods");
+      for (const k of Object.keys(r.mods)) if (typeof r.mods[k] !== "number") err(rw, "mods." + k + " must be a number");
+    }
+    if (r.reward !== undefined) {
+      checkUnknown(r.reward, ["text", "effects"], rw + " reward");
+      if (typeof r.reward.text !== "string" || !r.reward.text) err(rw, "reward needs \"text\"");
+      checkEffects(r.reward.effects, rw + " reward");
+    } else if (i > 0) err(rw, "ranks after the first need a \"reward\"");
+  });
+});
+
+const missionIds = new Set();
+if (!Array.isArray(missions)) err("data/missions.json", "must be an array");
+else missions.forEach(m => {
+  const w = "mission \"" + (m && m.id) + "\" (data/missions.json)";
+  checkUnknown(m, ["id", "name", "desc", "risk", "sects", "minRank", "minRealm", "if", "weight", "outcomes"], w);
+  if (typeof m.id !== "string" || !/^[a-z0-9_]+$/.test(m.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
+  else if (missionIds.has(m.id)) err(w, "duplicate id");
+  missionIds.add(m.id);
+  if (typeof m.name !== "string" || !m.name) err(w, "needs a \"name\"");
+  if (typeof m.desc !== "string" || !m.desc) err(w, "needs a \"desc\"");
+  if (!RISKS.includes(m.risk)) err(w, "\"risk\" must be one of " + RISKS.join(", "));
+  if (m.sects !== undefined && (!Array.isArray(m.sects) || !m.sects.length || !m.sects.every(n => sectNames.includes(n)))) err(w, "\"sects\" must list sect names from data/sects.json");
+  for (const k of ["minRank", "minRealm", "weight"]) if (m[k] !== undefined && typeof m[k] !== "number") err(w, "\"" + k + "\" must be a number");
+  checkConds(m.if, w);
+  if (!Array.isArray(m.outcomes) || !m.outcomes.length) err(w, "needs at least one outcome");
+  else checkOutcomes(m.outcomes, w);
+});
+/* every sect needs missions it can be offered at every rank */
+if (Array.isArray(sects) && Array.isArray(missions)) for (const sc of sects) {
+  if (!Array.isArray(sc.ranks)) continue;
+  sc.ranks.forEach((r, i) => {
+    const n = missions.filter(m => (!m.sects || m.sects.includes(sc.name)) && (m.minRank || 0) <= i && (m.minRealm || 0) <= Math.max(r.minRealm, 0)).length;
+    if (n < 2) err("data/missions.json", "sect \"" + sc.name + "\" has fewer than 2 missions available at rank " + (i + 1) + " (add more missions)");
+  });
+}
+{
+  const bs = balance.sect, w = "data/balance.json sect";
+  if (!bs || typeof bs !== "object") err("data/balance.json", "needs a \"sect\" section");
+  else {
+    if (!Number.isInteger(bs.boardSize) || bs.boardSize < 1) err(w, "\"boardSize\" must be a whole number of 1 or more");
+    for (const k of ["base", "intelligence", "power", "luck"]) if (!bs.trial || !Number.isFinite(bs.trial[k])) err(w, "trial." + k + " must be a number");
+    for (const k of ["failHealthMin", "failHealthMax", "failMeritLoss"]) if (!Number.isFinite(bs[k])) err(w, "\"" + k + "\" must be a number");
+    if (bs.failHealthMin > bs.failHealthMax) err(w, "failHealthMin is greater than failHealthMax");
+  }
 }
 
 /* Flags: catch typos like flag:savedStanger. A flag is fine if some effect sets it,
@@ -261,9 +345,9 @@ function done() {
     console.error("\nbundle.js was NOT updated.");
     process.exit(1);
   }
-  const data = { realms, roots, flavor, balance, items, techniques, events };
+  const data = { realms, roots, flavor, balance, items, techniques, sects, missions, events };
   const out = "/* AUTO-GENERATED by tools/build.js from the files in data/. Do not edit by hand. */\n" +
     "globalThis.Game = globalThis.Game || {};\nGame.data = " + JSON.stringify(data) + ";\n";
   fs.writeFileSync(path.join(ROOT, "data/bundle.js"), out);
-  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + items.length + " items, " + techniques.length + " techniques, " + realms.length + " realms, " + roots.length + " roots.");
+  console.log("✔ Built data/bundle.js: " + events.length + " events from " + eventFiles.length + " files, " + items.length + " items, " + techniques.length + " techniques, " + sects.length + " sects, " + missions.length + " missions, " + realms.length + " realms, " + roots.length + " roots.");
 }
