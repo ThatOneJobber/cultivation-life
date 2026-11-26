@@ -1,0 +1,57 @@
+[
+  { "id": "sect_disciple", "text": "A promising young disciple kneels before you and begs to be taken as your student.",
+    "minAge": 30, "minRealm": 3, "weight": 4, "once": true, "if": ["rank>=2"],
+    "choices": [
+      { "label": "Take them as your student", "outcomes": [
+        { "text": "Teaching sharpens your own understanding. Your student's progress brings you merit.", "effects": { "merit": { "base": 40, "perRealm": 15 }, "intelligence": 2, "karma": 2 } }
+      ]},
+      { "label": "Test their resolve first", "outcomes": [
+        { "chance": 0.6, "text": "The student passes every test and earns your respect.", "effects": { "merit": { "base": 30, "perRealm": 10 }, "karma": 2 } },
+        { "text": "The student quits in anger. A lesson for you too.", "effects": { "merit": -10 } }
+      ]},
+      { "label": "Decline", "outcomes": [ { "text": "You send them to someone else.", "effects": {} } ]}
+    ] },
+  { "id": "sect_secret_realm", "text": "The sect opens a secret realm once every few decades, and only a few places are given out.",
+    "minAge": 25, "minRealm": 2, "weight": 3, "once": true, "if": ["rank>=2"],
+    "choices": [
+      { "label": "Claim a place", "outcomes": [
+        { "chance": 0.55, "scale": { "luck": 0.004, "power": 0.005 }, "text": "The realm's treasures reward your boldness.", "effects": { "merit": { "base": 40, "perRealm": 15 }, "qi": { "base": 150, "perRealm": 120 }, "items": { "greater_qi_pill": 1 } } },
+        { "text": "The realm's trials are cruel. You return injured but alive.", "effects": { "merit": { "base": 15, "perRealm": 5 }, "health": -35 } }
+      ]},
+      { "label": "Give your place to a junior disciple", "outcomes": [ { "text": "The junior is overjoyed, and your generosity is noted.", "effects": { "merit": { "base": 25, "perRealm": 8 }, "karma": 4 } } ]}
+    ] },
+  { "id": "sect_corruption", "text": "You discover that a senior in your sect has been skimming from the treasury.",
+    "minAge": 25, "weight": 3, "once": true, "if": ["rank>=2"],
+    "choices": [
+      { "label": "Report it to the elders", "outcomes": [
+        { "chance": 0.6, "scale": { "intelligence": 0.003 }, "text": "The elders reward your honesty.", "effects": { "merit": { "base": 50, "perRealm": 15 }, "karma": 3 } },
+        { "text": "The senior has friends. Your report is quietly buried, and so are you, for a while.", "effects": { "merit": -25, "karma": 1 } }
+      ]},
+      { "label": "Demand a cut", "outcomes": [
+        { "chance": 0.5, "text": "The senior pays up and promises to be careful.", "effects": { "gold": { "base": 40, "perRealm": 20 }, "karma": -4 } },
+        { "text": "The senior reports YOU. It takes months to clear your name.", "effects": { "merit": -40, "karma": -3 } }
+      ]},
+      { "label": "Look away", "outcomes": [ { "text": "It is not your business. Probably.", "effects": { "karma": -1 } } ]}
+    ] },
+  { "id": "sect_pill_exam", "text": "The alchemy hall holds an open examination, and winners earn a place at the great cauldron.",
+    "minAge": 16, "weight": 3, "if": ["rank>=1"],
+    "choices": [
+      { "label": "Sit the exam", "outcomes": [
+        { "chance": 0.4, "scale": { "intelligence": 0.007 }, "text": "You place near the top, and a master presses a few pills into your hands.", "effects": { "merit": { "base": 25, "perRealm": 10 }, "items": { "qi_pill": 2, "healing_pill": 1 } } },
+        { "text": "You place in the middle. A hard-earned lesson in humility.", "effects": { "merit": { "base": 8, "perRealm": 3 }, "intelligence": 1 } }
+      ]},
+      { "label": "Skip it", "outcomes": [ { "text": "Another year, another exam.", "effects": {} } ]}
+    ] },
+  { "id": "sect_ancestral_hall", "text": "The ancestral hall opens its doors to those with enough merit. Portraits of the founders gaze down at you.",
+    "minAge": 30, "minRealm": 3, "weight": 3, "once": true, "if": ["rank>=3"],
+    "choices": [
+      { "label": "Pay your respects", "outcomes": [
+        { "chance": 0.5, "scale": { "karma": 0.003 }, "text": "A founder's lingering will blesses you with a gift of qi and clarity.", "effects": { "qi": { "base": 150, "perRealm": 100 }, "intelligence": 2, "karma": 2 } },
+        { "text": "You leave incense and a quiet prayer.", "effects": { "karma": 3 } }
+      ]},
+      { "label": "Search the hall for relics", "outcomes": [
+        { "chance": 0.3, "scale": { "luck": 0.004 }, "text": "Behind a founder's portrait hides a forgotten scripture.", "effects": { "learn": ["golden_bell_shield"], "karma": -2 } },
+        { "text": "The founders' spirits do not appreciate the intrusion.", "effects": { "health": -25, "merit": -20 } }
+      ]}
+    ] }
+]

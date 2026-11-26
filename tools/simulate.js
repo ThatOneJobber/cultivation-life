@@ -3,7 +3,7 @@
    then prints statistics so you can see how a change affects the game.
 
    Usage:  node tools/simulate.js [lives=500] [--seed=N] [--no-items] [--no-techniques] [--meditate=0..1]
-                                  [--grant=art_id,art_id] [--missions=0..1] [--set=path=value ...]
+                                  [--grant=art_id,art_id] [--missions=0..1] [--heirs] [--path=good|evil|neutral] [--set=path=value ...]
            --missions is the share of years a sect member spends on missions (default 0.5); 0 means no sect actions
            --meditate is the share of years the bot meditates (1 = every year, like a dedicated player)
    (Run `node tools/build.js` first if you changed anything in data/.)
@@ -29,7 +29,7 @@ const meditateRate = medArg ? parseFloat(medArg.slice(11)) : 1; // share of year
 
 const ctx = vm.createContext({ console, Math });
 vm.runInContext("globalThis.Game = {}", ctx);
-for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/techniques.js", "js/sects.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
+for (const f of ["data/bundle.js", "js/util.js", "js/items.js", "js/techniques.js", "js/sects.js", "js/family.js", "js/karma.js", "js/achievements.js", "js/conditions.js", "js/state.js", "js/engine.js"]) {
   vm.runInContext(fs.readFileSync(path.join(ROOT, f), "utf8"), ctx, { filename: f });
 }
 const G = ctx.Game, X = ctx.Game.sects, S = G.state, E = G.engine, C = G.cond, U = G.util, D = G.data, I = G.items, T = G.tech;
@@ -89,7 +89,10 @@ function manageItems(p) {
   }
 }
 
+const bandEnd = {};
+const famStats = { n: 0, partner: 0, kids: 0, withKids: 0, gen: {} }, famAsc = {};
 const missionCount = {}, sectStats = {}, goldAtEnd = [];
+const DEEP = 6; // "deep" cultivation for the stats below: Void Refinement or beyond (the old Immortal Ascension)
 const eventCount = {}, causes = {}, realmHist = D.realms.map(() => 0);
 let ascended = 0, ageSum = 0, eventSum = 0, healthDeaths = 0, oldAgeDeaths = 0;
 const ageByCause = {}, killer = {}, youngDeaths = { n: 0 };
@@ -97,7 +100,17 @@ const ageByCause = {}, killer = {}, youngDeaths = { n: 0 };
 // --grant=art_id,art_id gives every life those arts at birth (to test how strong an art is on its own)
 const grantArg = args.find(a => a.startsWith("--grant="));
 const grant = grantArg ? grantArg.slice(8).split(",") : [];
-function startLife() { S.newLife(); for (const id of grant) T.learn(S.p, id); }
+// --path=good|evil|neutral: everyone owns every karma upgrade of the trunk and that path (to test the path's strength)
+const pathArg = args.find(a => a.startsWith("--path="));
+if (pathArg) { const path = pathArg.slice(7); G.karma.nodes().forEach(n => { if (n.branch === "trunk" || n.branch === path) S.meta.upgrades[n.id] = true; }); }
+const heirMode = args.includes("--heirs"); // each life continues as the most talented child, when there is one
+function startLife() {
+  const prev = S.p;
+  if (heirMode && prev && prev.children && prev.children.length) {
+    const child = prev.children.slice().sort((a, b) => b.talent - a.talent)[0];
+    S.newLife({ child, legacy: G.family.legacy(prev) });
+  } else S.newLife();
+  for (const id of grant) T.learn(S.p, id); }
 
 startLife();
 for (let l = 0; l < lives; l++) {
@@ -127,12 +140,16 @@ for (let l = 0; l < lives; l++) {
   }
   const p = S.p;
   if (p.deathCause === "Succumbed to wounds and exhaustion") killer[lastAction] = (killer[lastAction] || 0) + 1;
-  if (!p.ascended && p.age < 25) youngDeaths.n++;
+  if (!(p.highest >= DEEP) && p.age < 25) youngDeaths.n++;
   realmHist[p.highest]++;
-  { const k = p.sect || "(no sect)", st = (sectStats[k] = sectStats[k] || { n: 0, asc: 0, rank: [0, 0, 0, 0, 0] }); st.n++; if (p.ascended) st.asc++; st.rank[p.sectRank || 0]++; }
-  if (p.ascended) ascended++;
+  { const bnd = G.karma.band(p); bandEnd[bnd] = (bandEnd[bnd] || 0) + 1; }
+  famStats.n++; if (p.partner || p.flags.widowed) famStats.partner++; famStats.kids += p.children.length; if (p.children.length) famStats.withKids++;
+  famStats.gen[p.generation] = (famStats.gen[p.generation] || 0) + 1;
+  { const k = p.children.length ? "has children" : p.partner || p.flags.widowed ? "partner, no children" : "alone"; (famAsc[k] = famAsc[k] || [0, 0]); famAsc[k][0]++; if (p.highest >= DEEP) famAsc[k][1]++; }
+  { const k = p.sect || "(no sect)", st = (sectStats[k] = sectStats[k] || { n: 0, asc: 0, rank: [0, 0, 0, 0, 0, 0, 0, 0] }); st.n++; if (p.highest >= DEEP) st.asc++; st.rank[p.sectRank || 0]++; }
+  if (p.highest >= DEEP) ascended++;
   ageSum += p.age; eventSum += p.eventCount;
-  const cause = p.ascended ? "Ascended" : p.deathCause;
+  const cause = p.deathCause;
   causes[cause] = (causes[cause] || 0) + 1;
   (ageByCause[cause] = ageByCause[cause] || []).push(p.age);
   startLife();
@@ -143,7 +160,7 @@ const avg = arr => (arr.reduce((s, x) => s + x, 0) / arr.length).toFixed(0);
 console.log("\nSimulated " + lives + " lives (seed " + seed + ", " + (useItems ? "bot uses items" : "items ignored") + ")\n");
 console.log("Average age at death : " + (ageSum / lives).toFixed(1));
 console.log("Average events/life  : " + (eventSum / lives).toFixed(1));
-console.log("Reached Immortal     : " + ascended + " (" + pct(ascended) + ")");
+console.log("Reached realm "+DEEP+"+     : " + ascended + " (" + pct(ascended) + ")");
 console.log("\nHighest realm reached:");
 D.realms.forEach((r, i) => console.log("  " + r.name.padEnd(26) + String(realmHist[i]).padStart(5) + "  " + pct(realmHist[i])));
 console.log("\nCauses of death (average age):");
@@ -159,6 +176,16 @@ console.log("Commonest 3: " + sorted.slice(-3).reverse().map(([k, v]) => k + " (
 
 console.log("\nBy sect (end of life):");
 Object.entries(sectStats).sort((x, y) => y[1].n - x[1].n).forEach(([k, st]) =>
-  console.log("  " + k.padEnd(24) + String(st.n).padStart(5) + "  " + pct(st.n).padStart(6) + "   ascended " + (st.asc / st.n * 100).toFixed(1).padStart(5) + "%" + (k === "(no sect)" ? "" : "   final ranks " + st.rank.join("/"))));
+  console.log("  " + k.padEnd(24) + String(st.n).padStart(5) + "  " + pct(st.n).padStart(6) + "   realm "+DEEP+"+ " + (st.asc / st.n * 100).toFixed(1).padStart(5) + "%" + (k === "(no sect)" ? "" : "   final ranks " + st.rank.join("/"))));
 const mTotal = Object.values(missionCount).reduce((a, b) => a + b, 0);
 if (mTotal) console.log("Missions taken: " + mTotal + " (" + (mTotal / lives).toFixed(1) + "/life). Least taken: " + Object.entries(missionCount).sort((x, y) => x[1] - y[1]).slice(0, 3).map(([k, v]) => k + " (" + v + ")").join(", "));
+
+console.log("\nFamily: " + (famStats.partner / lives * 100).toFixed(1) + "% had a partner, " + (famStats.withKids / lives * 100).toFixed(1) + "% had children (" + (famStats.kids / lives).toFixed(2) + " per life)." +
+  Object.entries(famAsc).map(([k, v]) => "\n  " + k.padEnd(22) + String(v[0]).padStart(5) + "   realm "+DEEP+"+ " + (v[1] / v[0] * 100).toFixed(1) + "%").join(""));
+if (heirMode) console.log("Generations: " + Object.keys(famStats.gen).sort((a, b) => a - b).map(g => "gen " + g + ": " + famStats.gen[g]).join(", "));
+
+{
+  const m = S.meta, all = G.achievements.all(), got = all.filter(a => m.achievements[a.id]);
+  console.log("Achievements unlocked: " + got.length + "/" + all.length + (got.length < all.length ? ". Never: " + all.filter(a => !m.achievements[a.id]).map(a => a.id).join(", ") : ""));
+}
+console.log("Karma at death: " + ["good", "neutral", "evil"].map(k => k + " " + ((bandEnd[k] || 0) / lives * 100).toFixed(0) + "%").join(", "));

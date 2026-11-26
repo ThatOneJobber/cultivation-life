@@ -1,0 +1,138 @@
+[
+  { "id": "heavenly_tribulation", "text": "Dark clouds gather on a cloudless day. Lightning coils within them, drawn to the power you have gathered.",
+    "minRealm": 4, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Face the tribulation head on", "outcomes": [
+        { "chance": 0.55, "scale": { "power": 0.004, "luck": 0.003, "health": 0.002 }, "text": "Nine bolts fall and you stand through all of them. The sky clears, and your body feels reforged.", "effects": { "qi": { "base": 200, "perRealm": 200 }, "lifespan": 12, "health": -10 } },
+        { "text": "The lightning breaks you. You wake charred and humbled.", "effects": { "health": -45, "lifespan": -5 } }
+      ]},
+      { "label": "Shelter inside a formation (20 gold)", "if": ["gold>=20"], "outcomes": [
+        { "text": "The formation absorbs most of the lightning, and a little of its power seeps into you.", "effects": { "gold": -20, "qi": { "base": 60, "perRealm": 60 }, "health": -12 } }
+      ]}
+    ] },
+  { "id": "dao_insight", "text": "Beside a roaring waterfall, a thought you have chased for years suddenly clicks into place.",
+    "minRealm": 3, "weight": 4,
+    "choices": [
+      { "label": "Sit and let the insight unfold", "outcomes": [
+        { "chance": 0.5, "scale": { "intelligence": 0.005 }, "text": "The insight blooms into a flash of understanding about the Dao.", "effects": { "intelligence": 3, "qi": { "base": 80, "perRealm": 80 } } },
+        { "text": "The insight slips away like water. Still, the calm remains.", "effects": { "qi": { "base": 25, "perRealm": 25 } } }
+      ]},
+      { "label": "Write it down at once", "outcomes": [
+        { "text": "Your notes will help you, and others, for years.", "effects": { "intelligence": 1, "karma": 1 } }
+      ]}
+    ] },
+  { "id": "ancient_ruins", "text": "A landslide uncovers the entrance to an ancient ruin, its stone gate carved with faded formations.",
+    "minRealm": 3, "weight": 3,
+    "choices": [
+      { "label": "Break through the gate and explore", "outcomes": [
+        { "chance": 0.15, "scale": { "luck": 0.004 }, "text": "Deep inside, an armory untouched for ten thousand years yields a shimmering blade.", "effects": { "items": { "thunderwood_sword": 1 } } },
+        { "chance": 0.2, "scale": { "luck": 0.003 }, "text": "A sealed chamber holds a ring humming with calm.", "effects": { "items": { "serenity_ring": 1 } } },
+        { "chance": 0.35, "scale": { "power": 0.008 }, "text": "You loot the outer halls and find coins and qi stones.", "effects": { "gold": { "base": 40, "perRealm": 30 }, "qi": { "base": 30, "perRealm": 25 } } },
+        { "text": "The ruin's guardians are still awake.", "effects": { "health": -28 } }
+      ]},
+      { "label": "Seal it and leave", "outcomes": [
+        { "text": "Some doors are best left shut.", "effects": { "karma": 1 } }
+      ]}
+    ] },
+  { "id": "celestial_merchant", "text": "A merchant in star-patterned robes sets up a stall that was not there yesterday, and none of the passersby seem to see it.",
+    "minRealm": 4, "weight": 3, "once": true, "if": ["gold>=150"],
+    "choices": [
+      { "label": "Buy the Heaven Pearl (300 gold)", "if": ["gold>=300"], "outcomes": [
+        { "text": "The pearl glows warmly in your palm. The merchant smiles and fades from view.", "effects": { "gold": -300, "items": { "heaven_pearl": 1 } } }
+      ]},
+      { "label": "Buy a Heavenly Dao Pill (200 gold)", "if": ["gold>=200"], "outcomes": [
+        { "text": "A single pill, wrapped in a leaf of starlight.", "effects": { "gold": -200, "items": { "heavenly_dao_pill": 1 } } }
+      ]},
+      { "label": "Haggle for a free sample", "outcomes": [
+        { "chance": 0.3, "scale": { "luck": 0.004 }, "text": "The merchant laughs and tosses you a pill. 'For your nerve.'", "effects": { "items": { "fortune_pill": 1 } } },
+        { "text": "The stall is empty when you look up.", "effects": {} }
+      ]}
+    ] },
+  { "id": "heavenly_court_envoy", "text": "A figure in white descends from the clouds and offers you a post in the Heavenly Court, with honors and eternal service.",
+    "minRealm": 6, "weight": 4, "once": true,
+    "choices": [
+      { "label": "Accept the post for a time", "outcomes": [
+        { "text": "You serve the court for a few years and return, richer in wisdom, lifespan and enemies.", "effects": { "lifespan": 30, "intelligence": 3, "karma": 3, "luck": -3 } }
+      ]},
+      { "label": "Decline and stay in the mortal world", "outcomes": [
+        { "text": "The envoy shrugs. 'The world will remember you, then.'", "effects": { "luck": 3, "karma": 2, "qi": { "base": 100, "perRealm": 100 } } }
+      ]}
+    ] },
+  { "id": "beast_tide", "text": "A beast tide pours out of the wilds, and a border town begs for protection.",
+    "minRealm": 3, "weight": 3,
+    "choices": [
+      { "label": "Stand with the defenders", "outcomes": [
+        { "chance": 0.6, "scale": { "power": 0.01, "health": 0.002 }, "text": "You hold the walls until the tide breaks. The townsfolk shower you with thanks.", "effects": { "karma": 3, "gold": { "base": 40, "perRealm": 25 }, "qi": { "base": 30, "perRealm": 20 } } },
+        { "text": "The walls hold, but barely. You bleed for it.", "effects": { "karma": 1, "health": -30 } }
+      ]},
+      { "label": "Leave quietly", "outcomes": [
+        { "text": "You do not look back. The smoke on the horizon lingers in your mind.", "effects": { "karma": -3 } }
+      ]}
+    ] },
+  { "id": "ancient_rival", "text": "A cultivator thought long dead strides out of a sealed cave, saying that your name woke him from an old grudge.",
+    "minRealm": 5, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Meet him in battle", "outcomes": [
+        { "chance": 0.5, "scale": { "power": 0.008, "intelligence": 0.002 }, "text": "A duel that shakes the mountain ends in your favor. His stash is yours.", "effects": { "gold": { "base": 80, "perRealm": 40 }, "items": { "dragon_bone_ring": 1 }, "qi": { "base": 100, "perRealm": 80 } } },
+        { "text": "He is stronger than he looks. You flee with injuries and a promise of a rematch.", "effects": { "health": -40, "karma": -1 } }
+      ]},
+      { "label": "Talk him out of it", "outcomes": [
+        { "chance": 0.5, "scale": { "intelligence": 0.005 }, "text": "A long evening of tea and talk, and the grudge dissolves into respect.", "effects": { "karma": 3, "intelligence": 2 } },
+        { "text": "He sneers and leaves. The grudge remains.", "effects": { "luck": -1 } }
+      ]}
+    ] },
+  { "id": "spirit_vein", "text": "While digging a cellar, a villager strikes a vein of raw spirit stone and runs to ask for your advice.",
+    "minRealm": 2, "weight": 3,
+    "choices": [
+      { "label": "Mine it yourself", "outcomes": [
+        { "text": "Weeks of work yield a hoard of spirit stones, and the air around the vein hums with qi.", "effects": { "gold": { "base": 40, "perRealm": 30 }, "qi": { "base": 50, "perRealm": 40 } } }
+      ]},
+      { "label": "Help the village develop it", "outcomes": [
+        { "text": "The village prospers, and you earn a modest finder's share and warm gratitude.", "effects": { "gold": { "base": 20, "perRealm": 10 }, "karma": 3, "luck": 1 } }
+      ]}
+    ] },
+  { "id": "void_walk", "text": "Your senses brush against a thin place in the world where space folds. Beyond it you sense an endless dark.",
+    "minRealm": 6, "weight": 3,
+    "choices": [
+      { "label": "Step into the void", "outcomes": [
+        { "chance": 0.55, "scale": { "intelligence": 0.003, "health": 0.002 }, "text": "In silence and darkness, your qi dilates. You return with the memory of the stars.", "effects": { "qi": { "base": 400, "perRealm": 300 }, "intelligence": 2 } },
+        { "text": "The void tugs at your soul, and you claw your way back, shaken.", "effects": { "health": -35, "lifespan": -3 } }
+      ]},
+      { "label": "Seal the rift", "outcomes": [
+        { "text": "A small act of care that few would ever notice.", "effects": { "karma": 3, "qi": { "base": 50, "perRealm": 50 } } }
+      ]}
+    ] },
+  { "id": "legend_blade", "text": "A forgotten forge deep in the mountains still burns. On its anvil, a blade waits for a master worthy of it.",
+    "minRealm": 5, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Take up the blade", "outcomes": [
+        { "chance": 0.4, "scale": { "power": 0.006, "luck": 0.003 }, "text": "The blade accepts you. It hums with a power that makes the air quiver.", "effects": { "items": { "void_splitter": 1 } } },
+        { "text": "The blade rejects you with a blast of killing intent.", "effects": { "health": -35 } }
+      ]},
+      { "label": "Study the forge instead", "outcomes": [
+        { "text": "You spend a year at the forge and learn the secrets of forging with spirit fire.", "effects": { "intelligence": 3, "learn": ["crimson_lotus_fire"] } }
+      ]}
+    ] },
+  { "id": "immortal_garden", "text": "A hidden garden unfolds beneath your feet, where flowers bloom in colors that have no names.",
+    "minRealm": 7, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Eat the fruit of the central tree", "outcomes": [
+        { "chance": 0.6, "scale": { "luck": 0.003 }, "text": "The fruit dissolves into radiance. Years fall away from you.", "effects": { "lifespan": 50, "health": 30 } },
+        { "text": "The garden's guardian spirit objects, with great force.", "effects": { "health": -45 } }
+      ]},
+      { "label": "Take only a single seed and leave", "outcomes": [
+        { "text": "You plant the seed in your courtyard and a small phoenix feather blooms from it.", "effects": { "items": { "phoenix_feather": 1 }, "karma": 2 } }
+      ]}
+    ] },
+  { "id": "thunder_sea", "text": "A storm of tribulation lightning rolls across the sky for no clear reason, tempting you to harvest its power.",
+    "minRealm": 5, "weight": 3,
+    "choices": [
+      { "label": "Draw the lightning into your meridians", "outcomes": [
+        { "chance": 0.5, "scale": { "health": 0.003, "power": 0.004 }, "text": "The lightning tempers your body. You step out of the storm glowing.", "effects": { "qi": { "base": 250, "perRealm": 200 }, "health": -15 } },
+        { "text": "The lightning is wilder than it looked. You are thrown across the valley.", "effects": { "health": -40 } }
+      ]},
+      { "label": "Watch from a safe distance", "outcomes": [
+        { "text": "A good lesson in the Dao of restraint.", "effects": { "intelligence": 1, "qi": { "base": 30, "perRealm": 30 } } }
+      ]}
+    ] }
+]

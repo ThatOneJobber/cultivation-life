@@ -1,0 +1,548 @@
+[
+ {
+  "id": "first_breath",
+  "cat": "Cultivation",
+  "name": "First Breath",
+  "desc": "Reach Qi Condensation.",
+  "if": [
+   "highest>=1"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "firm_foundation",
+  "cat": "Cultivation",
+  "name": "Firm Foundation",
+  "desc": "Reach Foundation Establishment.",
+  "if": [
+   "highest>=2"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "golden_core",
+  "cat": "Cultivation",
+  "name": "Golden Core",
+  "desc": "Form your golden core.",
+  "if": [
+   "highest>=3"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "nascent_soul",
+  "cat": "Cultivation",
+  "name": "Nascent Soul",
+  "desc": "Give birth to a nascent soul.",
+  "if": [
+   "highest>=4"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "soul_transformed",
+  "cat": "Cultivation",
+  "name": "Soul Transformed",
+  "desc": "Reach Soul Transformation.",
+  "if": [
+   "highest>=5"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "into_the_void",
+  "cat": "Cultivation",
+  "name": "Into the Void",
+  "desc": "Reach Void Refinement.",
+  "if": [
+   "highest>=6"
+  ],
+  "reward": 25
+ },
+ {
+  "id": "one_with_the_body",
+  "cat": "Cultivation",
+  "name": "One with the Body",
+  "desc": "Reach Body Integration.",
+  "if": [
+   "highest>=7"
+  ],
+  "reward": 30
+ },
+ {
+  "id": "great_vehicle",
+  "cat": "Cultivation",
+  "name": "The Great Vehicle",
+  "desc": "Reach the Great Vehicle realm.",
+  "if": [
+   "highest>=8"
+  ],
+  "reward": 40
+ },
+ {
+  "id": "beyond_tribulation",
+  "cat": "Cultivation",
+  "name": "Beyond Tribulation",
+  "desc": "Reach Tribulation Transcendence.",
+  "if": [
+   "highest>=9"
+  ],
+  "reward": 50
+ },
+ {
+  "id": "true_immortal",
+  "cat": "Cultivation",
+  "name": "True Immortal",
+  "desc": "Reach the highest realm of all.",
+  "if": [
+   "highest>=10"
+  ],
+  "reward": 80
+ },
+ {
+  "id": "prodigy",
+  "cat": "Cultivation",
+  "name": "Prodigy",
+  "desc": "Reach Golden Core before the age of 30.",
+  "if": [
+   "highest>=3",
+   "age<=30"
+  ],
+  "reward": 15,
+  "hidden": true
+ },
+ {
+  "id": "heaven_chosen",
+  "cat": "Cultivation",
+  "name": "Heaven's Chosen",
+  "desc": "Be born with a Heavenly spiritual root.",
+  "if": [
+   "root:Heavenly"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "genius",
+  "cat": "Cultivation",
+  "name": "Genius",
+  "desc": "Reach 90 intelligence.",
+  "if": [
+   "intelligence>=90"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "fortunes_favorite",
+  "cat": "Cultivation",
+  "name": "Fortune's Favorite",
+  "desc": "Reach 90 luck.",
+  "if": [
+   "luck>=90"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "full_life",
+  "cat": "Long Life",
+  "name": "A Full Life",
+  "desc": "Die peacefully of old age.",
+  "if": [
+   "alive==0",
+   "cause:old age"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "centenarian",
+  "cat": "Long Life",
+  "name": "Centenarian",
+  "desc": "Live to 100.",
+  "if": [
+   "age>=100"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "two_hundred",
+  "cat": "Long Life",
+  "name": "Two Centuries",
+  "desc": "Live to 200.",
+  "if": [
+   "age>=200"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "three_hundred",
+  "cat": "Long Life",
+  "name": "Three Centuries",
+  "desc": "Live to 300.",
+  "if": [
+   "age>=300"
+  ],
+  "reward": 25
+ },
+ {
+  "id": "five_hundred",
+  "cat": "Long Life",
+  "name": "Half a Millennium",
+  "desc": "Live to 500.",
+  "if": [
+   "age>=500"
+  ],
+  "reward": 40
+ },
+ {
+  "id": "on_the_edge",
+  "cat": "Long Life",
+  "name": "On the Edge",
+  "desc": "Survive with 3 health or less.",
+  "if": [
+   "health<=3",
+   "alive>0"
+  ],
+  "reward": 5,
+  "hidden": true
+ },
+ {
+  "id": "cut_short",
+  "cat": "Long Life",
+  "name": "Cut Short",
+  "desc": "Die before the age of 20.",
+  "if": [
+   "alive==0",
+   "age<20"
+  ],
+  "reward": 2,
+  "hidden": true
+ },
+ {
+  "id": "poor_taste",
+  "cat": "Long Life",
+  "name": "Poor Taste in Wine",
+  "desc": "Die of poisoning.",
+  "if": [
+   "alive==0",
+   "cause:poison"
+  ],
+  "reward": 3,
+  "hidden": true
+ },
+ {
+  "id": "pocket_money",
+  "cat": "Wealth",
+  "name": "Pocket Money",
+  "desc": "Hold 500 gold at once.",
+  "if": [
+   "gold>=500"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "wealthy",
+  "cat": "Wealth",
+  "name": "Wealthy",
+  "desc": "Hold 2,000 gold at once.",
+  "if": [
+   "gold>=2000"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "tycoon",
+  "cat": "Wealth",
+  "name": "Immortal Tycoon",
+  "desc": "Hold 10,000 gold at once.",
+  "if": [
+   "gold>=10000"
+  ],
+  "reward": 30
+ },
+ {
+  "id": "joined_sect",
+  "cat": "Sects",
+  "name": "Joined a Sect",
+  "desc": "Join any sect.",
+  "if": [
+   "sect"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "inner_circle",
+  "cat": "Sects",
+  "name": "Inner Circle",
+  "desc": "Reach rank 2 in your sect.",
+  "if": [
+   "rank>=1"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "elder",
+  "cat": "Sects",
+  "name": "Elder",
+  "desc": "Reach rank 4 in your sect.",
+  "if": [
+   "rank>=3"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "sect_head",
+  "cat": "Sects",
+  "name": "Head of the Sect",
+  "desc": "Reach rank 5 in your sect.",
+  "if": [
+   "rank>=4"
+  ],
+  "reward": 30
+ },
+ {
+  "id": "beyond_head",
+  "cat": "Sects",
+  "name": "Beyond the Master's Seat",
+  "desc": "Reach rank 7 in your sect.",
+  "if": [
+   "rank>=6"
+  ],
+  "reward": 60,
+  "hidden": true
+ },
+ {
+  "id": "loyal",
+  "cat": "Sects",
+  "name": "Loyal Servant",
+  "desc": "Earn 1,000 merit.",
+  "if": [
+   "merit>=1000"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "found_love",
+  "cat": "Family",
+  "name": "Found Love",
+  "desc": "Find a partner.",
+  "if": [
+   "partner"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "dao_pair",
+  "cat": "Family",
+  "name": "Dao Companions",
+  "desc": "Take a fellow cultivator as your partner.",
+  "if": [
+   "partner:cultivator"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "devoted",
+  "cat": "Family",
+  "name": "Devoted",
+  "desc": "Reach a bond of 100 with your partner.",
+  "if": [
+   "bond>=100"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "parent",
+  "cat": "Family",
+  "name": "A Parent",
+  "desc": "Have a child.",
+  "if": [
+   "children>=1"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "full_house",
+  "cat": "Family",
+  "name": "Full House",
+  "desc": "Have three children.",
+  "if": [
+   "children>=3"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "bloodline",
+  "cat": "Family",
+  "name": "Bloodline",
+  "desc": "Live as an heir (generation 2).",
+  "if": [
+   "generation>=2"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "dynasty",
+  "cat": "Family",
+  "name": "Dynasty",
+  "desc": "Reach generation 5 of your bloodline.",
+  "if": [
+   "generation>=5"
+  ],
+  "reward": 25
+ },
+ {
+  "id": "ancient_house",
+  "cat": "Family",
+  "name": "Ancient House",
+  "desc": "Reach generation 10 of your bloodline.",
+  "if": [
+   "generation>=10"
+  ],
+  "reward": 50
+ },
+ {
+  "id": "passing_torch",
+  "cat": "Family",
+  "name": "Passing the Torch",
+  "desc": "Retire and pass on your legacy.",
+  "if": [
+   "retired",
+   "alive==0"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "saint",
+  "cat": "Karma and Arts",
+  "name": "Saint",
+  "desc": "Reach 95 karma.",
+  "if": [
+   "karma>=95"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "fiend",
+  "cat": "Karma and Arts",
+  "name": "Fiend",
+  "desc": "Fall to 5 karma or less.",
+  "if": [
+   "karma<=5"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "perfect_balance",
+  "cat": "Karma and Arts",
+  "name": "Perfect Balance",
+  "desc": "Be perfectly balanced (karma 48 to 52) at age 100 or older.",
+  "if": [
+   "karma>=48",
+   "karma<=52",
+   "age>=100"
+  ],
+  "reward": 15,
+  "hidden": true
+ },
+ {
+  "id": "student",
+  "cat": "Karma and Arts",
+  "name": "Student of Many Arts",
+  "desc": "Know five arts.",
+  "if": [
+   "arts>=5"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "master_art",
+  "cat": "Karma and Arts",
+  "name": "Master of an Art",
+  "desc": "Master one art.",
+  "if": [
+   "masters>=1"
+  ],
+  "reward": 10
+ },
+ {
+  "id": "master_three",
+  "cat": "Karma and Arts",
+  "name": "Master of Masters",
+  "desc": "Master three arts.",
+  "if": [
+   "masters>=3"
+  ],
+  "reward": 20
+ },
+ {
+  "id": "legendary_blade",
+  "cat": "Karma and Arts",
+  "name": "Blade of Legend",
+  "desc": "Own the Void Splitter or Heavenpiercer.",
+  "if": [
+   "item:void_splitter"
+  ],
+  "reward": 20,
+  "hidden": true
+ },
+ {
+  "id": "chaos_scholar",
+  "cat": "Karma and Arts",
+  "name": "Chaos Scholar",
+  "desc": "Learn the Primordial Chaos Scripture.",
+  "if": [
+   "tech:primordial_chaos_scripture"
+  ],
+  "reward": 30,
+  "hidden": true
+ },
+ {
+  "id": "lives_5",
+  "cat": "Many Lives",
+  "name": "Reborn",
+  "desc": "Live 5 lives.",
+  "if": [
+   "lives>=5"
+  ],
+  "reward": 5
+ },
+ {
+  "id": "lives_25",
+  "cat": "Many Lives",
+  "name": "Wheel of Rebirth",
+  "desc": "Live 25 lives.",
+  "if": [
+   "lives>=25"
+  ],
+  "reward": 15
+ },
+ {
+  "id": "lives_100",
+  "cat": "Many Lives",
+  "name": "Endless Cycle",
+  "desc": "Live 100 lives.",
+  "if": [
+   "lives>=100"
+  ],
+  "reward": 40
+ },
+ {
+  "id": "karma_500",
+  "cat": "Many Lives",
+  "name": "Heavy Karma",
+  "desc": "Earn 500 karma in total.",
+  "if": [
+   "totalKarma>=500"
+  ],
+  "reward": 20
+ },
+ {
+  "id": "karma_2000",
+  "cat": "Many Lives",
+  "name": "Mountain of Karma",
+  "desc": "Earn 2,000 karma in total.",
+  "if": [
+   "totalKarma>=2000"
+  ],
+  "reward": 40
+ }
+]

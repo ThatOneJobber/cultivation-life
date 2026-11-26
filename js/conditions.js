@@ -10,9 +10,13 @@
      "since:master>=5"       years since that flag was set
      "sect"  /  "!sect"      is in any sect / is not
      "sect:Azure Cloud Sect" is in that specific sect
+     "partner"               has a partner (also partner:mortal, partner:cultivator)
+     "bond>=50", "children<3", "partnerAge", "generation"  family numbers
      "rank>=2"               sect rank (0 = lowest; 0 also when in no sect)
      "merit>=100"            merit earned with the sect
      "root:Fire"             spiritual root is Fire
+     "cause:old age"         the life ended with a cause of death containing this text
+     "highest>=6", "lives>=5", "totalKarma>=500", "arts>=5", "masters>=1", "retired", "alive"  (used by achievements)
      "item:antidote"         you own at least one Antidote
      "item:healing_pill>=3"  you own three or more Healing Pills
      "tech:blazing_palm"     you know the Blazing Palm technique
@@ -24,7 +28,7 @@
   const U = G.util;
 
   const STAT_NAMES = ["health", "intelligence", "luck", "karma"];
-  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "power", "age", "realm", "lifespan", "ageRatio", "qiRatio", "rank", "merit"]);
+  const NUM_NAMES = STAT_NAMES.concat(["gold", "qi", "power", "age", "realm", "lifespan", "ageRatio", "qiRatio", "rank", "merit", "bond", "children", "partnerAge", "generation", "highest", "lives", "totalKarma", "arts", "masters", "retired", "alive"]);
   const RE = /^(!?)([A-Za-z]+)(?::([A-Za-z0-9_ ]+?))?\s*(?:(>=|<=|==|!=|>|<)\s*(-?\d+(?:\.\d+)?))?$/;
 
   function parse(expr) {
@@ -53,6 +57,17 @@
       case "gold": case "qi": case "age": case "realm": case "lifespan": return p[name];
       case "rank": return G.sects.rank(p);
       case "merit": return p.sect ? p.merit || 0 : 0;
+      case "bond": return G.family.bond(p);
+      case "children": return p.children.length;
+      case "partnerAge": return p.partner ? p.partner.age : 0;
+      case "generation": return p.generation || 1;
+      case "highest": return p.highest;
+      case "lives": return G.state.meta.lives;
+      case "totalKarma": return G.state.meta.karma;
+      case "arts": return Object.keys(p.tech).length;
+      case "masters": return Object.keys(p.tech).filter(id => G.tech.level(p, id) >= 3).length;
+      case "retired": return p.retired ? 1 : 0;
+      case "alive": return p.alive ? 1 : 0;
       case "ageRatio": return p.age / p.lifespan;
       case "qiRatio": {
         const need = G.data.realms[p.realm].need;
@@ -71,6 +86,8 @@
       case "since": r = U.hasOwn(p.flags, e.arg) && compare(p.age - p.flags[e.arg], e.op, e.num); break;
       case "root": r = G.data.roots[p.root].name === e.arg; break;
       case "sect": r = e.arg ? p.sect === e.arg : !!p.sect; break;
+      case "cause": r = !p.alive && String(p.deathCause || "").toLowerCase().includes(e.arg.toLowerCase()); break;
+      case "partner": r = e.arg === "cultivator" ? !!(p.partner && p.partner.cultivator) : e.arg === "mortal" ? !!(p.partner && !p.partner.cultivator) : !!p.partner; break;
       case "item": { const n = G.items.count(p, e.arg); r = e.op ? compare(n, e.op, e.num) : n > 0; break; }
       case "tech": r = G.tech.known(p, e.arg); break;
       default: r = e.op ? compare(value(p, e.name), e.op, e.num) : !!value(p, e.name);
@@ -89,6 +106,8 @@
       case "flag": return e.arg ? null : "flag needs a name, e.g. flag:master";
       case "since": return e.arg && e.op && e.num !== undefined ? null : "since needs e.g. since:master>=5";
       case "root": return rootNames.includes(e.arg) ? null : "unknown root \"" + e.arg + "\"";
+      case "cause": return e.arg ? null : "cause needs text, e.g. cause:old age (matches the cause of death)";
+      case "partner": return !e.arg || e.arg === "mortal" || e.arg === "cultivator" ? null : "partner:" + e.arg + " must be partner:mortal or partner:cultivator";
       case "sect": return !e.arg || !sectNames || sectNames.includes(e.arg) ? null : "unknown sect \"" + e.arg + "\" (see data/sects.json)";
       case "item": return itemIds.includes(e.arg) ? null : "unknown item \"" + e.arg + "\" (see data/items.json)";
       case "tech": return techIds.includes(e.arg) ? null : "unknown technique \"" + e.arg + "\" (see data/techniques.json)";

@@ -1,0 +1,89 @@
+[
+  { "id": "sword_tomb", "text": "Deep in a canyon, you find the tomb of a sword saint. Ten thousand rusted blades stand around it like a forest.",
+    "minRealm": 4, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Draw the blade at the heart of the tomb", "outcomes": [
+        { "chance": 0.35, "scale": { "power": 0.006, "luck": 0.003 }, "text": "Every sword in the tomb sings as the saint's own blade answers you.", "effects": { "items": { "heavenpiercer": 1 } } },
+        { "text": "The blades turn on the intruder.", "effects": { "health": -38 } }
+      ]},
+      { "label": "Sit among the swords and read their intent", "outcomes": [
+        { "chance": 0.5, "scale": { "intelligence": 0.005 }, "text": "Days later, man and blade feel like one. You rise knowing the Sword Dao of Unity.", "effects": { "learn": ["sword_dao_unity"] } },
+        { "text": "The intent is too heavy to follow, but you leave wiser.", "effects": { "intelligence": 2 } }
+      ]}
+    ] },
+  { "id": "phoenix_nest", "text": "On a burning peak, a great nest of embers glows. Its owner is nowhere to be seen.",
+    "minRealm": 5, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Meditate beside the flames", "outcomes": [
+        { "chance": 0.45, "scale": { "health": 0.002, "luck": 0.003 }, "text": "The flames burn the weakness from you and write a technique on your bones.", "effects": { "learn": ["phoenix_rebirth_art"], "health": -15 } },
+        { "text": "The heat is too much. You retreat, singed.", "effects": { "health": -25 } }
+      ]},
+      { "label": "Take a fallen feather and leave", "outcomes": [
+        { "text": "A single feather, warm as a heartbeat.", "effects": { "items": { "phoenix_feather": 1 }, "karma": 1 } }
+      ]}
+    ] },
+  { "id": "forbidden_library", "text": "Behind a sealed door in an ancient library lies a text bound in black ink that seems to move when you look away.",
+    "minRealm": 6, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Read it", "outcomes": [
+        { "chance": 0.3, "scale": { "intelligence": 0.006 }, "text": "The scripture drowns you in understanding and gives it back as something you can use.", "effects": { "learn": ["primordial_chaos_scripture"], "intelligence": 2 } },
+        { "text": "The words rewrite something in your mind. You tear yourself away, bleeding from the eyes.", "effects": { "health": -45, "intelligence": -3 } }
+      ]},
+      { "label": "Burn it", "outcomes": [
+        { "text": "It screams as it burns. The library is a little safer for it.", "effects": { "karma": 5 } }
+      ]}
+    ] },
+  { "id": "dao_heart_trial", "text": "A hermit offers you a trial of the heart: face your deepest regret and see whether your dao holds.",
+    "minRealm": 4, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Take the trial", "outcomes": [
+        { "chance": 0.5, "scale": { "karma": 0.003, "intelligence": 0.003 }, "text": "You face it, and the regret loosens its grip. The hermit gives you a ring of polished heartwood.", "effects": { "items": { "dao_heart_ring": 1 } } },
+        { "text": "The regret wins this time. You leave quiet and shaken.", "effects": { "intelligence": -1, "health": -10 } }
+      ]},
+      { "label": "Decline", "outcomes": [ { "text": "Some wounds are best left alone.", "effects": {} } ]}
+    ] },
+  { "id": "marrow_spring", "text": "Behind a waterfall, a pool of thick, glowing liquid pulses with the marrow of the earth.",
+    "minRealm": 2, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Bottle some of the marrow", "outcomes": [
+        { "chance": 0.55, "scale": { "luck": 0.004 }, "text": "You collect a few drops, which condense into a pill.", "effects": { "items": { "marrow_pill": 1 } } },
+        { "text": "The pool stirs and drives you off.", "effects": { "health": -15 } }
+      ]},
+      { "label": "Bathe in the pool", "outcomes": [
+        { "text": "A deep, healing warmth sinks into you.", "effects": { "health": 25, "qi": { "base": 20, "perRealm": 25 } } }
+      ]}
+    ] },
+  { "id": "lotus_pond", "text": "A pond that blooms only for pure hearts opens before you, with a single white lotus at its center.",
+    "minRealm": 1, "weight": 3, "once": true, "if": ["karma>=60"],
+    "choices": [
+      { "label": "Pick the lotus", "outcomes": [
+        { "text": "It comes away in your hand. You feel your past burdens grow lighter.", "effects": { "items": { "lotus_of_remembrance": 1 }, "luck": 1 } }
+      ]},
+      { "label": "Leave it to bloom", "outcomes": [
+        { "text": "The lotus sheds a petal at your feet as you leave.", "effects": { "karma": 3, "luck": 2 } }
+      ]}
+    ] },
+  { "id": "starfall_night", "text": "A rain of stars falls across the night sky, and one of them lands in the field beside you, still glowing.",
+    "minRealm": 5, "weight": 2, "once": true,
+    "choices": [
+      { "label": "Approach the fallen star", "outcomes": [
+        { "chance": 0.45, "scale": { "luck": 0.005 }, "text": "It cools into silvery cloth that wraps around your shoulders like a promise.", "effects": { "items": { "starfall_vestments": 1 } } },
+        { "text": "It is far hotter than it looks.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Draw its energy from a distance", "outcomes": [
+        { "text": "A steady stream of star-qi.", "effects": { "qi": { "base": 120, "perRealm": 100 } } }
+      ]}
+    ] },
+  { "id": "hermit_sage", "text": "A hermit living above the clouds says he has waited all his life for someone to ask him a good question.",
+    "minAge": 40, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Ask about the nature of the Dao", "outcomes": [
+        { "chance": 0.5, "scale": { "intelligence": 0.005 }, "text": "He answers with a riddle that takes you a year to understand. Then he smiles and presses a pill into your palm.", "effects": { "items": { "marrow_pill": 1 }, "intelligence": 2 } },
+        { "text": "He answers with a riddle you do not understand.", "effects": { "intelligence": 1 } }
+      ]},
+      { "label": "Ask for the secret of a long life", "outcomes": [
+        { "chance": 0.4, "scale": { "luck": 0.004 }, "text": "'Do not fear death,' he says, and gives you an elixir.", "effects": { "items": { "elixir_of_life": 1 } } },
+        { "text": "'Do not fear death,' he says, and nothing more.", "effects": { "karma": 1 } }
+      ]}
+    ] }
+]

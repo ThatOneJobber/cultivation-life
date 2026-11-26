@@ -27,6 +27,8 @@ const balance = readJson("data/balance.json");
 const techniques = readJson("data/techniques.json");
 const sects = readJson("data/sects.json");
 const missions = readJson("data/missions.json");
+const karma = readJson("data/karma.json");
+const achievements = readJson("data/achievements.json");
 const eventFiles = fs.readdirSync(path.join(ROOT, "data/events")).filter(f => f.endsWith(".json")).sort();
 const events = [];
 const eventFileOf = {};
@@ -59,6 +61,7 @@ roots.forEach((r, i) => {
   if (typeof r.name !== "string" || typeof r.mult !== "number" || typeof r.brk !== "number") err("data/roots.json[" + i + "]", "needs name, mult, brk");
 });
 if (!Array.isArray(flavor.names) || !flavor.names.length) err("data/flavor.json", "needs a non-empty \"names\" array");
+for (const k of ["partnerNames", "childNames"]) if (!Array.isArray(flavor[k]) || !flavor[k].length) err("data/flavor.json", "needs a non-empty \"" + k + "\" array");
 if (!Array.isArray(flavor.quiet) || !flavor.quiet.length) err("data/flavor.json", "needs a non-empty \"quiet\" array");
 
 /* ---------- validate balance ---------- */
@@ -97,12 +100,13 @@ function checkValue(v, key, where) {
 if (!Array.isArray(items)) err("data/items.json", "must be an array");
 else items.forEach(it => {
   const w = "item \"" + (it && it.id) + "\" (data/items.json)";
-  checkUnknown(it, ["id", "name", "type", "slot", "desc", "use", "onBreakthrough", "mods", "price"], w);
+  checkUnknown(it, ["id", "name", "type", "slot", "desc", "use", "onBreakthrough", "mods", "price", "minRealm"], w);
   if (typeof it.id !== "string" || !/^[a-z0-9_]+$/.test(it.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
   else if (itemIds.includes(it.id)) err(w, "duplicate id");
   itemIds.push(it.id);
   if (typeof it.name !== "string" || !it.name) err(w, "needs a \"name\"");
   if (typeof it.desc !== "string" || !it.desc) err(w, "needs a \"desc\" (what the player reads)");
+  if (it.minRealm !== undefined && !(Number.isInteger(it.minRealm) && it.minRealm >= 0 && it.minRealm < realms.length)) err(w, "\"minRealm\" must be a valid realm index");
   if (it.price !== undefined && !(Number.isInteger(it.price) && it.price > 0)) err(w, "\"price\" must be a positive whole number (only items with a price appear in the market)");
   if (it.type === "consumable") {
     if (it.slot || it.mods) err(w, "consumables cannot have \"slot\" or \"mods\"");
@@ -163,7 +167,7 @@ else techniques.forEach(t => {
 const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
 const CHOICE_KEYS = ["label", "if", "outcomes"];
 const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
-const EFFECT_KEYS = EFFECT_NUM.concat(["merit", "items", "learn", "setFlags", "sect", "leaveSect", "die"]);
+const EFFECT_KEYS = EFFECT_NUM.concat(["merit", "bond", "partner", "child", "trainChild", "losePartner", "items", "learn", "setFlags", "sect", "leaveSect", "die"]);
 const SCALE_KEYS = cond.NUM_NAMES;
 
 const seenIds = new Set();
@@ -185,7 +189,7 @@ function checkConds(list, where) {
 function checkEffects(fx, ow) {
   if (!fx || typeof fx !== "object" || Array.isArray(fx)) return err(ow, "effects must be an object");
   checkUnknown(fx, EFFECT_KEYS, ow + " effects");
-  for (const k of EFFECT_NUM.concat(["merit"])) if (fx[k] !== undefined) {
+  for (const k of EFFECT_NUM.concat(["merit", "bond"])) if (fx[k] !== undefined) {
     checkValue(fx[k], k, ow);
     if (fx[k] === "-all" && !["gold", "qi"].includes(k)) err(ow, "\"-all\" only works for gold and qi");
   }
@@ -205,6 +209,10 @@ function checkEffects(fx, ow) {
     else fx.setFlags.forEach(f => setFlags.add(f));
   }
   if (fx.sect !== undefined && !sectNames.includes(fx.sect)) err(ow, "sect: unknown sect \"" + fx.sect + "\" (see data/sects.json)");
+  if (fx.partner !== undefined && !["mortal", "cultivator"].includes(fx.partner)) err(ow, "partner must be \"mortal\" or \"cultivator\"");
+  if (fx.child !== undefined && fx.child !== true) err(ow, "child must be true");
+  if (fx.losePartner !== undefined && fx.losePartner !== true) err(ow, "losePartner must be true");
+  if (fx.trainChild !== undefined && !Number.isFinite(fx.trainChild)) err(ow, "trainChild must be a number");
   if (fx.leaveSect !== undefined && fx.leaveSect !== true) err(ow, "leaveSect must be true");
   if (fx.die !== undefined && typeof fx.die !== "string") err(ow, "die must be a string (the cause of death)");
 }
@@ -257,6 +265,60 @@ for (const ev of events) {
     if (!Array.isArray(c.outcomes) || !c.outcomes.length) { err(cw, "needs at least one outcome"); return; }
     checkOutcomes(c.outcomes, cw);
   });
+}
+
+/* ---------- validate achievements ---------- */
+if (!Array.isArray(achievements)) err("data/achievements.json", "must be an array");
+else {
+  const aids = achievements.map(a => a && a.id);
+  achievements.forEach(a => {
+    const w = "achievement \"" + (a && a.id) + "\" (data/achievements.json)";
+    checkUnknown(a, ["id", "cat", "name", "desc", "if", "reward", "hidden"], w);
+    if (typeof a.id !== "string" || !/^[a-z0-9_]+$/.test(a.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
+    if (aids.indexOf(a.id) !== aids.lastIndexOf(a.id)) err(w, "duplicate id");
+    for (const k of ["cat", "name", "desc"]) if (typeof a[k] !== "string" || !a[k]) err(w, "needs \"" + k + "\"");
+    if (!Array.isArray(a.if) || !a.if.length) err(w, "\"if\" must be a non-empty list of conditions");
+    else a.if.forEach(c => { const m = cond.validate(c, rootNames, items.map(i => i && i.id), techniques.map(t => t && t.id), sectNames); if (m) err(w, m); });
+    if (a.reward !== undefined && !(Number.isFinite(a.reward) && a.reward >= 0)) err(w, "\"reward\" (karma) must be 0 or more");
+    if (a.hidden !== undefined && typeof a.hidden !== "boolean") err(w, "\"hidden\" must be true or false");
+  });
+}
+
+/* ---------- validate the karma tree ---------- */
+{
+  const w0 = "data/karma.json", BRANCHES = ["trunk", "good", "evil", "neutral"];
+  const START = ["gold", "intelligence", "health", "lifespan", "karma", "heavenly"];
+  if (!karma || !Array.isArray(karma.nodes) || !karma.nodes.length) err(w0, "needs a \"nodes\" array");
+  else {
+    if (!karma.bands || !(karma.bands.evil < karma.bands.good) || !Number.isFinite(karma.bands.evil)) err(w0, "\"bands\" needs numbers with evil lower than good");
+    if (!(karma.respecKeep >= 0 && karma.respecKeep <= 1)) err(w0, "\"respecKeep\" must be between 0 and 1");
+    const ids = karma.nodes.map(n => n && n.id);
+    karma.nodes.forEach(n => {
+      const w = "karma node \"" + (n && n.id) + "\" (data/karma.json)";
+      checkUnknown(n, ["id", "branch", "name", "desc", "cost", "requires", "excludes", "mods", "always", "start", "flow"], w);
+      if (typeof n.id !== "string" || !/^[a-z0-9_]+$/.test(n.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
+      if (ids.indexOf(n.id) !== ids.lastIndexOf(n.id)) err(w, "duplicate id");
+      if (!BRANCHES.includes(n.branch)) err(w, "\"branch\" must be one of " + BRANCHES.join(", "));
+      if (typeof n.name !== "string" || !n.name) err(w, "needs a \"name\"");
+      if (typeof n.desc !== "string" || !n.desc) err(w, "needs a \"desc\"");
+      if (!Number.isFinite(n.cost) || n.cost < 1) err(w, "\"cost\" must be a positive number");
+      for (const k of ["requires", "excludes"]) if (n[k] !== undefined && (!Array.isArray(n[k]) || !n[k].every(r => ids.includes(r) && r !== n.id))) err(w, "\"" + k + "\" must list other node ids");
+      for (const k of ["mods", "always"]) if (n[k] !== undefined) {
+        if (!n[k] || typeof n[k] !== "object") { err(w, k + " must be an object"); continue; }
+        checkUnknown(n[k], MOD_KEYS, w + " " + k);
+        for (const m of Object.keys(n[k])) if (typeof n[k][m] !== "number") err(w, k + "." + m + " must be a number");
+      }
+      if (n.mods && n.branch === "trunk") err(w, "trunk nodes apply always: put bonuses in \"always\" or \"start\", not \"mods\"");
+      if (n.start !== undefined) {
+        checkUnknown(n.start, START, w + " start");
+        for (const k of Object.keys(n.start)) if (typeof n.start[k] !== "number") err(w, "start." + k + " must be a number");
+      }
+      if (n.flow !== undefined) {
+        checkUnknown(n.flow, ["gain", "loss"], w + " flow");
+        for (const k of Object.keys(n.flow)) if (!(n.flow[k] >= 0)) err(w, "flow." + k + " must be 0 or more");
+      }
+    });
+  }
 }
 
 /* ---------- validate sects and missions ---------- */
@@ -319,6 +381,15 @@ if (Array.isArray(sects) && Array.isArray(missions)) for (const sc of sects) {
   });
 }
 {
+  const bf = balance.family, w = "data/balance.json family";
+  if (!bf || typeof bf !== "object") err("data/balance.json", "needs a \"family\" section");
+  else {
+    for (const k of ["startBond", "mortalLifespanMin", "mortalLifespanMax", "cultivatorLifespan", "maxChildren", "bondPerk", "perkLuck", "perkQi"]) if (!Number.isFinite(bf[k])) err(w, "\"" + k + "\" must be a number");
+    if (bf.mortalLifespanMin > bf.mortalLifespanMax) err(w, "mortalLifespanMin is greater than mortalLifespanMax");
+    for (const k of ["goldShare", "goldCap", "intelligencePerTalent", "luckPerTalent"]) if (!bf.heir || !Number.isFinite(bf.heir[k])) err(w, "heir." + k + " must be a number");
+  }
+}
+{
   const bs = balance.sect, w = "data/balance.json sect";
   if (!bs || typeof bs !== "object") err("data/balance.json", "needs a \"sect\" section");
   else {
@@ -345,7 +416,7 @@ function done() {
     console.error("\nbundle.js was NOT updated.");
     process.exit(1);
   }
-  const data = { realms, roots, flavor, balance, items, techniques, sects, missions, events };
+  const data = { realms, roots, flavor, balance, items, techniques, sects, missions, karma, achievements, events };
   const out = "/* AUTO-GENERATED by tools/build.js from the files in data/. Do not edit by hand. */\n" +
     "globalThis.Game = globalThis.Game || {};\nGame.data = " + JSON.stringify(data) + ";\n";
   fs.writeFileSync(path.join(ROOT, "data/bundle.js"), out);

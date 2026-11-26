@@ -87,6 +87,47 @@
             "karma": 5
           }
         }
+      },
+      {
+        "name": "Supreme Elder",
+        "merit": 7000,
+        "minRealm": 6,
+        "stipend": 25,
+        "mods": {
+          "guard": 0.15,
+          "regen": 2,
+          "breakBonus": 0.04
+        },
+        "reward": {
+          "text": "The ancestors' hall opens its vault to you.",
+          "effects": {
+            "items": {
+              "heavenly_dao_pill": 1
+            },
+            "lifespan": 20,
+            "karma": 3
+          }
+        }
+      },
+      {
+        "name": "Founding Patriarch",
+        "merit": 16000,
+        "minRealm": 8,
+        "stipend": 50,
+        "mods": {
+          "guard": 0.18,
+          "regen": 3,
+          "breakBonus": 0.06,
+          "vitality": 0.1
+        },
+        "reward": {
+          "text": "The sect's founding spirits acknowledge you as one of their own.",
+          "effects": {
+            "qi": 2000,
+            "lifespan": 40,
+            "karma": 8
+          }
+        }
       }
     ]
   },
@@ -172,6 +213,45 @@
             "qi": 300,
             "lifespan": 8,
             "karma": -6
+          }
+        }
+      },
+      {
+        "name": "Crimson Sovereign",
+        "merit": 7000,
+        "minRealm": 6,
+        "stipend": 28,
+        "mods": {
+          "power": 16,
+          "qiMult": 0.1
+        },
+        "reward": {
+          "text": "Rivals kneel. The sect's ancient hoard is yours to claim.",
+          "effects": {
+            "items": {
+              "dragon_bone_ring": 1
+            },
+            "lifespan": 15,
+            "karma": -6
+          }
+        }
+      },
+      {
+        "name": "Eternal Blood Emperor",
+        "merit": 16000,
+        "minRealm": 8,
+        "stipend": 55,
+        "mods": {
+          "power": 22,
+          "qiMult": 0.14,
+          "vitality": 0.1
+        },
+        "reward": {
+          "text": "The moon bleeds for you. Even death seems to hesitate.",
+          "effects": {
+            "qi": 2000,
+            "lifespan": 40,
+            "karma": -10
           }
         }
       }
@@ -265,6 +345,50 @@
               "longevity_pill": 2
             },
             "qi": 250,
+            "intelligence": 3
+          }
+        }
+      },
+      {
+        "name": "Heavenly Alchemist",
+        "merit": 7000,
+        "minRealm": 6,
+        "stipend": 30,
+        "mods": {
+          "intelligence": 10,
+          "meditation": 0.1,
+          "safety": 0.04,
+          "breakBonus": 0.03
+        },
+        "reward": {
+          "text": "The pavilion's rarest recipes are opened to you.",
+          "effects": {
+            "items": {
+              "elixir_of_life": 1,
+              "heavenly_dao_pill": 1
+            }
+          }
+        }
+      },
+      {
+        "name": "Patriarch of Ten Thousand Pills",
+        "merit": 16000,
+        "minRealm": 8,
+        "stipend": 55,
+        "mods": {
+          "intelligence": 12,
+          "meditation": 0.12,
+          "safety": 0.05,
+          "breakBonus": 0.05,
+          "vitality": 0.1
+        },
+        "reward": {
+          "text": "You perfect a pill that bends fate itself.",
+          "effects": {
+            "items": {
+              "rebirth_pill": 1
+            },
+            "qi": 2000,
             "intelligence": 3
           }
         }

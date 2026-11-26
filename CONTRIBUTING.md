@@ -81,6 +81,11 @@ Inside an outcome's `"effects"`:
 | `items` | Give or take items: `{ "healing_pill": 2 }` gives two, `{ "antidote": -1 }` removes one. Ids come from `data/items.json`. |
 | `setFlags` | List of story flags to set, e.g. `["savedStranger"]`. |
 | `sect` | Join a sect, e.g. `"Azure Cloud Sect"` (names come from `data/sects.json`). You start at its lowest rank. Joining a different sect resets your rank. |
+| `partner` | `"mortal"` or `"cultivator"` gives the player a partner (ignored if they already have one). A cultivator partner lives much longer. |
+| `bond` | Change the partner bond (0-100). Ignored with no partner. Put it in the same outcome as `partner` to start higher. |
+| `child` | `true` adds a child (up to 3). |
+| `trainChild` | Raise the talent of the least talented child by this amount. Heirs get a bonus from talent. |
+| `losePartner` | `true` removes the partner (for example, a death in an event). |
 | `leaveSect` | `true` leaves the current sect and loses rank and merit. |
 | `merit` | Change merit with your sect (ignored if you are in no sect). Same number formats as below. |
 | `die` | Kill the character with this cause of death, e.g. `"Died of poisoning"`. |
@@ -105,6 +110,8 @@ Armor reduces any negative `health` effect an event deals, so write damage as pl
 | `"since:master>=5"` | At least 5 years have passed since that flag was set. |
 | `"sect"` / `"!sect"` | In any sect / in no sect. |
 | `"sect:Azure Cloud Sect"` | In that specific sect. |
+| `"partner"` | Has a partner. Also `"partner:mortal"` and `"partner:cultivator"`. |
+| `"bond>=40"`, `"children<3"`, `"partnerAge<=50"`, `"generation>=2"` | Family numbers. `generation` is 1 for a first life, higher for heirs. |
 | `"rank>=2"` | Sect rank, 0 being the lowest. `"rank>=1"` is also a quick way to say "in a sect and promoted at least once". |
 | `"merit>=100"` | Merit earned with the current sect. |
 | `"root:Fire"` | Spiritual root is Fire. |
@@ -124,7 +131,8 @@ Two kinds. Items with a `price` are sold in the market, and the rest can only be
 ```
 
 - **Consumables** can have `use` (effects applied when the player taps Use; same numbers as event effects, limited to health, intelligence, luck, karma, qi and lifespan) or `onBreakthrough` (a bonus chance, used up automatically on a breakthrough attempt). A consumable with neither, like the Antidote, is only used by events through `"item:..."` choices.
-- **Equipment** goes in the `weapon`, `armor` or `talisman` slot and gives `mods`: `power` (fight chance), `guard` (fraction of damage ignored, capped at 0.6), `regen` (extra health per year), `qiMult` (extra fraction of qi), `breakBonus` (breakthrough chance), `luck`, `intelligence`.
+- **Equipment** goes in the `weapon`, `armor`, `talisman` or `ring` slot and gives `mods`: `power` (fight chance), `guard` (fraction of damage ignored, capped at 0.6), `regen` (extra health per year), `qiMult` (extra fraction of qi), `breakBonus` (breakthrough chance), `luck`, `intelligence`.
+- `minRealm` (optional) is the realm index needed to buy a market item. Items without a `price` are only found in events, which is how to make rare treasure.
 - Write a clear `desc`. It is what the player reads.
 
 ## Sects and missions (`data/sects.json`, `data/missions.json`)
@@ -157,6 +165,34 @@ A mission is a one-year job with outcomes, written just like an event choice:
 - `risk` is `low`, `medium` or `high` (shown to the player). `sects` (optional) restricts it to those sects, `minRank` and `minRealm` limit who sees it, and `if` takes the usual conditions.
 - Missions replace the random event for that year, so the outcome text is the event. Keep merit rewards roughly: low 8-12, medium 20-25, high 40-55 (plus `perRealm`). Ranks are paced for about 34 missions in a life.
 - The build checks that every sect has at least two missions at every rank.
+
+## Achievements (`data/achievements.json`)
+
+```json
+{ "id": "centenarian", "cat": "Long Life", "name": "Centenarian",
+  "desc": "Live to 100.", "if": ["age>=100"], "reward": 10 }
+```
+
+- `if` uses the normal conditions, checked after every action. Extra names for achievements: `highest` (best realm this life), `lives` (lives lived), `totalKarma`, `arts` (arts known), `masters` (arts at Master level), `retired`, `alive` (1 or 0), and `cause:old age` (true once dead with a cause of death containing that text). To check a death, add `"alive==0"`.
+- `reward` is karma paid once. `hidden: true` shows "???" until it is earned. `cat` groups achievements in the Feats tab.
+- The simulator prints which achievements it never saw unlocked, to catch ones that are impossible or too hard.
+
+## Karma tree (`data/karma.json`)
+
+```json
+{ "id": "e_blood", "branch": "evil", "name": "Blood Tempering", "cost": 90,
+  "desc": "While wicked: savage strength. Always: you leave yourself open.",
+  "requires": ["e_vow"],
+  "mods": { "power": 3, "regen": 1 },
+  "always": { "guard": -0.1 } }
+```
+
+- `branch` is `trunk` (always on), `good` (works while the life's karma stat is 60 or more), `evil` (40 or less) or `neutral` (in between). The limits are `bands` at the top of the file.
+- `mods` only work while the branch's band is active. `always` works all the time: use it for the price of the path (negative numbers are fine). Trunk nodes use `always` and `start` only.
+- `start` changes each new life: `gold`, `intelligence`, `health`, `lifespan`, `karma` (sets the starting karma stat) and `heavenly` (extra chance of the Heavenly root, 0.04 = 4%).
+- `flow` multiplies karma changes: `{ "gain": 0.5 }` halves good karma gained, `{ "loss": 1.5 }` makes losses 1.5 times bigger.
+- `requires` lists nodes that must be owned first. `excludes` lists nodes that cannot be owned together (that is how each save commits to one vow).
+- Keep the paths balanced: run `node tools/simulate.js 3000 --path=good`, `--path=evil` and `--path=neutral` and compare the "Reached realm 6+" lines. They should be close, with each path stronger in a different way and each paying a different price.
 
 ## Techniques / arts (`data/techniques.json`)
 

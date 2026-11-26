@@ -1,0 +1,55 @@
+[
+  { "id": "assassin", "text": "A masked assassin, hired by an unknown enemy, drops from the rafters at midnight.",
+    "minAge": 20, "minRealm": 2, "weight": 3,
+    "choices": [
+      { "label": "Fight back", "outcomes": [
+        { "chance": 0.6, "scale": { "power": 0.012, "luck": 0.002 }, "text": "You overpower the assassin and learn who hired him.", "effects": { "karma": 1, "qi": { "base": 20, "perRealm": 20 } } },
+        { "text": "The blade bites deep before you drive him off.", "effects": { "health": -32 } }
+      ]},
+      { "label": "Bribe him to leave (50 gold)", "if": ["gold>=50"], "outcomes": [ { "text": "He weighs the coins and vanishes into the dark.", "effects": { "gold": -50, "karma": -1 } } ]}
+    ] },
+  { "id": "poisoned_banquet", "text": "At a grand banquet you notice your host watching you a little too closely as you lift your cup.",
+    "minAge": 20, "weight": 3,
+    "choices": [
+      { "label": "Drink it anyway", "outcomes": [
+        { "chance": 0.5, "text": "Nothing happens. Your host looks disappointed.", "effects": { "karma": 1 } },
+        { "text": "The wine is laced with poison.", "effects": { "health": -35 } }
+      ]},
+      { "label": "Take an Antidote first", "if": ["item:antidote"], "outcomes": [ { "text": "You drain the cup. Your host's face falls as you do not.", "effects": { "items": { "antidote": -1 }, "luck": 2 } } ]},
+      { "label": "Leave without drinking", "outcomes": [ { "text": "You make an excuse and slip away.", "effects": { "luck": 1 } } ]}
+    ] },
+  { "id": "cursed_artifact", "text": "A cracked mask lies half buried in a field, whispering promises in your sleep.",
+    "minAge": 20, "minRealm": 2, "weight": 2,
+    "choices": [
+      { "label": "Put on the mask", "outcomes": [
+        { "chance": 0.35, "scale": { "karma": 0.002 }, "text": "A dark power floods into you. It feels better than it should.", "effects": { "qi": { "base": 120, "perRealm": 100 }, "karma": -6 } },
+        { "text": "The mask clamps down on your thoughts. You tear it off in agony.", "effects": { "health": -35, "karma": -2 } }
+      ]},
+      { "label": "Destroy it", "outcomes": [ { "text": "It shatters with a scream. The whispers stop.", "effects": { "karma": 4, "luck": 1 } } ]}
+    ] },
+  { "id": "demonic_cultivator", "text": "A demonic cultivator, wreathed in blood qi, blocks your path and demands tribute.",
+    "minAge": 18, "minRealm": 1, "weight": 3,
+    "choices": [
+      { "label": "Fight", "outcomes": [
+        { "chance": 0.5, "scale": { "power": 0.012 }, "text": "You drive him off, and the villages are safer for it.", "effects": { "karma": 3, "gold": { "base": 25, "perRealm": 20 } } },
+        { "text": "His strikes are vicious and hard to avoid.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Pay 30 gold", "if": ["gold>=30"], "outcomes": [ { "text": "He snorts and lets you pass.", "effects": { "gold": -30 } } ]},
+      { "label": "Flee", "outcomes": [
+        { "chance": 0.6, "scale": { "luck": 0.004 }, "text": "You lose him in the woods.", "effects": {} },
+        { "text": "He catches you at the river and takes what he likes.", "effects": { "gold": "-all", "health": -10 } }
+      ]}
+    ] },
+  { "id": "sinking_boat", "text": "A rickety ferry begins to sink in the middle of a wide river.",
+    "minAge": 14, "weight": 2,
+    "choices": [
+      { "label": "Swim for shore", "outcomes": [
+        { "chance": 0.7, "scale": { "health": 0.003 }, "text": "You reach the bank, soaked and gasping.", "effects": { "health": -5 } },
+        { "text": "The current drags at you cruelly.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Help others first", "outcomes": [
+        { "chance": 0.5, "scale": { "luck": 0.004 }, "text": "You save three families before saving yourself.", "effects": { "karma": 5, "health": -15 } },
+        { "text": "You nearly drown helping, but the passengers live.", "effects": { "karma": 5, "health": -35 } }
+      ]}
+    ] }
+]

@@ -1,9 +1,13 @@
 [
-  { "name": "Mortal",                   "need": 100,   "life": 0 },
-  { "name": "Qi Condensation",          "need": 400,   "life": 5 },
-  { "name": "Foundation Establishment", "need": 1100,  "life": 8 },
-  { "name": "Golden Core",              "need": 2900,  "life": 12 },
-  { "name": "Nascent Soul",             "need": 7500,  "life": 22 },
-  { "name": "Soul Transformation",      "need": 27000, "life": 40 },
-  { "name": "Immortal Ascension",       "need": null,  "life": 0 }
+  { "name": "Mortal",                   "need": 100,    "life": 0 },
+  { "name": "Qi Condensation",          "need": 400,    "life": 5 },
+  { "name": "Foundation Establishment", "need": 1100,   "life": 8 },
+  { "name": "Golden Core",              "need": 2900,   "life": 12 },
+  { "name": "Nascent Soul",             "need": 7500,   "life": 22 },
+  { "name": "Soul Transformation",      "need": 27000,  "life": 40 },
+  { "name": "Void Refinement",          "need": 45000,  "life": 60 },
+  { "name": "Body Integration",         "need": 80000,  "life": 90 },
+  { "name": "Great Vehicle",            "need": 140000, "life": 130 },
+  { "name": "Tribulation Transcendence","need": 240000, "life": 180 },
+  { "name": "True Immortal",            "need": null,   "life": 260 }
 ]

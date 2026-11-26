@@ -37,7 +37,11 @@
       3,
       4,
       4,
-      4
+      5,
+      5,
+      6,
+      6,
+      6
     ],
     "masteryYears": [
       0,
@@ -75,5 +79,21 @@
     "failHealthMin": 10,
     "failHealthMax": 25,
     "failMeritLoss": 0.15
+  },
+  "family": {
+    "startBond": 45,
+    "mortalLifespanMin": 65,
+    "mortalLifespanMax": 85,
+    "cultivatorLifespan": 140,
+    "maxChildren": 3,
+    "bondPerk": 70,
+    "perkLuck": 2,
+    "perkQi": 0.02,
+    "heir": {
+      "goldShare": 0.5,
+      "goldCap": 200,
+      "intelligencePerTalent": 0.2,
+      "luckPerTalent": 0.1
+    }
   }
 }

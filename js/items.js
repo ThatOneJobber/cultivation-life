@@ -3,12 +3,12 @@
 
    A character has:
      p.inv   = { itemId: count }            everything owned
-     p.equip = { weapon, armor, talisman }  itemId currently worn in each slot
+     p.equip = { weapon, armor, talisman, ring }  itemId currently worn in each slot
 */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
 
-  const SLOTS = ["weapon", "armor", "talisman"];
+  const SLOTS = ["weapon", "armor", "talisman", "ring"];
   // Bonuses equipment can give (the "mods" of an item):
   //   power       added to fight chances        guard      fraction of damage ignored (max 0.6)
   //   regen       extra health healed per year  qiMult     extra fraction of qi gained
@@ -44,7 +44,7 @@
 
   // Total bonus for a key from worn equipment, equipped techniques AND sect rank.
   function mod(p, key) {
-    let sum = (G.tech ? G.tech.mod(p, key) : 0) + (G.sects ? G.sects.mod(p, key) : 0);
+    let sum = (G.tech ? G.tech.mod(p, key) : 0) + (G.sects ? G.sects.mod(p, key) : 0) + (G.family ? G.family.mod(p, key) : 0) + (G.karma ? G.karma.mod(p, key) : 0);
     for (const id of equippedIds(p)) {
       const d = def(id);
       if (d && d.mods && d.mods[key]) sum += d.mods[key];
@@ -67,7 +67,20 @@
     safety: n => pct(n) + " lower meditation risk",
     vitality: n => pct(n) + " slower old-age decline"
   };
-  const modText = (mods, scale) => Object.keys(mods).map(k => FMT[k](mods[k] * (scale || 1))).join(", ");
+  // Negative values (the price of some bonuses) read as penalties.
+  const NEG = {
+    power: n => "-" + Math.round(n) + " power",
+    guard: n => pct(n) + " more damage taken",
+    regen: n => "-" + r1(n) + " health a year",
+    qiMult: n => "-" + pct(n) + " qi",
+    breakBonus: n => "-" + pct(n) + " breakthrough chance",
+    luck: n => "-" + Math.round(n) + " luck",
+    intelligence: n => "-" + Math.round(n) + " intelligence",
+    meditation: n => "-" + pct(n) + " qi from meditating",
+    safety: n => pct(n) + " higher meditation risk",
+    vitality: n => pct(n) + " faster old-age decline"
+  };
+  const modText = (mods, scale) => Object.keys(mods).map(k => { const v = mods[k] * (scale || 1); return v < 0 ? NEG[k](-v) : FMT[k](v); }).join(", ");
 
   G.items = { SLOTS, MOD_KEYS, def, count, total, add, mod, modText, equippedIds, all: () => G.data.items || [] };
 })();

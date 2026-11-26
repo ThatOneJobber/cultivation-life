@@ -1,0 +1,80 @@
+[
+  { "id": "old_friend_dies", "text": "A letter arrives: an old friend from your younger days has passed away.",
+    "minAge": 50, "weight": 4, "if": ["ageRatio>0.4"],
+    "choices": [
+      { "label": "Attend the funeral", "outcomes": [ { "text": "You stand at the grave and say the words you never said in life.", "effects": { "karma": 2, "health": -4 } } ]},
+      { "label": "Send flowers and stay home", "outcomes": [ { "text": "You pour a cup of wine to the empty chair.", "effects": { "intelligence": 1 } } ]}
+    ] },
+  { "id": "reflect_on_life", "text": "On a quiet night you sit on your porch and count the years behind you.",
+    "minAge": 60, "weight": 4, "if": ["ageRatio>0.6"],
+    "choices": [
+      { "label": "Make peace with your past", "outcomes": [ { "text": "A long breath, and a long-held weight falls from you.", "effects": { "karma": 3, "health": 6 } } ]},
+      { "label": "Resolve to cultivate harder than ever", "outcomes": [
+        { "chance": 0.55, "scale": { "intelligence": 0.003 }, "text": "A fire kindles in your dantian that had gone dim for decades.", "effects": { "qi": { "base": 40, "perRealm": 40 } } },
+        { "text": "The old body protests, and you push too hard.", "effects": { "health": -15, "qi": { "base": 15, "perRealm": 15 } } }
+      ]}
+    ] },
+  { "id": "deathbed_visions", "text": "In the deep of night you see the faces of those you have lost, calm, patient, waiting.",
+    "minAge": 70, "weight": 4, "once": true, "if": ["ageRatio>0.85"],
+    "choices": [
+      { "label": "Embrace the vision", "outcomes": [ { "text": "A warmth fills you. Whatever comes will come in its own time.", "effects": { "karma": 5, "health": 10 } } ]},
+      { "label": "Burn your qi to cling to life", "outcomes": [
+        { "chance": 0.6, "scale": { "luck": 0.003 }, "text": "You shake off the shadow and add years to your life.", "effects": { "qi": "-all", "lifespan": 6 } },
+        { "text": "The visions only grow stronger.", "effects": { "qi": "-all", "health": -12 } }
+      ]}
+    ] },
+  { "id": "ancestral_memory", "text": "In a dream, a figure with your family's eyes teaches you a technique, one breath at a time.",
+    "minAge": 12, "weight": 6, "once": true, "if": ["generation>=2"],
+    "choices": [
+      { "label": "Memorize every movement", "outcomes": [
+        { "chance": 0.5, "scale": { "intelligence": 0.005 }, "text": "You wake with a technique firmly in your mind.", "effects": { "learn": ["heart_sutra_stillness"], "intelligence": 1 } },
+        { "text": "You remember only fragments, but they help.", "effects": { "intelligence": 2, "qi": { "base": 10, "perRealm": 12 } } }
+      ]}
+    ] },
+  { "id": "family_relic", "text": "In the attic of the old house, you find a chest your ancestors wrapped in cloth and wax.",
+    "minAge": 10, "weight": 5, "once": true, "if": ["generation>=2"],
+    "choices": [
+      { "label": "Open it", "outcomes": [
+        { "chance": 0.4, "scale": { "luck": 0.004 }, "text": "Inside is a ring that hums softly when you put it on.", "effects": { "items": { "jade_spirit_ring": 1 } } },
+        { "chance": 0.5, "text": "A small purse of old coins and a letter of blessing.", "effects": { "gold": { "base": 30, "perRealm": 15 }, "luck": 1 } },
+        { "text": "Only dust and a lock of hair.", "effects": { "karma": 1 } }
+      ]}
+    ] },
+  { "id": "child_leaves_home", "text": "Your grown child tells you they wish to leave to see the world and test their own strength.",
+    "minAge": 40, "weight": 15, "once": true, "if": ["children>=1", "since:childBorn>=15"],
+    "choices": [
+      { "label": "Give them money and your blessing (40 gold)", "if": ["gold>=40"], "outcomes": [
+        { "text": "They hug you tightly and set off with a heavy pack.", "effects": { "gold": -40, "trainChild": 10, "karma": 2 } }
+      ]},
+      { "label": "Give them your blessing only", "outcomes": [ { "text": "They set off with an empty purse and a full heart.", "effects": { "trainChild": 5 } } ]},
+      { "label": "Ask them to stay", "outcomes": [ { "text": "They stay, and the house is warm, but something unspoken remains.", "effects": { "bond": 3 } } ]}
+    ] },
+  { "id": "dual_cultivation", "text": "Your dao companion proposes you cultivate side by side for a year, each guiding the other's qi.",
+    "minAge": 30, "minRealm": 2, "weight": 4, "if": ["partner:cultivator", "bond>=50"],
+    "choices": [
+      { "label": "Cultivate together", "outcomes": [
+        { "chance": 0.7, "scale": { "intelligence": 0.002 }, "text": "Your qi cycles beautifully with theirs.", "effects": { "qi": { "base": 60, "perRealm": 60 }, "bond": 6 } },
+        { "text": "A small misstep causes a backlash.", "effects": { "health": -15, "bond": 2 } }
+      ]},
+      { "label": "Cultivate alone", "outcomes": [ { "text": "They nod, but their smile is thin.", "effects": { "qi": { "base": 20, "perRealm": 20 }, "bond": -4 } } ]}
+    ] },
+  { "id": "anniversary", "text": "Today marks another year since you and your partner first met.",
+    "minAge": 25, "weight": 3, "if": ["partner", "bond>=30"],
+    "choices": [
+      { "label": "Give a thoughtful gift (25 gold)", "if": ["gold>=25"], "outcomes": [ { "text": "Their eyes shine. The evening is warm.", "effects": { "gold": -25, "bond": 8 } } ]},
+      { "label": "Cook dinner yourself", "outcomes": [
+        { "chance": 0.5, "text": "The meal is surprisingly good.", "effects": { "bond": 6 } },
+        { "text": "The meal is a disaster, but you laugh together.", "effects": { "bond": 3 } }
+      ]},
+      { "label": "Forget the date", "outcomes": [ { "text": "Their silence is louder than words.", "effects": { "bond": -8 } } ]}
+    ] },
+  { "id": "child_bullied_sect", "text": "Your child comes home with a bruised face. Disciples of a rival sect have been picking on them.",
+    "minAge": 30, "weight": 3, "if": ["children>=1", "since:childBorn>=8"],
+    "choices": [
+      { "label": "Teach the bullies a lesson", "outcomes": [
+        { "chance": 0.55, "scale": { "power": 0.01 }, "text": "A single stern conversation ends the trouble.", "effects": { "trainChild": 3, "karma": -1 } },
+        { "text": "The fight escalates and you are the one hurt.", "effects": { "health": -15, "trainChild": 2 } }
+      ]},
+      { "label": "Teach your child to defend themselves", "outcomes": [ { "text": "Weeks of practice turn a victim into a fighter.", "effects": { "trainChild": 8, "qi": -10 } } ]}
+    ] }
+]

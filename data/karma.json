@@ -1,0 +1,284 @@
+{
+ "bands": {
+  "good": 60,
+  "evil": 40
+ },
+ "respecKeep": 0.25,
+ "nodes": [
+  {
+   "id": "t_savings",
+   "branch": "trunk",
+   "name": "Past-Life Savings",
+   "desc": "Coins you hid in a hollow tree three lifetimes ago.",
+   "cost": 40,
+   "start": {
+    "gold": 40
+   }
+  },
+  {
+   "id": "t_gifted",
+   "branch": "trunk",
+   "name": "Born Gifted",
+   "desc": "A mind that remembers how to learn.",
+   "cost": 60,
+   "start": {
+    "intelligence": 6
+   }
+  },
+  {
+   "id": "t_hardy",
+   "branch": "trunk",
+   "name": "Hardy Soul",
+   "desc": "A body tempered by lives of hardship.",
+   "cost": 60,
+   "start": {
+    "health": 8,
+    "lifespan": 6
+   }
+  },
+  {
+   "id": "t_affinity",
+   "branch": "trunk",
+   "name": "Heavenly Affinity",
+   "desc": "Your soul calls to the Heavenly root.",
+   "cost": 150,
+   "requires": [
+    "t_gifted"
+   ],
+   "start": {
+    "heavenly": 0.04
+   }
+  },
+  {
+   "id": "g_vow",
+   "branch": "good",
+   "name": "Righteous Vow",
+   "desc": "You vow to protect the weak. You start each life as a good soul (karma 65). While your karma is 60 or higher you are blessed, but restraint dulls your edge.",
+   "cost": 50,
+   "excludes": [
+    "e_vow",
+    "n_vow"
+   ],
+   "mods": {
+    "luck": 3,
+    "guard": 0.05
+   },
+   "always": {
+    "power": -2
+   },
+   "start": {
+    "karma": 65
+   }
+  },
+  {
+   "id": "g_mercy",
+   "branch": "good",
+   "name": "Mercy",
+   "desc": "While good: the world heals you. Always: you refuse cruel shortcuts, so cultivating is slower.",
+   "cost": 90,
+   "requires": [
+    "g_vow"
+   ],
+   "mods": {
+    "regen": 1,
+    "vitality": 0.1
+   },
+   "always": {
+    "qiMult": -0.03
+   }
+  },
+  {
+   "id": "g_grace",
+   "branch": "good",
+   "name": "Heavenly Grace",
+   "desc": "While good: the heavens smile on your breakthroughs. But the righteous are watched: karma you lose is lost 1.5 times over.",
+   "cost": 160,
+   "requires": [
+    "g_mercy"
+   ],
+   "mods": {
+    "breakBonus": 0.06,
+    "luck": 2
+   },
+   "flow": {
+    "loss": 1.5
+   }
+  },
+  {
+   "id": "g_saint",
+   "branch": "good",
+   "name": "Living Saint",
+   "desc": "While good: a radiant, resilient body and mind. Always: you have forsworn killing blows.",
+   "cost": 300,
+   "requires": [
+    "g_grace"
+   ],
+   "mods": {
+    "guard": 0.1,
+    "regen": 2,
+    "intelligence": 4,
+    "vitality": 0.15
+   },
+   "always": {
+    "power": -4
+   }
+  },
+  {
+   "id": "e_vow",
+   "branch": "evil",
+   "name": "Demonic Vow",
+   "desc": "You vow to take what you want. You start each life as a wicked soul (karma 35). While your karma is 40 or lower you gain terrible power, but fate turns on you.",
+   "cost": 50,
+   "excludes": [
+    "g_vow",
+    "n_vow"
+   ],
+   "mods": {
+    "power": 4,
+    "qiMult": 0.03
+   },
+   "always": {
+    "luck": -4
+   },
+   "start": {
+    "karma": 35
+   }
+  },
+  {
+   "id": "e_blood",
+   "branch": "evil",
+   "name": "Blood Tempering",
+   "desc": "While wicked: savage strength and a body that feeds on slaughter. Always: you leave yourself open.",
+   "cost": 90,
+   "requires": [
+    "e_vow"
+   ],
+   "mods": {
+    "power": 3,
+    "regen": 1
+   },
+   "always": {
+    "guard": -0.1
+   }
+  },
+  {
+   "id": "e_dominion",
+   "branch": "evil",
+   "name": "Dominion",
+   "desc": "While wicked: you draw qi from fear. Always: redemption is hard, so good karma you gain is halved.",
+   "cost": 160,
+   "requires": [
+    "e_blood"
+   ],
+   "mods": {
+    "qiMult": 0.05,
+    "breakBonus": 0.02
+   },
+   "flow": {
+    "gain": 0.5
+   }
+  },
+  {
+   "id": "e_overlord",
+   "branch": "evil",
+   "name": "Overlord",
+   "desc": "While wicked: overwhelming power. Always: the heavens hate you, and your body wastes.",
+   "cost": 300,
+   "requires": [
+    "e_dominion"
+   ],
+   "mods": {
+    "power": 8,
+    "qiMult": 0.06,
+    "breakBonus": 0.02
+   },
+   "always": {
+    "luck": -6,
+    "vitality": -0.2,
+    "regen": -1
+   }
+  },
+  {
+   "id": "n_vow",
+   "branch": "neutral",
+   "name": "Vow of Balance",
+   "desc": "You vow to walk the middle path. You start each life at karma 50, and swings in your karma are softened. While your karma stays between 41 and 59 you think clearly, but a detached heart fights without fire.",
+   "cost": 50,
+   "excludes": [
+    "g_vow",
+    "e_vow"
+   ],
+   "mods": {
+    "intelligence": 2,
+    "meditation": 0.02
+   },
+   "always": {
+    "power": -2
+   },
+   "start": {
+    "karma": 50
+   },
+   "flow": {
+    "gain": 0.6,
+    "loss": 0.6
+   }
+  },
+  {
+   "id": "n_harmony",
+   "branch": "neutral",
+   "name": "Harmony",
+   "desc": "While balanced: ease of body and mind. Always: you hold back your qi.",
+   "cost": 90,
+   "requires": [
+    "n_vow"
+   ],
+   "mods": {
+    "safety": 0.03,
+    "regen": 1,
+    "luck": 1
+   },
+   "always": {
+    "qiMult": -0.02
+   }
+  },
+  {
+   "id": "n_dao",
+   "branch": "neutral",
+   "name": "Middle Dao",
+   "desc": "While balanced: deep meditation and sharper breakthroughs. Always: you rely on stillness over defense.",
+   "cost": 160,
+   "requires": [
+    "n_harmony"
+   ],
+   "mods": {
+    "meditation": 0.04,
+    "breakBonus": 0.015,
+    "intelligence": 2
+   },
+   "always": {
+    "guard": -0.05
+   }
+  },
+  {
+   "id": "n_sage",
+   "branch": "neutral",
+   "name": "Sage of Equilibrium",
+   "desc": "While balanced: perfect clarity and a long, quiet life. Always: no blazing strength, and fortune is aloof.",
+   "cost": 300,
+   "requires": [
+    "n_dao"
+   ],
+   "mods": {
+    "meditation": 0.06,
+    "breakBonus": 0.02,
+    "safety": 0.04,
+    "vitality": 0.15,
+    "intelligence": 4
+   },
+   "always": {
+    "power": -5,
+    "luck": -3
+   }
+  }
+ ]
+}

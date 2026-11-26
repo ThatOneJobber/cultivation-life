@@ -2,7 +2,7 @@
    button presses to the engine. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items, T = G.tech, X = G.sects;
+  const D = G.data, S = G.state, E = G.engine, C = G.cond, I = G.items, T = G.tech, X = G.sects, F = G.family, K = G.karma, AC = G.achievements;
   const $ = id => document.getElementById(id);
 
   const BARS = [
@@ -51,7 +51,7 @@
   function render() {
     const p = S.p, m = S.meta;
     $("name").textContent = p.name;
-    $("sub").textContent = "Age " + p.age + " / " + p.lifespan + " · " + D.realms[p.realm].name + " · " + D.roots[p.root].name + " Root";
+    $("sub").textContent = "Age " + p.age + " / " + p.lifespan + " · " + realmLabel(p) + " · " + D.roots[p.root].name + " Root";
     $("meta").innerHTML = "Life #" + m.lives + "<br>Karma " + m.karma;
 
     // Bars show the effective value (equipment bonuses included).
@@ -84,6 +84,14 @@
       sectBtn.onclick = () => openBag("sect");
       btns.appendChild(sectBtn);
     }
+    const karmaBtn = el("button", "", "☯ Karma" + (K.available(S.meta) > 0 ? " (" + K.available(S.meta) + ")" : ""));
+    karmaBtn.onclick = () => openBag("karma");
+    btns.appendChild(karmaBtn);
+    if (hasFamily(p)) {
+      const famBtn = el("button", "", "👪 Family");
+      famBtn.onclick = () => openBag("family");
+      btns.appendChild(famBtn);
+    }
     inv.appendChild(btns);
 
     const log = $("log");
@@ -102,6 +110,14 @@
     if (!p.alive && deathShownFor !== p) { deathShownFor = p; showDeath(); }
   }
 
+  // "Golden Core (Middle)": how far through the realm your qi is.
+  function realmLabel(p) {
+    const r = D.realms[p.realm];
+    if (r.need == null) return r.name;
+    const f = p.qi / r.need;
+    return r.name + " (" + (f >= 1 ? "Peak" : f >= 2 / 3 ? "Late" : f >= 1 / 3 ? "Middle" : "Early") + ")";
+  }
+
   function addBtn(parent, text, fn, cls, disabled) {
     const b = el("button", cls || "", text);
     if (disabled) b.disabled = true;
@@ -117,7 +133,7 @@
     a.innerHTML = "";
     if (!p.alive) {
       addBtn(a, "View Summary", showDeath);
-      addBtn(a, "Reincarnate", reincarnate, "primary");
+      addBtn(a, "Reincarnate", () => reincarnate(), "primary");
       return;
     }
     if (p.pending) {
@@ -139,6 +155,7 @@
       const pr = X.promotion(p);
       addBtn(a, pr && pr.ready ? "🎖 Promotion trial available · " + pr.next.name : "📋 Sect Missions", () => openBag("sect"), pr && pr.ready ? "gold" : "");
     }
+    if (p.children.length && p.age >= 30) addBtn(a, "👪 Retire and pass on the legacy", () => { if (confirm("Retire from the world? Your life ends here and one of your children continues the bloodline, with your best equipment as an heirloom.")) { E.retire(); render(); } });
     addBtn(a, "Age Up ▶", act(E.ageUp), "primary");
   }
 
@@ -172,8 +189,9 @@
     const p = S.p, card = $("bagCard");
     card.innerHTML = "";
     if (bagTab === "sect" && !p.sect) bagTab = "bag";
+    if (bagTab === "family" && !hasFamily(p)) bagTab = "bag";
     const tabs = el("div", "tabs");
-    [["bag", "🎒 Bag"], ["arts", "📜 Arts"], ["sect", "🏯 Sect"], ["market", "🏮 Market"]].filter(t => t[0] !== "sect" || p.sect).forEach(([id, label]) => {
+    [["bag", "🎒 Bag"], ["arts", "📜 Arts"], ["sect", "🏯 Sect"], ["family", "👪 Family"], ["karma", "☯ Karma"], ["feats", "🏆 Feats"], ["market", "🏮 Market"]].filter(t => (t[0] !== "sect" || p.sect) && (t[0] !== "family" || hasFamily(p))).forEach(([id, label]) => {
       const b = el("button", bagTab === id ? "active" : "", label);
       b.onclick = () => { bagTab = id; renderBag(); };
       tabs.appendChild(b);
@@ -219,13 +237,22 @@
       renderArts(card, p);
     } else if (bagTab === "sect") {
       renderSect(card, p);
+    } else if (bagTab === "family") {
+      renderFamily(card, p);
+    } else if (bagTab === "karma") {
+      renderKarma(card, p);
+    } else if (bagTab === "feats") {
+      renderFeats(card, p);
     } else {
       card.appendChild(el("div", "note", "Gold: " + p.gold + (p.pending ? " · Finish what you are doing before shopping." : "")));
       card.appendChild(el("h3", "", "Goods"));
       I.all().filter(d => d.price).sort((a, b) => a.price - b.price).forEach(d => {
         const owned = d.type === "equipment" && I.count(p, d.id) > 0;
-        const label = owned ? "Owned" : "Buy · " + d.price + "g";
-        card.appendChild(itemRow(d, 0, [button(label, bagAct(() => E.buyItem(d.id)), owned || !E.canBuy(p, d))]));
+        const locked = p.realm < (d.minRealm || 0);
+        const label = owned ? "Owned" : locked ? "Locked" : "Buy · " + d.price + "g";
+        const row = itemRow(d, 0, [button(label, bagAct(() => E.buyItem(d.id)), owned || !E.canBuy(p, d))]);
+        if (locked) row.querySelector(".info").appendChild(el("div", "ds", "Requires the " + D.realms[d.minRealm].name + " realm"));
+        card.appendChild(row);
       });
       card.appendChild(el("h3", "", "Manuals"));
       T.all().filter(d => d.price).sort((a, b) => a.price - b.price).forEach(d => {
@@ -274,6 +301,101 @@
       card.appendChild(row);
     });
     card.appendChild(el("div", "note", "Find more arts in sect pavilions and rare events, or buy manuals at the Market."));
+  }
+
+  /* ---------- achievements ---------- */
+  function renderFeats(card, p) {
+    const m = S.meta, all = AC.all();
+    card.appendChild(el("h3", "", "Achievements (" + AC.count(m) + "/" + all.length + ")"));
+    card.appendChild(el("div", "note", "Each achievement is unlocked once and pays a little karma. Hidden ones reveal themselves when you earn them."));
+    const cats = [];
+    all.forEach(a => { if (!cats.includes(a.cat)) cats.push(a.cat); });
+    cats.forEach(cat => {
+      const list = all.filter(a => a.cat === cat);
+      card.appendChild(el("h3", "", cat + " (" + list.filter(a => AC.unlocked(m, a.id)).length + "/" + list.length + ")"));
+      list.forEach(a => {
+        const got = AC.unlocked(m, a.id), row = el("div", "irow" + (got ? " worn" : "")), info = el("div", "info");
+        const nm = el("div", "nm", got ? "🏆 " + a.name : a.hidden ? "???" : a.name);
+        if (a.reward) nm.appendChild(el("i", "", " · +" + a.reward + " karma"));
+        info.appendChild(nm);
+        info.appendChild(el("div", "ds", got || !a.hidden ? a.desc : "A hidden achievement."));
+        row.appendChild(info);
+        card.appendChild(row);
+      });
+    });
+  }
+
+  /* ---------- karma tree ---------- */
+  const BRANCH_INFO = {
+    trunk: ["Roots of Fate", "Gifts from your past lives, always active."],
+    good: ["Path of the Righteous", "Powers that work while your karma is 60 or higher. Cost: you must keep your hands clean."],
+    evil: ["Path of the Wicked", "Powers that work while your karma is 40 or lower. Cost: fate turns against you."],
+    neutral: ["Path of Balance", "Powers that work while your karma stays between 41 and 59. Cost: little fire in battle."]
+  };
+  const BAND_NAME = { good: "righteous", evil: "wicked", neutral: "balanced" };
+
+  function renderKarma(card, p) {
+    const m = S.meta, b = K.band(p);
+    card.appendChild(el("h3", "", "Karma Tree"));
+    card.appendChild(el("div", "note", "Karma you earn when you die can buy permanent upgrades. You may follow only one vow (righteous, wicked or balanced). A path's bonuses work only while your karma in this life matches it, and every path has a price. Right now your karma is " + p.stats.karma + " (" + BAND_NAME[b] + "). You have " + K.available(m) + " karma to spend (" + m.karma + " earned in total)."));
+    ["trunk", "good", "evil", "neutral"].forEach(branch => {
+      card.appendChild(el("h3", "", BRANCH_INFO[branch][0]));
+      card.appendChild(el("div", "note", BRANCH_INFO[branch][1]));
+      K.nodes().filter(n => n.branch === branch).forEach(n => {
+        const row = el("div", "irow" + (K.owned(m, n.id) ? " worn" : "")), info = el("div", "info");
+        const nm = el("div", "nm", n.name);
+        nm.appendChild(el("i", "", " · " + n.cost + " karma"));
+        info.appendChild(nm);
+        info.appendChild(el("div", "ds", n.desc));
+        const lines = [];
+        if (n.start) lines.push("Each life: " + Object.keys(n.start).map(k => k === "karma" ? "start at karma " + n.start[k] : k === "heavenly" ? "+" + Math.round(n.start[k] * 100) + "% chance of a Heavenly root" : "+" + n.start[k] + " " + k).join(", "));
+        if (n.mods) lines.push("While " + BAND_NAME[n.branch] + ": " + I.modText(n.mods));
+        if (n.always) lines.push("Always: " + I.modText(n.always));
+        if (n.flow) lines.push((n.flow.gain !== undefined ? "Karma gains x" + n.flow.gain : "") + (n.flow.gain !== undefined && n.flow.loss !== undefined ? ", " : "") + (n.flow.loss !== undefined ? "karma losses x" + n.flow.loss : ""));
+        lines.forEach(t => info.appendChild(el("div", "ds fxline", t)));
+        row.appendChild(info);
+        const why = K.blocked(m, n.id);
+        row.appendChild(button(K.owned(m, n.id) ? "Owned" : why ? "Locked" : "Buy", () => { K.buy(n.id); S.save(); render(); renderBag(); }, !!why));
+        if (why && why !== "owned") info.appendChild(el("div", "ds", why));
+        card.appendChild(row);
+      });
+    });
+    if (Object.keys(m.upgrades).length) {
+      const rb = button("Forget all vows (refund " + Math.round((1 - D.karma.respecKeep) * 100) + "%)", () => { if (confirm("Forget every upgrade? You get back " + Math.round((1 - D.karma.respecKeep) * 100) + "% of the karma you spent.")) { K.respec(); S.save(); render(); renderBag(); } });
+      card.appendChild(rb);
+    }
+  }
+
+  /* ---------- family ---------- */
+  const hasFamily = p => !!p.partner || p.children.length > 0;
+
+  function renderFamily(card, p) {
+    card.appendChild(el("h3", "", "Partner"));
+    const pt = p.partner;
+    if (!pt) card.appendChild(el("div", "note", p.flags.widowed !== undefined ? "You are alone now. Someone new may cross your path." : "You have no partner."));
+    else {
+      const row = el("div", "irow"), info = el("div", "info");
+      const nm = el("div", "nm", pt.name);
+      nm.appendChild(el("i", "", pt.cultivator ? " · dao companion" : " · mortal"));
+      info.appendChild(nm);
+      info.appendChild(el("div", "ds", "Bond " + pt.bond + "/100 · age " + pt.age + (pt.cultivator ? "" : " (mortal lives to about " + pt.lifespan + ")")));
+      const f = D.balance.family;
+      info.appendChild(el("div", "ds fxline", pt.bond >= f.bondPerk ? "Their love brings you +" + f.perkLuck + " luck" + (pt.cultivator ? " and +" + Math.round(f.perkQi * 100) + "% qi" : "") : "Reach a bond of " + f.bondPerk + " for a bonus"));
+      row.appendChild(info);
+      card.appendChild(row);
+    }
+    card.appendChild(el("h3", "", "Children (" + p.children.length + "/" + D.balance.family.maxChildren + ")"));
+    if (!p.children.length) card.appendChild(el("div", "note", "No children yet."));
+    p.children.forEach(c => {
+      const row = el("div", "irow"), info = el("div", "info");
+      const nm = el("div", "nm", c.name);
+      nm.appendChild(el("i", "", " · age " + (p.age - c.born)));
+      info.appendChild(nm);
+      info.appendChild(el("div", "ds", D.roots[c.root].name + " root · talent " + c.talent + "/100"));
+      row.appendChild(info);
+      card.appendChild(row);
+    });
+    card.appendChild(el("div", "note", "When you die, one of your children can carry on your bloodline. They inherit their root, a gift for the mind and luck from their talent, some of your gold and your best art. Teach and raise them well."));
   }
 
   /* ---------- sect ---------- */
@@ -343,22 +465,29 @@
     closeBag();
     const p = S.p, hi = D.realms[p.highest].name;
     const cause = p.deathCause.charAt(0).toLowerCase() + p.deathCause.slice(1);
-    const story = p.name + ", born with a " + D.roots[p.root].name + " root, " + (p.sect ? "joined the " + p.sect + " and rose to " + X.rankName(p) : "walked the path alone") +
-      ", reached the " + hi + " realm, and " + (p.ascended ? "ascended to immortality" : cause) + " at age " + p.age + ".";
+    const story = p.name + ", born with a " + D.roots[p.root].name + " root, " + (p.generation > 1 ? "of the bloodline's generation " + p.generation + ", " : "") + (p.sect ? "joined the " + p.sect + " and rose to " + X.rankName(p) : "wandered as a rogue cultivator") +
+      ", reached the " + hi + " realm, and " + (p.retired ? "retired and passed the legacy on" : cause) + " at age " + p.age + ".";
     $("deathCard").innerHTML =
-      "<h2>" + (p.ascended ? "Ascension!" : "Your Life Has Ended") + "</h2>" +
+      "<h2>" + (p.retired ? "A Legacy Passed On" : "Your Life Has Ended") + "</h2>" +
       '<p class="big">' + esc(p.deathCause) + "</p><p>" + esc(story) + "</p>" +
       "<p>Age: " + p.age + " · Highest realm: " + esc(hi) + "<br>Events lived: " + p.eventCount +
-      '<br>Karma earned: <b style="color:var(--gold)">+' + p.karmaGain + "</b> (total " + S.meta.karma + ")</p>" +
-      '<div class="btns"><button class="primary" id="btnRe">Reincarnate</button><button id="btnClose">View Life Log</button></div>';
-    $("btnRe").onclick = reincarnate;
+      '<br>Karma earned: <b style="color:var(--gold)">+' + p.karmaGain + "</b> (total " + S.meta.karma + (G.karma.available(S.meta) ? ", " + G.karma.available(S.meta) + " to spend in the ☯ Karma tree" : "") + ")" +
+        ((p.feats || []).length ? "<br>🏆 Achievements this life: " + p.feats.map(id => esc(AC.def(id).name)).join(", ") : "") + "</p>" +
+      '<div class="btns" id="heirBtns"></div><div class="btns"><button class="primary" id="btnRe">' + (p.children.length ? "Reincarnate as a new soul" : "Reincarnate") + '</button><button id="btnClose">View Life Log</button></div>';
+    const legacy = F.legacy(p);
+    F.heirs(p).forEach(h => {
+      const b = el("button", "gold", "Continue as " + h.name + " (" + h.rootName + ", talent " + h.talent + ")");
+      b.onclick = () => reincarnate({ child: p.children[h.index], legacy });
+      $("heirBtns").appendChild(b);
+    });
+    $("btnRe").onclick = () => reincarnate();
     $("btnClose").onclick = () => $("death").classList.add("hidden");
     $("death").classList.remove("hidden");
   }
 
-  function reincarnate() {
+  function reincarnate(heir) {
     $("death").classList.add("hidden");
-    S.newLife();
+    S.newLife(heir);
     render();
   }
 

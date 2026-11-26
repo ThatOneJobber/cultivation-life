@@ -1,31 +1,395 @@
 [
-  { "id": "healing_pill", "name": "Healing Pill", "type": "consumable",
-    "desc": "Restores 25 health.", "use": { "health": 25 }, "price": 25 },
-  { "id": "qi_pill", "name": "Qi Gathering Pill", "type": "consumable",
-    "desc": "Gain qi. Stronger at higher realms.", "use": { "qi": { "base": 30, "perRealm": 30 } }, "price": 35 },
-  { "id": "clarity_pill", "name": "Clarity Pill", "type": "consumable",
-    "desc": "Permanently gain 4 intelligence.", "use": { "intelligence": 4 } },
-  { "id": "longevity_pill", "name": "Longevity Pill", "type": "consumable",
-    "desc": "Extends your lifespan by 10 years.", "use": { "lifespan": 10 } },
-  { "id": "breakthrough_pill", "name": "Breakthrough Pill", "type": "consumable",
-    "desc": "Used automatically when you attempt a breakthrough: +15% success chance.", "onBreakthrough": 0.15, "price": 70 },
-  { "id": "antidote", "name": "Antidote", "type": "consumable",
-    "desc": "Neutralizes poison. Some events let you use it.", "price": 15 },
-
-  { "id": "iron_sword", "name": "Iron Sword", "type": "equipment", "slot": "weapon",
-    "desc": "+6 power in fights.", "mods": { "power": 6 }, "price": 80 },
-  { "id": "spirit_blade", "name": "Spirit Blade", "type": "equipment", "slot": "weapon",
-    "desc": "+14 power in fights.", "mods": { "power": 14 } },
-
-  { "id": "leather_vest", "name": "Leather Vest", "type": "equipment", "slot": "armor",
-    "desc": "Reduces damage you take by 10%.", "mods": { "guard": 0.1 }, "price": 60 },
-  { "id": "jade_robe", "name": "Jade Silk Robe", "type": "equipment", "slot": "armor",
-    "desc": "Reduces damage by 20% and restores 1 extra health a year.", "mods": { "guard": 0.2, "regen": 1 } },
-
-  { "id": "lucky_charm", "name": "Lucky Charm", "type": "equipment", "slot": "talisman",
-    "desc": "+8 luck.", "mods": { "luck": 8 }, "price": 70 },
-  { "id": "qi_pendant", "name": "Qi Pendant", "type": "equipment", "slot": "talisman",
-    "desc": "+15% qi from cultivation.", "mods": { "qiMult": 0.15 } },
-  { "id": "sage_jade", "name": "Sage's Jade", "type": "equipment", "slot": "talisman",
-    "desc": "+8 intelligence and +5% breakthrough chance.", "mods": { "intelligence": 8, "breakBonus": 0.05 } }
+ {
+  "id": "healing_pill",
+  "name": "Healing Pill",
+  "type": "consumable",
+  "desc": "Restores 25 health.",
+  "use": {
+   "health": 25
+  },
+  "price": 25
+ },
+ {
+  "id": "qi_pill",
+  "name": "Qi Gathering Pill",
+  "type": "consumable",
+  "desc": "Gain qi. Stronger at higher realms.",
+  "use": {
+   "qi": {
+    "base": 30,
+    "perRealm": 30
+   }
+  },
+  "price": 35
+ },
+ {
+  "id": "clarity_pill",
+  "name": "Clarity Pill",
+  "type": "consumable",
+  "desc": "Permanently gain 4 intelligence.",
+  "use": {
+   "intelligence": 4
+  }
+ },
+ {
+  "id": "longevity_pill",
+  "name": "Longevity Pill",
+  "type": "consumable",
+  "desc": "Extends your lifespan by 10 years.",
+  "use": {
+   "lifespan": 10
+  }
+ },
+ {
+  "id": "breakthrough_pill",
+  "name": "Breakthrough Pill",
+  "type": "consumable",
+  "desc": "Used automatically when you attempt a breakthrough: +15% success chance.",
+  "onBreakthrough": 0.15,
+  "price": 70
+ },
+ {
+  "id": "antidote",
+  "name": "Antidote",
+  "type": "consumable",
+  "desc": "Neutralizes poison. Some events let you use it.",
+  "price": 15
+ },
+ {
+  "id": "iron_sword",
+  "name": "Iron Sword",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+6 power in fights.",
+  "mods": {
+   "power": 6
+  },
+  "price": 80
+ },
+ {
+  "id": "spirit_blade",
+  "name": "Spirit Blade",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+14 power in fights.",
+  "mods": {
+   "power": 14
+  }
+ },
+ {
+  "id": "leather_vest",
+  "name": "Leather Vest",
+  "type": "equipment",
+  "slot": "armor",
+  "desc": "Reduces damage you take by 10%.",
+  "mods": {
+   "guard": 0.1
+  },
+  "price": 60
+ },
+ {
+  "id": "jade_robe",
+  "name": "Jade Silk Robe",
+  "type": "equipment",
+  "slot": "armor",
+  "desc": "Reduces damage by 20% and restores 1 extra health a year.",
+  "mods": {
+   "guard": 0.2,
+   "regen": 1
+  }
+ },
+ {
+  "id": "lucky_charm",
+  "name": "Lucky Charm",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+8 luck.",
+  "mods": {
+   "luck": 8
+  },
+  "price": 70
+ },
+ {
+  "id": "qi_pendant",
+  "name": "Qi Pendant",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+15% qi from cultivation.",
+  "mods": {
+   "qiMult": 0.15
+  }
+ },
+ {
+  "id": "sage_jade",
+  "name": "Sage's Jade",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+8 intelligence and +5% breakthrough chance.",
+  "mods": {
+   "intelligence": 8,
+   "breakBonus": 0.05
+  }
+ },
+ {
+  "id": "cold_iron_saber",
+  "name": "Cold Iron Saber",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+10 power in fights.",
+  "mods": {
+   "power": 10
+  },
+  "price": 160,
+  "minRealm": 1
+ },
+ {
+  "id": "thunderwood_sword",
+  "name": "Thunderwood Sword",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+22 power. Carved from a lightning-struck tree.",
+  "mods": {
+   "power": 22
+  },
+  "price": 650,
+  "minRealm": 3
+ },
+ {
+  "id": "void_splitter",
+  "name": "Void Splitter",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+40 power. Its edge cuts the air itself.",
+  "mods": {
+   "power": 40
+  }
+ },
+ {
+  "id": "heavenpiercer",
+  "name": "Heavenpiercer",
+  "type": "equipment",
+  "slot": "weapon",
+  "desc": "+60 power and +3 luck. A legend among blades.",
+  "mods": {
+   "power": 60,
+   "luck": 3
+  }
+ },
+ {
+  "id": "boar_hide_mail",
+  "name": "Iron Boar Hide Mail",
+  "type": "equipment",
+  "slot": "armor",
+  "desc": "Reduces damage by 15%.",
+  "mods": {
+   "guard": 0.15
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "dragonscale_armor",
+  "name": "Dragonscale Armor",
+  "type": "equipment",
+  "slot": "armor",
+  "desc": "Reduces damage by 30% and restores 2 extra health a year.",
+  "mods": {
+   "guard": 0.3,
+   "regen": 2
+  },
+  "price": 900,
+  "minRealm": 3
+ },
+ {
+  "id": "starfall_vestments",
+  "name": "Starfall Vestments",
+  "type": "equipment",
+  "slot": "armor",
+  "desc": "Reduces damage by 40%, restores 3 extra health a year and slows aging of the body.",
+  "mods": {
+   "guard": 0.4,
+   "regen": 3,
+   "vitality": 0.2
+  }
+ },
+ {
+  "id": "mirror_of_clarity",
+  "name": "Mirror of Clarity",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+5% breakthrough chance and a steadier mind in meditation.",
+  "mods": {
+   "breakBonus": 0.05,
+   "safety": 0.03
+  },
+  "price": 500,
+  "minRealm": 2
+ },
+ {
+  "id": "heaven_pearl",
+  "name": "Heaven Pearl",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+30% qi from cultivation.",
+  "mods": {
+   "qiMult": 0.3
+  }
+ },
+ {
+  "id": "phoenix_feather",
+  "name": "Phoenix Feather",
+  "type": "equipment",
+  "slot": "talisman",
+  "desc": "+3 health a year and slows the decline of old age.",
+  "mods": {
+   "regen": 3,
+   "vitality": 0.3
+  }
+ },
+ {
+  "id": "bronze_focus_ring",
+  "name": "Bronze Focus Ring",
+  "type": "equipment",
+  "slot": "ring",
+  "desc": "+3 intelligence.",
+  "mods": {
+   "intelligence": 3
+  },
+  "price": 90
+ },
+ {
+  "id": "jade_spirit_ring",
+  "name": "Jade Spirit Ring",
+  "type": "equipment",
+  "slot": "ring",
+  "desc": "+10% qi from cultivation.",
+  "mods": {
+   "qiMult": 0.1
+  },
+  "price": 420,
+  "minRealm": 2
+ },
+ {
+  "id": "serenity_ring",
+  "name": "Ring of Serenity",
+  "type": "equipment",
+  "slot": "ring",
+  "desc": "Safer meditation and +3% breakthrough chance.",
+  "mods": {
+   "safety": 0.04,
+   "breakBonus": 0.03
+  },
+  "price": 700,
+  "minRealm": 3
+ },
+ {
+  "id": "dao_heart_ring",
+  "name": "Dao Heart Ring",
+  "type": "equipment",
+  "slot": "ring",
+  "desc": "+20% qi from meditating and +5% breakthrough chance.",
+  "mods": {
+   "meditation": 0.2,
+   "breakBonus": 0.05
+  }
+ },
+ {
+  "id": "dragon_bone_ring",
+  "name": "Dragon Bone Ring",
+  "type": "equipment",
+  "slot": "ring",
+  "desc": "+12 power and 10% less damage taken.",
+  "mods": {
+   "power": 12,
+   "guard": 0.1
+  }
+ },
+ {
+  "id": "greater_healing_pill",
+  "name": "Greater Healing Pill",
+  "type": "consumable",
+  "desc": "Restores 60 health.",
+  "use": {
+   "health": 60
+  },
+  "price": 90,
+  "minRealm": 2
+ },
+ {
+  "id": "greater_qi_pill",
+  "name": "Greater Qi Pill",
+  "type": "consumable",
+  "desc": "Gain a great deal of qi. Stronger at higher realms.",
+  "use": {
+   "qi": {
+    "base": 200,
+    "perRealm": 300
+   }
+  },
+  "price": 300,
+  "minRealm": 3
+ },
+ {
+  "id": "greater_breakthrough_pill",
+  "name": "Greater Breakthrough Pill",
+  "type": "consumable",
+  "desc": "Used automatically when you attempt a breakthrough: +25% success chance.",
+  "onBreakthrough": 0.25,
+  "price": 400,
+  "minRealm": 3
+ },
+ {
+  "id": "heavenly_dao_pill",
+  "name": "Heavenly Dao Pill",
+  "type": "consumable",
+  "desc": "Used automatically when you attempt a breakthrough: +40% success chance.",
+  "onBreakthrough": 0.4
+ },
+ {
+  "id": "marrow_pill",
+  "name": "Spirit Marrow Pill",
+  "type": "consumable",
+  "desc": "Permanently gain 3 intelligence and restore 15 health.",
+  "use": {
+   "intelligence": 3,
+   "health": 15
+  }
+ },
+ {
+  "id": "fortune_pill",
+  "name": "Fortune Pill",
+  "type": "consumable",
+  "desc": "Permanently gain 4 luck.",
+  "use": {
+   "luck": 4
+  }
+ },
+ {
+  "id": "lotus_of_remembrance",
+  "name": "Lotus of Remembrance",
+  "type": "consumable",
+  "desc": "Wipes away old sins. Gain 10 karma.",
+  "use": {
+   "karma": 10
+  }
+ },
+ {
+  "id": "elixir_of_life",
+  "name": "Elixir of Life",
+  "type": "consumable",
+  "desc": "Extends your lifespan by 25 years.",
+  "use": {
+   "lifespan": 25
+  }
+ },
+ {
+  "id": "rebirth_pill",
+  "name": "Phoenix Rebirth Pill",
+  "type": "consumable",
+  "desc": "Extends your lifespan by 50 years and restores 40 health.",
+  "use": {
+   "lifespan": 50,
+   "health": 40
+  }
+ }
 ]

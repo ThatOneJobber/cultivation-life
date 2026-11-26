@@ -1,0 +1,181 @@
+[
+  { "id": "village_festival", "text": "The harvest festival fills the market square with lanterns, music and the smell of roasting chestnuts.",
+    "minAge": 8, "weight": 4,
+    "choices": [
+      { "label": "Join the dancing", "outcomes": [
+        { "chance": 0.3, "scale": { "luck": 0.004 }, "text": "A fortune-teller grabs your hand and whispers a good omen.", "effects": { "luck": 3 } },
+        { "text": "A night of laughter and aching feet.", "effects": { "luck": 1, "health": 3 } }
+      ]},
+      { "label": "Sell charms at a stall", "outcomes": [
+        { "text": "The crowd buys a few trinkets. Easy money.", "effects": { "gold": { "base": 10, "perRealm": 8 } } }
+      ]}
+    ] },
+  { "id": "traveling_alchemist", "text": "A traveling alchemist sets down a wooden chest of pills and names a fair price.",
+    "minAge": 14, "weight": 4, "if": ["gold>=30"],
+    "choices": [
+      { "label": "Buy a Healing Pill (25 gold)", "if": ["gold>=25"], "outcomes": [
+        { "text": "A good price for a good pill.", "effects": { "gold": -25, "items": { "healing_pill": 1 } } }
+      ]},
+      { "label": "Buy a Qi Gathering Pill (35 gold)", "if": ["gold>=35"], "outcomes": [
+        { "text": "The pill's scent alone makes your qi stir.", "effects": { "gold": -35, "items": { "qi_pill": 1 } } }
+      ]},
+      { "label": "Trade stories instead", "outcomes": [
+        { "chance": 0.35, "scale": { "intelligence": 0.004 }, "text": "The alchemist is impressed with your questions and gives you a pill for free.", "effects": { "items": { "healing_pill": 1 } } },
+        { "text": "A pleasant hour passes.", "effects": { "intelligence": 1 } }
+      ]}
+    ] },
+  { "id": "wandering_monk", "text": "A wandering monk with a cracked staff asks for a bowl of rice and a place to sleep.",
+    "minAge": 10, "weight": 4,
+    "choices": [
+      { "label": "Share your meal and your roof", "outcomes": [
+        { "chance": 0.4, "scale": { "karma": 0.003 }, "text": "In the morning the monk leaves a few words that rearrange your thinking.", "effects": { "intelligence": 2, "karma": 3 } },
+        { "text": "He eats heartily, thanks you and leaves at dawn.", "effects": { "karma": 2 } }
+      ]},
+      { "label": "Turn him away", "outcomes": [
+        { "text": "You close the door. Somewhere, a debt is noted.", "effects": { "karma": -2 } }
+      ]}
+    ] },
+  { "id": "flood_river", "text": "The river bursts its banks and a village downstream is swept into chaos.",
+    "minAge": 16, "weight": 3,
+    "choices": [
+      { "label": "Wade in and rescue people", "outcomes": [
+        { "chance": 0.6, "scale": { "health": 0.003, "power": 0.005 }, "text": "You carry child after child to the high ground. The village will never forget it.", "effects": { "karma": 4, "luck": 2, "health": -8 } },
+        { "text": "The current is too strong. You save a few and almost drown.", "effects": { "karma": 2, "health": -25 } }
+      ]},
+      { "label": "Send supplies from a safe distance (20 gold)", "if": ["gold>=20"], "outcomes": [
+        { "text": "A modest kindness.", "effects": { "gold": -20, "karma": 1 } }
+      ]}
+    ] },
+  { "id": "gambling_den", "text": "A smoky back room hums with dice and loud laughter. A seat at the table is open.",
+    "minAge": 16, "weight": 3, "if": ["gold>=10"],
+    "choices": [
+      { "label": "Bet big (all you can afford, up to 50)", "outcomes": [
+        { "chance": 0.45, "scale": { "luck": 0.006 }, "text": "The dice love you tonight.", "effects": { "gold": { "base": 60, "perRealm": 20 } } },
+        { "text": "The dice do not love you.", "effects": { "gold": -30 } }
+      ]},
+      { "label": "Watch the players and learn their tells", "outcomes": [
+        { "text": "You learn more about people than about dice.", "effects": { "intelligence": 1, "luck": 1 } }
+      ]},
+      { "label": "Walk away", "outcomes": [ { "text": "Discipline is its own jackpot.", "effects": { "karma": 1 } } ]}
+    ] },
+  { "id": "teahouse_rumors", "text": "At a busy teahouse, you overhear whispers of a hidden spirit spring a day's walk away.",
+    "minAge": 14, "weight": 4,
+    "choices": [
+      { "label": "Follow the rumor", "outcomes": [
+        { "chance": 0.45, "scale": { "luck": 0.005 }, "text": "The spring is real. You drink deeply and feel your qi swell.", "effects": { "qi": { "base": 25, "perRealm": 30 }, "health": 15 } },
+        { "chance": 0.3, "text": "It is a trap set by thieves.", "effects": { "gold": -15, "health": -10 } },
+        { "text": "A damp hole in the ground and nothing more.", "effects": {} }
+      ]},
+      { "label": "Ignore idle gossip", "outcomes": [ { "text": "You drink your tea in peace.", "effects": { "health": 2 } } ]}
+    ] },
+  { "id": "orphan_found", "text": "A thin child sits shivering at your gate, with no one to claim them and nowhere to go.",
+    "minAge": 22, "weight": 3, "once": true, "if": ["children<3"],
+    "choices": [
+      { "label": "Take them in as your own", "outcomes": [
+        { "text": "The child clings to your sleeve. From that day, the house is a little louder and a lot warmer.", "effects": { "child": true, "karma": 4, "gold": -10, "setFlags": ["childBorn"] } }
+      ]},
+      { "label": "Find them a place at a temple", "outcomes": [
+        { "text": "You leave a donation and a promise to visit.", "effects": { "gold": -10, "karma": 2 } }
+      ]},
+      { "label": "Walk on", "outcomes": [ { "text": "You walk on, and the weight of it follows you.", "effects": { "karma": -3 } } ]}
+    ] },
+  { "id": "master_blacksmith", "text": "A master blacksmith, tired of mortal customers, offers to forge something for a cultivator who can pay.",
+    "minAge": 18, "minRealm": 1, "weight": 3, "if": ["gold>=100"],
+    "choices": [
+      { "label": "Commission a saber (120 gold)", "if": ["gold>=120"], "outcomes": [
+        { "text": "Three weeks later, the saber is ready, cold and beautiful.", "effects": { "gold": -120, "items": { "cold_iron_saber": 1 } } }
+      ]},
+      { "label": "Commission mail (140 gold)", "if": ["gold>=140"], "outcomes": [
+        { "text": "The blacksmith hammers out a shirt of iron-boar hide plates.", "effects": { "gold": -140, "items": { "boar_hide_mail": 1 } } }
+      ]},
+      { "label": "Watch him work and ask questions", "outcomes": [ { "text": "He grunts at you, but answers.", "effects": { "intelligence": 1 } } ]}
+    ] },
+  { "id": "library_city", "text": "In a great city, you find a library whose keeper allows visitors for a small fee.",
+    "minAge": 14, "weight": 4,
+    "choices": [
+      { "label": "Pay 10 gold and study for a season", "if": ["gold>=10"], "outcomes": [
+        { "chance": 0.3, "scale": { "intelligence": 0.004 }, "text": "A dusty scroll holds a gem of a technique.", "effects": { "gold": -10, "intelligence": 2, "learn": ["wind_step"] } },
+        { "text": "Months of reading leave your mind sharper.", "effects": { "gold": -10, "intelligence": 3 } }
+      ]},
+      { "label": "Sneak in at night", "outcomes": [
+        { "chance": 0.4, "scale": { "luck": 0.005 }, "text": "You copy several pages unseen.", "effects": { "intelligence": 3 } },
+        { "text": "A night-watchman catches you and gives you a good beating.", "effects": { "health": -12, "karma": -1 } }
+      ]}
+    ] },
+  { "id": "bandit_king", "text": "A bandit king rules the mountain pass, and travelers pay tolls or lose their carts.",
+    "minAge": 16, "minRealm": 1, "weight": 3,
+    "choices": [
+      { "label": "Challenge the bandit king", "outcomes": [
+        { "chance": 0.55, "scale": { "power": 0.012, "luck": 0.002 }, "text": "You defeat him in single combat, and the pass is yours to use freely.", "effects": { "gold": { "base": 50, "perRealm": 30 }, "karma": 2 } },
+        { "text": "The king's blade finds you.", "effects": { "health": -30 } }
+      ]},
+      { "label": "Pay the toll (10 gold)", "if": ["gold>=10"], "outcomes": [ { "text": "A small cost for a safe road.", "effects": { "gold": -10 } } ]},
+      { "label": "Find another route", "outcomes": [ { "text": "The detour costs you a year of time.", "effects": { "luck": -1 } } ]}
+    ] },
+  { "id": "spirit_beast_egg", "text": "In a hollow tree, you find a speckled egg that thrums faintly with qi.",
+    "minAge": 12, "weight": 3, "once": true,
+    "choices": [
+      { "label": "Keep it warm and wait", "outcomes": [
+        { "chance": 0.5, "scale": { "luck": 0.004 }, "text": "The egg hatches into a tiny spirit beast that nuzzles your hand. Its luck rubs off on you.", "effects": { "luck": 5, "qi": { "base": 20, "perRealm": 20 } } },
+        { "text": "The egg stays cold. You bury it with a small ceremony.", "effects": { "karma": 1 } }
+      ]},
+      { "label": "Sell it at the market", "outcomes": [ { "text": "A collector pays handsomely.", "effects": { "gold": { "base": 40, "perRealm": 20 } } } ]}
+    ] },
+  { "id": "plague_village", "text": "A fever spreads through a mountain village, and the healers have run out of medicine.",
+    "minAge": 18, "weight": 3,
+    "choices": [
+      { "label": "Give them your Healing Pills", "if": ["item:healing_pill"], "outcomes": [
+        { "text": "The pills turn the tide. Elders weep and press blessings upon you.", "effects": { "items": { "healing_pill": -1 }, "karma": 4, "luck": 2 } }
+      ]},
+      { "label": "Give them an Antidote", "if": ["item:antidote"], "outcomes": [
+        { "text": "The antidote cures the worst cases.", "effects": { "items": { "antidote": -1 }, "karma": 3 } }
+      ]},
+      { "label": "Nurse the sick yourself", "outcomes": [
+        { "chance": 0.5, "scale": { "health": 0.004 }, "text": "You work for weeks and are spared the fever.", "effects": { "karma": 3 } },
+        { "text": "You catch the fever and barely recover.", "effects": { "karma": 3, "health": -25 } }
+      ]},
+      { "label": "Leave before you catch it", "outcomes": [ { "text": "You hurry away.", "effects": { "karma": -2 } } ]}
+    ] },
+  { "id": "jade_craftsman", "text": "An old jade carver offers to make you a ring for a fair price.",
+    "minAge": 16, "weight": 3, "if": ["gold>=90"],
+    "choices": [
+      { "label": "Commission a Bronze Focus Ring (90 gold)", "if": ["gold>=90"], "outcomes": [
+        { "text": "A simple ring, but it quiets your thoughts.", "effects": { "gold": -90, "items": { "bronze_focus_ring": 1 } } }
+      ]},
+      { "label": "Ask him to teach you instead", "outcomes": [ { "text": "You learn patience, mostly.", "effects": { "intelligence": 1, "karma": 1 } } ]}
+    ] },
+  { "id": "rainy_meditation", "text": "A thunderstorm traps you in a dry cave for three days. The rhythm of the rain begins to feel like breathing.",
+    "minAge": 8, "weight": 4,
+    "choices": [
+      { "label": "Meditate to the rhythm of the rain", "outcomes": [
+        { "chance": 0.55, "scale": { "intelligence": 0.003 }, "text": "Your qi falls into step with the storm.", "effects": { "qi": { "base": 25, "perRealm": 28 } } },
+        { "text": "A calm few days, if not a productive one.", "effects": { "health": 4 } }
+      ]}
+    ] },
+  { "id": "thief_in_night", "text": "You wake to find a thief rifling through your belongings.",
+    "minAge": 10, "weight": 3, "if": ["gold>=20"],
+    "choices": [
+      { "label": "Seize him", "outcomes": [
+        { "chance": 0.6, "scale": { "power": 0.01, "luck": 0.003 }, "text": "You catch him by the collar and he drops everything.", "effects": { "karma": 1 } },
+        { "text": "He slips your grasp and takes some of your gold.", "effects": { "gold": -20 } }
+      ]},
+      { "label": "Let him go", "outcomes": [ { "text": "He bows and flees. Your purse is lighter.", "effects": { "gold": -10, "karma": 1 } } ]}
+    ] },
+  { "id": "duel_challenge", "text": "A young hotshot publicly challenges you to a duel, hoping to make a name for himself.",
+    "minAge": 16, "minRealm": 2, "weight": 3,
+    "choices": [
+      { "label": "Accept", "outcomes": [
+        { "chance": 0.6, "scale": { "power": 0.01 }, "text": "You win without too much trouble, and the crowd roars.", "effects": { "gold": { "base": 20, "perRealm": 15 }, "luck": 1, "qi": { "base": 20, "perRealm": 20 } } },
+        { "text": "He is better than he looked. You lose face and some health.", "effects": { "health": -18, "luck": -1 } }
+      ]},
+      { "label": "Decline politely", "outcomes": [ { "text": "The crowd boos. You do not mind.", "effects": { "karma": 1 } } ]}
+    ] },
+  { "id": "landslide", "text": "The ground shudders and half a hillside slides toward the road you are walking on.",
+    "minAge": 8, "weight": 2,
+    "choices": [
+      { "label": "Run for it", "outcomes": [
+        { "chance": 0.6, "scale": { "luck": 0.005, "health": 0.002 }, "text": "You dive clear as boulders crash behind you.", "effects": { "luck": 1 } },
+        { "text": "A rock clips you as you dive.", "effects": { "health": -22 } }
+      ]}
+    ] }
+]

@@ -3,12 +3,12 @@
    Tunable numbers live in data/balance.json. */
 (function () {
   const G = (globalThis.Game = globalThis.Game || {});
-  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items, T = G.tech, X = G.sects;
+  const D = G.data, S = G.state, U = G.util, C = G.cond, I = G.items, T = G.tech, X = G.sects, F = G.family;
   const B = D.balance;
 
-  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan", "merit"];
-  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan", merit: "Merit" };
-  const NEG_IS_BAD = ["health", "intelligence", "luck", "karma", "qi", "lifespan", "merit"];
+  const NUM_KEYS = ["health", "intelligence", "luck", "karma", "qi", "gold", "lifespan", "merit", "bond"];
+  const LABEL = { health: "Health", intelligence: "Intelligence", luck: "Luck", karma: "Karma", qi: "Qi", gold: "Gold", lifespan: "Lifespan", merit: "Merit", bond: "Bond" };
+  const NEG_IS_BAD = ["health", "intelligence", "luck", "karma", "qi", "lifespan", "merit", "bond"];
 
   const eventById = id => D.events.find(e => e.id === id);
   const lastRealm = () => D.realms.length - 1;
@@ -95,10 +95,11 @@
 
   /* ---------- effects ---------- */
   const isStat = k => C.STAT_NAMES.includes(k);
-  const current = (p, k) => (isStat(k) ? p.stats[k] : p[k]);
+  const current = (p, k) => (isStat(k) ? p.stats[k] : k === "bond" ? F.bond(p) : p[k]);
   function setValue(p, k, v) {
     if (isStat(k)) p.stats[k] = U.clamp(v, 0, 100);
     else if (k === "lifespan") p.lifespan = Math.max(1, v);
+    else if (k === "bond") { if (p.partner) p.partner.bond = U.clamp(v, 0, 100); }
     else p[k] = Math.max(0, v);
   }
 
@@ -115,9 +116,14 @@
     fx = fx || {};
     const deltas = {};
     const promoBefore = X.promotion(p);
+    const family = [];
+    if (fx.partner && !p.partner) { const pt = F.addPartner(p, fx.partner); family.push(pt.name + " is now your " + (pt.cultivator ? "dao companion" : "partner")); }
+    if (fx.child) { const c = F.addChild(p); if (c) family.push("child " + c.name + " born (" + D.roots[c.root].name + " root, talent " + c.talent + ")"); }
+    if (fx.trainChild) { const c = F.trainChild(p, fx.trainChild); if (c) family.push(c.name + "'s talent " + (fx.trainChild > 0 ? "+" : "") + fx.trainChild); }
     for (const k of NUM_KEYS) {
-      if (fx[k] === undefined || (k === "merit" && !p.sect)) continue;
+      if (fx[k] === undefined || (k === "merit" && !p.sect) || (k === "bond" && !p.partner)) continue;
       let amount = resolveValue(fx[k], p, k);
+      if (k === "karma" && amount) amount = G.karma.flow(amount);
       if (k === "health" && amount < 0) amount = -guarded(p, -amount);
       const before = current(p, k);
       setValue(p, k, before + amount);
@@ -136,6 +142,7 @@
     if (fx.setFlags) fx.setFlags.forEach(f => (p.flags[f] = p.age));
     if (fx.sect && fx.sect !== p.sect) X.join(p, fx.sect);
     if (fx.leaveSect) X.leave(p);
+    if (fx.losePartner && p.partner) { family.push(p.partner.name + " is gone"); p.partner = null; p.flags.widowed = p.age; }
     if (fx.die) p.deathCause = fx.die;
 
     const keys = Object.keys(deltas);
@@ -144,6 +151,7 @@
     const cls = fx.die ? "bad" : bad && !good ? "bad" : good && !bad ? "good" : "";
     const parts = keys.map(k => LABEL[k] + " " + (deltas[k] > 0 ? "+" : "") + deltas[k])
       .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name))
+      .concat(family)
       .concat(learned.map(l => "Learned " + l.name + (l.worn ? "" : " (no free slot, see Arts)")));
     S.addLog(text || "Nothing much happens.", cls, parts.join(", "));
     const promoAfter = X.promotion(p);
@@ -160,6 +168,8 @@
     p.qi += gain;
     const stipend = X.stipend(p);
     p.gold += stipend;
+    const bereaved = F.yearly(p);
+    if (bereaved) S.addLog(bereaved, "bad");
     const old = p.age > p.lifespan * B.oldAge.start;
     const change = old
       ? -Math.round(U.rand(B.oldAge.drainMin, B.oldAge.drainMax) * (1 - I.mod(p, "vitality")))
@@ -289,7 +299,6 @@
       S.addLog("BREAKTHROUGH! You ascend to " + D.realms[p.realm].name + "!" + (pill ? " (" + pill.name + " aided you)" : ""), "good",
         "Lifespan +" + bonus + (heal ? ", Health +" + heal : ""));
       if (T.slots(p) > slotsBefore) S.addLog("Your understanding deepens: you can now hold " + T.slots(p) + " arts.", "good", "Open the Arts tab to equip");
-      if (p.realm === lastRealm()) { p.ascended = true; p.deathCause = "Ascended to the Immortal Realm"; }
     } else {
       const dmg = guarded(p, U.rand(B.breakthrough.failDamageMin, B.breakthrough.failDamageMax));
       const lost = Math.floor(p.qi * 0.3), lifeLoss = p.realm >= 2 ? U.rand(2, 8) : 0;
@@ -326,7 +335,7 @@
     S.save();
   }
 
-  const canBuy = (p, d) => !!d && p.alive && !p.pending && d.price > 0 && p.gold >= d.price && !(d.type === "equipment" && I.count(p, d.id) > 0);
+  const canBuy = (p, d) => !!d && p.alive && !p.pending && d.price > 0 && p.gold >= d.price && p.realm >= (d.minRealm || 0) && !(d.type === "equipment" && I.count(p, d.id) > 0);
 
   function buyItem(id) {
     const p = S.p, d = I.def(id);
@@ -380,18 +389,27 @@
     if (cause) { p.deathCause = cause; endLife(); }
   }
 
+  // Step down on your own terms and pass the bloodline on. Needs at least one child.
+  function retire() {
+    const p = S.p;
+    if (!p.alive || p.pending || !p.children.length) return;
+    p.retired = true;
+    p.deathCause = "Retired from the world and passed on the legacy";
+    endLife();
+  }
+
   function endLife() {
     const p = S.p;
     p.alive = false; p.pending = null;
-    p.karmaGain = Math.round(p.highest * 12 + p.age / 10 + Math.max(0, p.stats.karma - 50) / 4 + (p.ascended ? 50 : 0));
+    p.karmaGain = Math.round(p.highest * 12 + p.age / 10 + Math.max(0, p.stats.karma - 50) / 4 + (p.retired ? 10 : 0));
     S.meta.karma += p.karmaGain;
-    S.addLog(p.ascended ? "You shed your mortal shell and ascend beyond the heavens." : "Your life comes to an end: " + p.deathCause + ".", p.ascended ? "good" : "bad");
+    S.addLog(p.retired ? "You step away from the world and leave your legacy to the next generation." : "Your life comes to an end: " + p.deathCause + ".", p.retired ? "good" : "bad");
     S.save();
   }
 
   G.engine = {
     passiveQi, breakChance, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
-    ageUp, seclude, meditate, choose, breakthrough, checkDeath,
+    ageUp, seclude, meditate, choose, breakthrough, checkDeath, retire,
     useItem, equipItem, unequipSlot, buyItem, canBuy,
     equipTechnique, unequipTechnique, buyTechnique, canBuyTechnique,
     doMission, promotionTrial, canSectAct

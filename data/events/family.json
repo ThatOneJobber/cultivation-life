@@ -1,0 +1,147 @@
+[
+  {
+    "id": "meet_partner",
+    "text": "At a market fair you keep crossing paths with someone whose smile you cannot forget.",
+    "minAge": 18, "maxAge": 70, "weight": 5, "if": ["!partner"],
+    "choices": [
+      { "label": "Strike up a conversation", "outcomes": [
+        { "chance": 0.55, "scale": { "luck": 0.004, "intelligence": 0.002 }, "text": "Hours pass like minutes. By the end of the fair, you have a companion for life.", "effects": { "partner": "mortal" } },
+        { "text": "They are polite, but their heart belongs elsewhere.", "effects": { "luck": -1 } }
+      ]},
+      { "label": "Send a gift of 15 gold through a matchmaker", "if": ["gold>=15"], "outcomes": [
+        { "chance": 0.7, "text": "The matchmaker works wonders. A wedding follows.", "effects": { "gold": -15, "partner": "mortal" } },
+        { "text": "The gift is returned with a polite refusal.", "effects": { "gold": -15 } }
+      ]},
+      { "label": "The dao comes first", "outcomes": [
+        { "text": "You turn away and return to your breathing exercises.", "effects": { "qi": { "base": 6, "perRealm": 5 } } }
+      ]}
+    ]
+  },
+  {
+    "id": "dao_companion",
+    "text": "A fellow cultivator, strong and steady, proposes that you walk the long road of the dao side by side.",
+    "minAge": 30, "minRealm": 2, "weight": 4, "once": true, "if": ["!partner"],
+    "choices": [
+      { "label": "Accept the pairing", "outcomes": [
+        { "text": "You exchange vows beneath a sky of drifting clouds. Your qi flows more easily with another to share the load.", "effects": { "partner": "cultivator", "bond": 15, "karma": 2 } }
+      ]},
+      { "label": "Decline", "outcomes": [
+        { "text": "You bow and part as friends.", "effects": { "luck": 1 } }
+      ]}
+    ]
+  },
+  {
+    "id": "partner_festival",
+    "text": "The village lantern festival is here, and your partner's eyes are on the stalls.",
+    "minAge": 18, "weight": 4, "if": ["partner"],
+    "choices": [
+      { "label": "Buy a lantern (10 gold) and walk together", "if": ["gold>=10"], "outcomes": [
+        { "text": "You release the lantern together and watch it climb into the dark.", "effects": { "gold": -10, "bond": 8, "luck": 1 } }
+      ]},
+      { "label": "Stay in and cultivate", "outcomes": [
+        { "text": "Your partner goes alone. The silence at home is loud.", "effects": { "bond": -6, "qi": { "base": 10, "perRealm": 8 } } }
+      ]}
+    ]
+  },
+  {
+    "id": "partner_argument",
+    "text": "A long-simmering quarrel with your partner finally boils over.",
+    "minAge": 20, "weight": 3, "if": ["partner"],
+    "choices": [
+      { "label": "Apologize first", "outcomes": [
+        { "text": "The words cost you pride, and give you peace.", "effects": { "bond": 6, "karma": 1 } }
+      ]},
+      { "label": "Hold your ground", "outcomes": [
+        { "chance": 0.4, "scale": { "intelligence": 0.004 }, "text": "You speak calmly and clearly, and your partner finally hears you.", "effects": { "bond": 3 } },
+        { "text": "Doors slam. It takes months to mend.", "effects": { "bond": -12 } }
+      ]}
+    ]
+  },
+  {
+    "id": "partner_illness",
+    "text": "Your partner falls gravely ill and the healers shake their heads.",
+    "minAge": 30, "weight": 3, "if": ["partner", "bond>=20"],
+    "choices": [
+      { "label": "Use a Healing Pill", "if": ["item:healing_pill"], "outcomes": [
+        { "text": "The pill works. Color returns to their face and they hold your hand.", "effects": { "items": { "healing_pill": -1 }, "bond": 15, "karma": 1 } }
+      ]},
+      { "label": "Use an Antidote", "if": ["item:antidote"], "outcomes": [
+        { "chance": 0.6, "text": "It was a slow poison! The antidote saves them.", "effects": { "items": { "antidote": -1 }, "bond": 15 } },
+        { "text": "The antidote does nothing, but your care sees them through.", "effects": { "items": { "antidote": -1 }, "bond": 5 } }
+      ]},
+      { "label": "Nurse them yourself for a year", "outcomes": [
+        { "chance": 0.55, "scale": { "luck": 0.004 }, "text": "A year of patient care brings them back from the edge.", "effects": { "bond": 12, "health": -8 } },
+        { "text": "Despite all your care, they slip away in your arms.", "effects": { "losePartner": true, "karma": -1, "health": -10 } }
+      ]}
+    ]
+  },
+  {
+    "id": "child_born",
+    "text": "Your partner smiles and places your hand on their belly. A child is on the way.",
+    "minAge": 20, "weight": 30, "if": ["partner", "bond>=40", "children<3", "partnerAge<=50"],
+    "choices": [
+      { "label": "Prepare for the new arrival (15 gold)", "if": ["gold>=15"], "outcomes": [
+        { "text": "A healthy child is born, with bright eyes and a loud voice.", "effects": { "gold": -15, "child": true, "bond": 5, "karma": 2, "setFlags": ["childBorn"] } }
+      ]},
+      { "label": "Welcome them with what you have", "outcomes": [
+        { "text": "A child is born in a modest home, and is loved just the same.", "effects": { "child": true, "bond": 4, "setFlags": ["childBorn"] } }
+      ]}
+    ]
+  },
+  {
+    "id": "child_training",
+    "text": "Your child is old enough to learn. They tug at your sleeve and ask you to show them how to breathe like you.",
+    "minAge": 22, "weight": 20, "once": true, "if": ["children>=1", "since:childBorn>=6"],
+    "choices": [
+      { "label": "Teach them yourself, every day", "outcomes": [
+        { "text": "Years of patience pay off. Your child begins to feel the qi in the world around them.", "effects": { "trainChild": 15, "qi": -20, "karma": 1 } }
+      ]},
+      { "label": "Hire a tutor (30 gold)", "if": ["gold>=30"], "outcomes": [
+        { "text": "A skilled tutor sharpens your child's talent.", "effects": { "gold": -30, "trainChild": 10 } }
+      ]},
+      { "label": "Let them find their own way", "outcomes": [
+        { "text": "Your child learns to climb trees and stumble. They turn out all right.", "effects": { "luck": 1, "trainChild": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "child_trouble",
+    "text": "Your child has picked a fight with a village bully, and the bully's family is at your door demanding payment.",
+    "minAge": 28, "weight": 3, "if": ["children>=1", "since:childBorn>=8"],
+    "choices": [
+      { "label": "Pay them (20 gold)", "if": ["gold>=20"], "outcomes": [
+        { "text": "The matter is settled. Your child learns that actions have prices.", "effects": { "gold": -20, "karma": 1 } }
+      ]},
+      { "label": "Stand up for your child", "outcomes": [
+        { "chance": 0.5, "scale": { "power": 0.01 }, "text": "You face down the bullies. Your child never forgets that you were on their side.", "effects": { "trainChild": 4, "karma": 1 } },
+        { "text": "Tempers flare and you take a few blows.", "effects": { "health": -12, "trainChild": 2 } }
+      ]}
+    ]
+  },
+  {
+    "id": "pass_on_legacy",
+    "text": "Your child asks you what you want to leave behind when you are gone. The question stays with you for days.",
+    "minAge": 40, "weight": 8, "once": true, "if": ["children>=1", "ageRatio>0.35"],
+    "choices": [
+      { "label": "Share the secrets of your cultivation", "outcomes": [
+        { "text": "You spend long evenings explaining everything you have learned. Your child listens carefully and takes notes.", "effects": { "trainChild": 20, "karma": 2 } }
+      ]},
+      { "label": "Leave them gold instead (50 gold)", "if": ["gold>=50"], "outcomes": [
+        { "text": "You set aside a purse for them. Wealth is also a legacy.", "effects": { "gold": -50, "trainChild": 8 } }
+      ]},
+      { "label": "Tell them to find their own way", "outcomes": [
+        { "text": "Your child nods slowly. The silence between you is long, then warm.", "effects": { "luck": 1 } }
+      ]}
+    ]
+  },
+  {
+    "id": "family_gathering",
+    "text": "Your family gathers around the table for the new year, with laughter and too much food.",
+    "minAge": 25, "weight": 3, "if": ["partner", "children>=1"],
+    "choices": [
+      { "label": "Savor the evening", "outcomes": [
+        { "text": "You sleep that night with a full heart, and your qi settles.", "effects": { "bond": 5, "health": 8, "qi": { "base": 6, "perRealm": 5 } } }
+      ]}
+    ]
+  }
+]

@@ -1,47 +1,265 @@
 [
-  { "id": "basic_breathing", "name": "Basic Breathing Method",
-    "desc": "The simple breathing pattern every village cultivator learns.",
-    "mods": { "qiMult": 0.05 } },
-
-  { "id": "iron_body", "name": "Iron Body Sutra",
-    "desc": "Tempers flesh like forged metal.",
-    "mods": { "guard": 0.1, "regen": 1 }, "price": 150 },
-  { "id": "clear_mind", "name": "Clear Mind Scripture",
-    "desc": "Stills the thoughts so qi flows freely.",
-    "mods": { "intelligence": 6, "meditation": 0.15 }, "price": 140 },
-  { "id": "wind_step", "name": "Wind Step",
-    "desc": "Light footwork that turns blows aside.",
-    "mods": { "power": 4, "luck": 6 }, "price": 130 },
-
-  { "id": "blazing_palm", "name": "Blazing Palm", "element": "Fire",
-    "desc": "Strikes wreathed in true flame.",
-    "mods": { "power": 14 }, "price": 170, "minRealm": 1 },
-  { "id": "flowing_water_heart", "name": "Flowing Water Heart", "element": "Water",
-    "desc": "Qi that follows the path of least resistance.",
-    "mods": { "qiMult": 0.1, "safety": 0.04 }, "price": 170, "minRealm": 1 },
-  { "id": "verdant_life_art", "name": "Verdant Life Art", "element": "Wood",
-    "desc": "Draws on the endless renewal of the forest.",
-    "mods": { "regen": 2, "vitality": 0.3 }, "price": 170, "minRealm": 1 },
-  { "id": "gleaming_edge", "name": "Gleaming Edge Sword Art", "element": "Metal",
-    "desc": "A sword intent sharp enough to cut through qi itself.",
-    "mods": { "power": 8, "guard": 0.15 }, "price": 170, "minRealm": 1 },
-  { "id": "mountain_foundation", "name": "Mountain Foundation Art", "element": "Earth",
-    "desc": "Steady as bedrock, it makes each new realm stand firm.",
-    "mods": { "breakBonus": 0.06, "guard": 0.05 }, "price": 170, "minRealm": 1 },
-
-  { "id": "fortune_star", "name": "Fortune Star Chart",
-    "desc": "A star map that bends coincidence your way.",
-    "mods": { "luck": 12, "intelligence": 4 } },
-  { "id": "void_meditation", "name": "Void Gazing Meditation",
-    "desc": "Meditation so deep that the self falls away.",
-    "mods": { "meditation": 0.25, "qiMult": 0.05 } },
-  { "id": "nine_heavens_thunder", "name": "Nine Heavens Thunder Art",
-    "desc": "Lightning answers your call.",
-    "mods": { "power": 14, "breakBonus": 0.05 } },
-  { "id": "phoenix_rebirth", "name": "Phoenix Rebirth Art",
-    "desc": "Flame that heals instead of burns. Even age loosens its grip.",
-    "mods": { "regen": 3, "vitality": 0.5, "guard": 0.1 } },
-  { "id": "dao_heart", "name": "Dao Heart Sutra",
-    "desc": "An unshakable heart makes every breakthrough safer.",
-    "mods": { "breakBonus": 0.1, "safety": 0.05 } }
+ {
+  "id": "basic_breathing",
+  "name": "Basic Breathing Method",
+  "desc": "The simple breathing pattern every village cultivator learns.",
+  "mods": {
+   "qiMult": 0.05
+  }
+ },
+ {
+  "id": "iron_body",
+  "name": "Iron Body Sutra",
+  "desc": "Tempers flesh like forged metal.",
+  "mods": {
+   "guard": 0.1,
+   "regen": 1
+  },
+  "price": 150
+ },
+ {
+  "id": "clear_mind",
+  "name": "Clear Mind Scripture",
+  "desc": "Stills the thoughts so qi flows freely.",
+  "mods": {
+   "intelligence": 6,
+   "meditation": 0.15
+  },
+  "price": 140
+ },
+ {
+  "id": "wind_step",
+  "name": "Wind Step",
+  "desc": "Light footwork that turns blows aside.",
+  "mods": {
+   "power": 4,
+   "luck": 6
+  },
+  "price": 130
+ },
+ {
+  "id": "blazing_palm",
+  "name": "Blazing Palm",
+  "element": "Fire",
+  "desc": "Strikes wreathed in true flame.",
+  "mods": {
+   "power": 14
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "flowing_water_heart",
+  "name": "Flowing Water Heart",
+  "element": "Water",
+  "desc": "Qi that follows the path of least resistance.",
+  "mods": {
+   "qiMult": 0.1,
+   "safety": 0.04
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "verdant_life_art",
+  "name": "Verdant Life Art",
+  "element": "Wood",
+  "desc": "Draws on the endless renewal of the forest.",
+  "mods": {
+   "regen": 2,
+   "vitality": 0.3
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "gleaming_edge",
+  "name": "Gleaming Edge Sword Art",
+  "element": "Metal",
+  "desc": "A sword intent sharp enough to cut through qi itself.",
+  "mods": {
+   "power": 8,
+   "guard": 0.15
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "mountain_foundation",
+  "name": "Mountain Foundation Art",
+  "element": "Earth",
+  "desc": "Steady as bedrock, it makes each new realm stand firm.",
+  "mods": {
+   "breakBonus": 0.06,
+   "guard": 0.05
+  },
+  "price": 170,
+  "minRealm": 1
+ },
+ {
+  "id": "fortune_star",
+  "name": "Fortune Star Chart",
+  "desc": "A star map that bends coincidence your way.",
+  "mods": {
+   "luck": 12,
+   "intelligence": 4
+  }
+ },
+ {
+  "id": "void_meditation",
+  "name": "Void Gazing Meditation",
+  "desc": "Meditation so deep that the self falls away.",
+  "mods": {
+   "meditation": 0.25,
+   "qiMult": 0.05
+  }
+ },
+ {
+  "id": "nine_heavens_thunder",
+  "name": "Nine Heavens Thunder Art",
+  "desc": "Lightning answers your call.",
+  "mods": {
+   "power": 14,
+   "breakBonus": 0.05
+  }
+ },
+ {
+  "id": "phoenix_rebirth",
+  "name": "Phoenix Rebirth Art",
+  "desc": "Flame that heals instead of burns. Even age loosens its grip.",
+  "mods": {
+   "regen": 3,
+   "vitality": 0.5,
+   "guard": 0.1
+  }
+ },
+ {
+  "id": "dao_heart",
+  "name": "Dao Heart Sutra",
+  "desc": "An unshakable heart makes every breakthrough safer.",
+  "mods": {
+   "breakBonus": 0.1,
+   "safety": 0.05
+  }
+ },
+ {
+  "id": "cold_river_sutra",
+  "name": "Cold River Sutra",
+  "element": "Water",
+  "desc": "Qi flows like an icy current through the meridians.",
+  "mods": {
+   "qiMult": 0.1,
+   "regen": 1
+  },
+  "price": 400,
+  "minRealm": 2
+ },
+ {
+  "id": "stone_mountain_stance",
+  "name": "Stone Mountain Stance",
+  "element": "Earth",
+  "desc": "A rooted posture that turns blows aside.",
+  "mods": {
+   "guard": 0.2,
+   "vitality": 0.1
+  },
+  "price": 450,
+  "minRealm": 2
+ },
+ {
+  "id": "crimson_lotus_fire",
+  "name": "Crimson Lotus Fire",
+  "element": "Fire",
+  "desc": "Flames bloom into lotus petals that sear the enemy.",
+  "mods": {
+   "power": 22
+  },
+  "price": 900,
+  "minRealm": 3
+ },
+ {
+  "id": "ever_spring_art",
+  "name": "Ever-Spring Art",
+  "element": "Wood",
+  "desc": "The vitality of the forest, drawn into the body.",
+  "mods": {
+   "regen": 3,
+   "vitality": 0.25
+  },
+  "price": 1000,
+  "minRealm": 3
+ },
+ {
+  "id": "golden_bell_shield",
+  "name": "Golden Bell Shield",
+  "element": "Metal",
+  "desc": "A resonant barrier that bell-rings against blades.",
+  "mods": {
+   "guard": 0.3,
+   "power": 6
+  },
+  "price": 1100,
+  "minRealm": 3
+ },
+ {
+  "id": "heart_sutra_stillness",
+  "name": "Heart Sutra of Stillness",
+  "desc": "A quiet mind makes safer and deeper meditation.",
+  "mods": {
+   "meditation": 0.25,
+   "safety": 0.05
+  },
+  "price": 1500,
+  "minRealm": 4
+ },
+ {
+  "id": "heaven_thunder_dao",
+  "name": "Heaven Thunder Dao",
+  "desc": "Call down lightning from the nine layers of heaven.",
+  "mods": {
+   "power": 30,
+   "luck": 3
+  },
+  "price": 2200,
+  "minRealm": 5
+ },
+ {
+  "id": "starlit_dao_scripture",
+  "name": "Starlit Dao Scripture",
+  "desc": "An ancient text that draws on the starlight of the Dao.",
+  "mods": {
+   "qiMult": 0.25,
+   "intelligence": 8
+  },
+  "price": 3500,
+  "minRealm": 6
+ },
+ {
+  "id": "primordial_chaos_scripture",
+  "name": "Primordial Chaos Scripture",
+  "desc": "A forbidden text from before the heavens were named.",
+  "mods": {
+   "qiMult": 0.35,
+   "meditation": 0.2,
+   "breakBonus": 0.05
+  }
+ },
+ {
+  "id": "phoenix_rebirth_art",
+  "name": "Phoenix Rebirth Art",
+  "desc": "The body burns and renews itself, again and again.",
+  "mods": {
+   "regen": 4,
+   "vitality": 0.4,
+   "guard": 0.15
+  }
+ },
+ {
+  "id": "sword_dao_unity",
+  "name": "Sword Dao of Unity",
+  "desc": "Man and blade become a single will.",
+  "mods": {
+   "power": 45
+  }
+ }
 ]
