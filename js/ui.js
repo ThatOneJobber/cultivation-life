@@ -170,7 +170,8 @@
       addBtn(a, "⚡ Attempt Breakthrough (" + Math.round(E.breakChance(p) * 100) + "%)" + (pill ? " + pill" : "") + (risky ? " ⚠ low health, failure could be fatal" : ""), act(E.breakthrough), "gold");
     }
     const row = el("div", "btnrow");
-    addBtn(row, p.meditated ? "Meditated" : "🧘 Meditate", act(E.meditate), "", p.meditated || p.age < 3);
+    const noArt = !T.equipped(p).length;
+    addBtn(row, p.duty ? "On sect duty" : p.meditated ? "Meditated" : noArt ? "🧘 No method" : "🧘 Meditate", act(E.meditate), "", p.meditated || p.age < 3 || noArt);
     addBtn(row, "🏔 Seclude 10 yrs", act(() => E.seclude(10)), "", !E.canSeclude(p));
     a.appendChild(row);
     if (p.sect) {
@@ -277,7 +278,10 @@
         card.appendChild(row);
       });
       card.appendChild(el("h3", "", "Manuals"));
-      T.all().filter(d => d.price).sort((a, b) => a.price - b.price).forEach(d => {
+      const cultivator = p.realm >= 1 || Object.keys(p.tech).length > 0;
+      if (!cultivator) card.appendChild(el("div", "note", "Nobody sells cultivation manuals to a mortal. You would have to be introduced, or find one."));
+      else card.appendChild(el("div", "note", "Only common manuals are sold. Better ones are found in the world, and the best ones choose who reads them."));
+      T.all().filter(d => d.price && cultivator).sort((a, b) => a.price - b.price).forEach(d => {
         const locked = p.realm < (d.minRealm || 0);
         const label = T.known(p, d.id) ? "Known" : locked ? "Locked" : "Buy · " + d.price + "g";
         card.appendChild(artRow(p, d, button(label, bagAct(() => E.buyTechnique(d.id)), T.known(p, d.id) || locked || !E.canBuyTechnique(p, d)), false));
@@ -295,6 +299,7 @@
     const tags = (known ? " · " + T.levelName(lv) : "") + (d.element ? " · " + d.element : "");
     if (tags) nm.appendChild(el("i", "", tags));
     info.appendChild(nm);
+    info.appendChild(el("div", "ds gr g" + d.grade, T.gradeName(d.id) + " grade · " + T.typeName(d.id) + " · " + d.sub + (d.chosen ? " · chooses its reader" : "")));
     info.appendChild(el("div", "ds", d.desc));
     let fx = I.modText(d.mods, known ? T.scale(p, d.id) : 1);
     if (d.element) fx += D.roots[p.root].name === d.element ? " (matches your root)" : " (weaker: not your root)";
@@ -322,7 +327,7 @@
       if (worn) row.classList.add("worn");
       card.appendChild(row);
     });
-    card.appendChild(el("div", "note", "Find more arts in sect pavilions and rare events, or buy manuals at the Market."));
+    card.appendChild(el("div", "note", known.length ? "Find more arts in sect pavilions and rare events, or buy common manuals at the Market." : "You know no arts. A mortal cannot cultivate without a manual. Someone may take an interest in you, or you may find one by chance."));
   }
 
   /* ---------- achievements ---------- */

@@ -93,6 +93,8 @@ const bandEnd = {};
 const famStats = { n: 0, partner: 0, kids: 0, withKids: 0, gen: {} }, famAsc = {};
 const missionCount = {}, sectStats = {}, goldAtEnd = [];
 const DEEP = 6; // "deep" cultivation for the stats below: Void Refinement or beyond (the old Immortal Ascension)
+const firstArt = {};
+const artStats = { n: 0, born: 0, ever: 0, cult: 0, deep: 0 };
 const eventCount = {}, causes = {}, realmHist = D.realms.map(() => 0);
 let ascended = 0, ageSum = 0, eventSum = 0, healthDeaths = 0, oldAgeDeaths = 0;
 const ageByCause = {}, killer = {}, youngDeaths = { n: 0 };
@@ -103,6 +105,7 @@ const grant = grantArg ? grantArg.slice(8).split(",") : [];
 // --path=good|evil|neutral: everyone owns every karma upgrade of the trunk and that path (to test the path's strength)
 const pathArg = args.find(a => a.startsWith("--path="));
 if (pathArg) { const path = pathArg.slice(7); G.karma.nodes().forEach(n => { if (n.branch === "trunk" || n.branch === path) S.meta.upgrades[n.id] = true; }); }
+if (args.includes("--manual")) S.forceManual = 1; // every life is born with a manual (to test balance for lives that cultivate)
 const heirMode = args.includes("--heirs"); // each life continues as the most talented child, when there is one
 function startLife() {
   const prev = S.p;
@@ -124,7 +127,9 @@ for (let l = 0; l < lives; l++) {
       const ev = E.eventById(p.pending);
       const ok = ev.choices.map((c, i) => i).filter(i => C.testAll(p, ev.choices[i].if));
       lastAction = "event: " + p.pending;
+      const hadArt = !!p.everArt;
       E.choose(ok[U.rand(0, ok.length - 1)]);
+      if (!hadArt && p.everArt) firstArt[ev.id] = (firstArt[ev.id] || 0) + 1;
     } else if (E.isBreakthroughReady(p) && !E.breakthroughIsRisky(p)) { lastAction = "failed breakthrough"; E.breakthrough(); }
     else {
       // a careful-ish player only meditates while healthy, and rests (ages up) before risky breakthroughs
@@ -142,6 +147,7 @@ for (let l = 0; l < lives; l++) {
   if (p.deathCause === "Succumbed to wounds and exhaustion") killer[lastAction] = (killer[lastAction] || 0) + 1;
   if (!(p.highest >= DEEP) && p.age < 25) youngDeaths.n++;
   realmHist[p.highest]++;
+    { const had = !!p.everArt; artStats.n++; if (p.bornArt) artStats.born++; if (had) { artStats.ever++; if (p.highest >= DEEP) artStats.deep++; if (p.highest >= 1) artStats.cult++; } }
   { const bnd = G.karma.band(p); bandEnd[bnd] = (bandEnd[bnd] || 0) + 1; }
   famStats.n++; if (p.partner || p.flags.widowed) famStats.partner++; famStats.kids += p.children.length; if (p.children.length) famStats.withKids++;
   famStats.gen[p.generation] = (famStats.gen[p.generation] || 0) + 1;
@@ -161,6 +167,9 @@ console.log("\nSimulated " + lives + " lives (seed " + seed + ", " + (useItems ?
 console.log("Average age at death : " + (ageSum / lives).toFixed(1));
 console.log("Average events/life  : " + (eventSum / lives).toFixed(1));
 console.log("Reached realm "+DEEP+"+     : " + ascended + " (" + pct(ascended) + ")");
+console.log("Born with a manual: " + pct(artStats.born) + ". Had a manual at death: " + pct(artStats.ever) + ". Reached Qi Condensation+: " + pct(artStats.cult) + ". Realm " + DEEP + "+ among lives with a manual: " + (artStats.ever ? (artStats.deep / artStats.ever * 100).toFixed(1) : 0) + "%");
+if (args.includes("--showevents")) console.log("Event counts: " + Object.entries(eventCount).filter(([k]) => /^(find_|m_|library|hermit|wandering|ancient|thunder|phoenix|sword_tomb|legend|scripture|stranger2|masterlegacy)/.test(k)).map(([k, v]) => k + " " + v).join(", "));
+console.log("First manual came from: " + Object.entries(firstArt).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, v]) => k + " " + v).join(", "));
 console.log("\nHighest realm reached:");
 D.realms.forEach((r, i) => console.log("  " + r.name.padEnd(26) + String(realmHist[i]).padStart(5) + "  " + pct(realmHist[i])));
 console.log("\nCauses of death (average age):");

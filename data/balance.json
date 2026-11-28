@@ -24,12 +24,35 @@
     "base": 0.35,
     "failDamageMin": 10,
     "failDamageMax": 25,
-    "successHeal": 0
+    "successHeal": 0,
+    "capBase": 0.9,
+    "capPerRealm": 0.05,
+    "capMin": 0.35,
+    "floor": 0.05,
+    "raw": 0.05,
+    "pillDecay": 0.1,
+    "pillMin": 0.25,
+    "failDamagePerRealm": 3,
+    "failQiLoss": 0.3,
+    "failQiLossPerRealm": 0.04,
+    "failQiLossMax": 0.7,
+    "failLifeLoss": [
+      2,
+      8
+    ],
+    "failLifePerRealm": 0.5,
+    "heartDemon": {
+      "minRealm": 4,
+      "chance": 0.08,
+      "perRealm": 0.03,
+      "loss": [
+        3,
+        8
+      ]
+    }
   },
   "techniques": {
-    "starter": [
-      "basic_breathing"
-    ],
+    "starter": [],
     "slots": [
       2,
       2,
@@ -66,7 +89,60 @@
       "year": 1,
       "meditate": 2,
       "seclusion": 2
-    }
+    },
+    "grades": [
+      "Yellow",
+      "Mystic",
+      "Earth",
+      "Heaven",
+      "Divine",
+      "Primordial"
+    ],
+    "types": {
+      "cultivation": "Cultivation",
+      "vitality": "Vitality",
+      "attack": "Attack",
+      "defense": "Defense",
+      "support": "Support"
+    },
+    "birth": {
+      "backgrounds": [
+        {
+          "id": "commoner",
+          "name": "a family of poor farmers",
+          "share": 0.85,
+          "chance": 0.03,
+          "maxGrade": 1,
+          "secret": true
+        },
+        {
+          "id": "merchant",
+          "name": "a well-off merchant family",
+          "share": 0.1,
+          "chance": 0.18,
+          "maxGrade": 1,
+          "secret": true,
+          "gold": [
+            50,
+            120
+          ]
+        },
+        {
+          "id": "cultivator",
+          "name": "a minor cultivating clan",
+          "share": 0.05,
+          "chance": 0.55,
+          "maxGrade": 2,
+          "secret": false,
+          "gold": [
+            20,
+            60
+          ],
+          "intelligence": 5
+        }
+      ]
+    },
+    "chosenLuck": 0.0025
   },
   "sect": {
     "boardSize": 3,

@@ -1,0 +1,449 @@
+[
+ {
+  "id": "find_cave_dwelling",
+  "text": "You find the sealed cave dwelling of a cultivator who died long before you were born.",
+  "minRealm": 2,
+  "weight": 2.0,
+  "once": true,
+  "choices": [
+   {
+    "label": "Search for what they left behind",
+    "outcomes": [
+     {
+      "chance": 0.5,
+      "scale": {
+       "intelligence": 0.003,
+       "luck": 0.002
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         4
+        ]
+       }
+      }
+     },
+     {
+      "text": "A guardian formation wakes and flings you out.",
+      "effects": {
+       "health": [
+        -25,
+        -12
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_battlefield_relics",
+  "text": "An old battlefield. Bones, broken swords, and the glint of a forgotten satchel.",
+  "minRealm": 3,
+  "weight": 1.75,
+  "once": true,
+  "choices": [
+   {
+    "label": "Search for what they left behind",
+    "outcomes": [
+     {
+      "chance": 0.45,
+      "scale": {
+       "luck": 0.003
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         4
+        ],
+        "type": "attack"
+       }
+      }
+     },
+     {
+      "text": "Restless spirits hound you off the field.",
+      "effects": {
+       "health": [
+        -30,
+        -15
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_vault_door",
+  "text": "Behind a rotted door, a small vault holds dusty shelves.",
+  "minRealm": 3,
+  "weight": 1.75,
+  "once": true,
+  "choices": [
+   {
+    "label": "Search for what they left behind",
+    "outcomes": [
+     {
+      "chance": 0.5,
+      "scale": {
+       "intelligence": 0.003
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         4
+        ],
+        "type": "cultivation"
+       }
+      }
+     },
+     {
+      "text": "The vault's ward drains your qi.",
+      "effects": {
+       "qi": -60,
+       "health": -10
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_hidden_valley",
+  "text": "A hidden valley, warm in winter. A grave stands at the centre, and a scroll case is chained to the headstone.",
+  "minRealm": 3,
+  "weight": 1.5,
+  "once": true,
+  "choices": [
+   {
+    "label": "Search for what they left behind",
+    "outcomes": [
+     {
+      "chance": 0.4,
+      "scale": {
+       "luck": 0.003,
+       "intelligence": 0.002
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         5
+        ],
+        "type": "vitality"
+       }
+      }
+     },
+     {
+      "text": "The chain was a trap.",
+      "effects": {
+       "health": [
+        -35,
+        -20
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_demon_remnant",
+  "text": "A sealed stone, and a cold voice from inside: \"Break the seal. I will pay you in power.\"",
+  "minRealm": 4,
+  "weight": 1.5,
+  "once": true,
+  "if": [
+   "karma<=45"
+  ],
+  "choices": [
+   {
+    "label": "Break the seal",
+    "outcomes": [
+     {
+      "chance": 0.55,
+      "scale": {
+       "intelligence": 0.002
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         4,
+         5
+        ],
+        "type": "attack"
+       }
+      }
+     },
+     {
+      "text": "The voice laughs, and takes a piece of you before it fades.",
+      "effects": {
+       "intelligence": -6,
+       "karma": -6
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_sage_grotto",
+  "text": "A sage's grotto, where a spring has been running for ten thousand years.",
+  "minRealm": 4,
+  "weight": 1.5,
+  "once": true,
+  "if": [
+   "karma>=55"
+  ],
+  "choices": [
+   {
+    "label": "Bathe in the spring",
+    "outcomes": [
+     {
+      "chance": 0.4,
+      "scale": {
+       "intelligence": 0.003
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         4,
+         6
+        ],
+        "type": "cultivation"
+       }
+      }
+     },
+     {
+      "text": "The spring rejects you and you leave drenched, and humbled.",
+      "effects": {
+       "health": -8
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_guardian_tomb",
+  "text": "A tomb carved in the shape of a seated giant. Its hand holds a tablet.",
+  "minRealm": 3,
+  "weight": 1.5,
+  "once": true,
+  "choices": [
+   {
+    "label": "Take the tablet",
+    "outcomes": [
+     {
+      "chance": 0.45,
+      "scale": {
+       "power": 0.004
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         5
+        ],
+        "type": "defense"
+       }
+      }
+     },
+     {
+      "text": "The giant's hand closes.",
+      "effects": {
+       "health": [
+        -40,
+        -25
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_heaven_tablet",
+  "text": "A black tablet drifts down from the clouds and settles on a rock in front of you.",
+  "minRealm": 5,
+  "weight": 1.25,
+  "once": true,
+  "choices": [
+   {
+    "label": "Touch it",
+    "outcomes": [
+     {
+      "chance": 0.3,
+      "scale": {
+       "luck": 0.004,
+       "intelligence": 0.002
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         5,
+         6
+        ]
+       }
+      }
+     },
+     {
+      "text": "The tablet burns with heavenly fire for a moment and is gone.",
+      "effects": {
+       "health": [
+        -30,
+        -10
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "find_blessing_monument",
+  "text": "A monument of white jade carved with blessings in an unknown tongue.",
+  "minRealm": 4,
+  "weight": 1.5,
+  "once": true,
+  "choices": [
+   {
+    "label": "Read the inscription",
+    "outcomes": [
+     {
+      "chance": 0.45,
+      "scale": {
+       "luck": 0.003
+      },
+      "text": "Among the ruin is a manual that still hums with qi.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         3,
+         5
+        ],
+        "type": "support"
+       }
+      }
+     },
+     {
+      "text": "The monument is silent.",
+      "effects": {
+       "luck": 1
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it. Some graves should stay shut.",
+    "outcomes": [
+     {
+      "text": "You walk on, a little wiser.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ }
+]

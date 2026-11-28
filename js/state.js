@@ -37,14 +37,33 @@
     });
     G.karma.applyStart(p);
     D.balance.techniques.starter.forEach(id => G.tech.learn(p, id));
+    const born = heir ? null : rollBackground(p);
     if (heir) inherit(p, heir);
     const r = D.roots[root].name;
-    S.addLog("Born in a small mountain village, " + p.name + " opens their eyes. Spiritual root: " + r + (root === heavenlyIdx ? " (a legendary talent!)" : "") + ".", "sys");
+    S.addLog("Born to " + (born ? born.bg.name : "a line of heirs") + ", " + p.name + " opens their eyes. Spiritual root: " + r + (root === heavenlyIdx ? " (a legendary talent!)" : "") + ".", "sys");
+    if (born && born.art) S.addLog(born.bg.secret ? "By luck, a battered cultivation manual came into your family's hands: the " + G.tech.def(born.art).name + ". Keep it secret. Those who covet manuals kill for them." : "Your clan has taught you the " + G.tech.def(born.art).name + " since you could walk.", "sys");
+    else if (born) S.addLog("Nobody around you knows anything about cultivation. Without a manual, your qi will not stir.", "sys");
     if (heir) S.addLog("You are the child of " + heir.legacy.parent + ", generation " + p.generation + " of your bloodline." + (p.inheritance ? " " + p.inheritance : ""), "sys");
     if (meta.karma > 0) S.addLog("Karma from past lives gently shapes your fate.", "sys");
     S.save();
     return p;
   };
+
+  // Most mortals are born with no cultivation manual at all (see balance.json techniques.birth).
+  function rollBackground(p) {
+    const T = G.tech, bgs = D.balance.techniques.birth.backgrounds;
+    let r = U.random(), bg = bgs[bgs.length - 1];
+    for (const b of bgs) { r -= b.share; if (r <= 0) { bg = b; break; } }
+    p.background = bg.id;
+    if (bg.gold) p.gold += U.rand(bg.gold[0], bg.gold[1]);
+    if (bg.intelligence) p.stats.intelligence = U.clamp(p.stats.intelligence + bg.intelligence, 0, 100);
+    let art = null;
+    if (U.random() < bg.chance + (S.forceManual || 0)) {
+      art = T.randomArt(p, { grade: [1, bg.maxGrade] });
+      if (art) { p.bornArt = true; T.learn(p, art); if (bg.secret) p.flags.secret = 0; }
+    }
+    return { bg, art };
+  }
 
   // What a child gets from the parent: talent for the mind and luck, some gold, and the parent's best art.
   function inherit(p, heir) {
@@ -90,7 +109,7 @@
     G.items.SLOTS.forEach(s => { if (p.equip[s] && !p.inv[p.equip[s]]) p.equip[s] = null; });
     if (!p.tech) { // v0.3 saves had no techniques: give them the starter art(s)
       p.tech = {}; p.techEquip = [];
-      D.balance.techniques.starter.forEach(id => G.tech.learn(p, id));
+      G.tech.learn(p, "basic_breathing"); // everyone in the old days had this
     }
     if (!p.techEquip) p.techEquip = [];
     Object.keys(p.tech).forEach(id => { if (!G.tech.def(id)) delete p.tech[id]; });

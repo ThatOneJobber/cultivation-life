@@ -77,7 +77,9 @@ Inside an outcome's `"effects"`:
 | `health`, `intelligence`, `luck`, `karma` | Change a stat (kept between 0 and 100). |
 | `qi`, `gold` | Change the amount (never below 0). |
 | `lifespan` | Change how many years the character can live. |
-| `learn` | Teach the player arts: `["blazing_palm"]`. Ids come from `data/techniques.json`. It is equipped automatically if a slot is free. |
+| `learn` | Teach the player arts: `["blazing_palm"]`. Ids come from `data/techniques.json`. It is equipped automatically if a slot is free. Arts that "choose their reader" may refuse the player. |
+| `learnRandom` | Teach one random art: `{ "grade": [1, 2], "type": "attack" }` (`type` is optional). Great for treasure events. |
+| `forget` | Remove arts: `"all"` or `["art_id"]`. Use it when a manual is stolen or sold. |
 | `items` | Give or take items: `{ "healing_pill": 2 }` gives two, `{ "antidote": -1 }` removes one. Ids come from `data/items.json`. |
 | `setFlags` | List of story flags to set, e.g. `["savedStranger"]`. |
 | `sect` | Join a sect, e.g. `"Azure Cloud Sect"` (names come from `data/sects.json`). You start at its lowest rank. Joining a different sect resets your rank. |
@@ -205,6 +207,10 @@ A mission is a one-year job with outcomes, written just like an event choice:
 - `mods` uses the same bonus keys as equipment (`power guard regen qiMult breakBonus luck intelligence`) plus three that arts and gear can both use: `meditation` (extra fraction of qi from meditating), `safety` (lowers the meditation deviation chance, in points, capped at 0.10) and `vitality` (slows old-age health decline, capped at 0.8).
 - `element` (optional) names a spiritual root. The art is stronger (x1.3) for that root and weaker (x0.7) for others.
 - `price` (optional) puts the art in the Market's Manuals list. Arts without a price can only be learned from events, which is how to make rare, special ones. `minRealm` (optional) is the realm index needed to buy it.
+- Every art has a `grade` (1 Yellow, 2 Mystic, 3 Earth, 4 Heaven, 5 Divine, 6 Primordial), a `type` (`cultivation`, `vitality`, `attack`, `defense`, `support`) and a `sub` type (a free word such as `blade`, `healing`, `barrier`, `curse`). Subtypes are used for battles later.
+- Higher grades are stronger, but a cheap low-grade art may have one outstanding number (a gimmick). That is intended: a Yellow art can beat a Heaven art at one job.
+- Only grades 1 to 3 can have a `price`. Grades 5 and 6 must have `chosen`: `{ "chance": 0.2, "if": ["luck>=45"] }`. The art refuses anyone who fails the conditions, and others only get it with that chance (plus a little luck).
+- Cultivators are rare: most mortals are born with no manual and cannot gain qi at all without one. Manuals reach mortals through the events in `data/events/mortal.json` and the birth odds in `data/balance.json` (`techniques.birth`).
 - Players only equip a few at once, so each art needs a clear identity: what kind of life does it suit?
 - To teach an art from an event, add `"learn": ["art_id"]` to an outcome's effects. Look at `data/events/techniques.json` for examples, including one that gives a different art depending on the player's root.
 - Numbers for slots per realm, mastery years and level multipliers are in `data/balance.json` under `techniques`.

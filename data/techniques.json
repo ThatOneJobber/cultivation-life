@@ -2,14 +2,45 @@
  {
   "id": "basic_breathing",
   "name": "Basic Breathing Method",
+  "grade": 1,
+  "type": "cultivation",
+  "sub": "breathing",
   "desc": "The simple breathing pattern every village cultivator learns.",
   "mods": {
    "qiMult": 0.05
   }
  },
  {
+  "id": "toad_breath",
+  "name": "Toad Swallowing Breath",
+  "grade": 1,
+  "type": "cultivation",
+  "sub": "breathing",
+  "desc": "Ugly, patient and surprisingly safe.",
+  "mods": {
+   "qiMult": 0.08,
+   "safety": 0.02
+  },
+  "price": 130
+ },
+ {
+  "id": "counting_beads",
+  "name": "Counting Beads Breath",
+  "grade": 1,
+  "type": "cultivation",
+  "sub": "meditation",
+  "desc": "A beggar monk's counting rhyme. Humble, yet it deepens meditation more than scriptures a hundred times its worth.",
+  "mods": {
+   "meditation": 0.3
+  },
+  "price": 140
+ },
+ {
   "id": "iron_body",
   "name": "Iron Body Sutra",
+  "grade": 1,
+  "type": "defense",
+  "sub": "body",
   "desc": "Tempers flesh like forged metal.",
   "mods": {
    "guard": 0.1,
@@ -18,8 +49,50 @@
   "price": 150
  },
  {
+  "id": "plough_ox_body",
+  "name": "Plough Ox Body Tempering",
+  "grade": 1,
+  "type": "defense",
+  "sub": "body",
+  "desc": "Farmers' endurance turned into a method.",
+  "mods": {
+   "guard": 0.12,
+   "vitality": 0.1
+  },
+  "price": 160
+ },
+ {
+  "id": "rat_hole_escape",
+  "name": "Rat Hole Escape",
+  "grade": 1,
+  "type": "defense",
+  "sub": "evasion",
+  "desc": "Ignoble, but no art keeps a cultivator safer in his own meditation.",
+  "mods": {
+   "safety": 0.06,
+   "luck": 6
+  },
+  "price": 140
+ },
+ {
+  "id": "wind_step",
+  "name": "Wind Step",
+  "grade": 1,
+  "type": "defense",
+  "sub": "evasion",
+  "desc": "Light footwork that turns blows aside.",
+  "mods": {
+   "power": 4,
+   "luck": 6
+  },
+  "price": 120
+ },
+ {
   "id": "clear_mind",
   "name": "Clear Mind Scripture",
+  "grade": 1,
+  "type": "support",
+  "sub": "blessing",
   "desc": "Stills the thoughts so qi flows freely.",
   "mods": {
    "intelligence": 6,
@@ -28,105 +101,443 @@
   "price": 140
  },
  {
-  "id": "wind_step",
-  "name": "Wind Step",
-  "desc": "Light footwork that turns blows aside.",
+  "id": "beggar_fortune_palm",
+  "name": "Beggar's Fortune Palm",
+  "grade": 1,
+  "type": "attack",
+  "sub": "fist",
+  "desc": "A street-corner palm that seems to turn up luck out of nowhere.",
   "mods": {
-   "power": 4,
-   "luck": 6
+   "luck": 14,
+   "power": 4
   },
   "price": 130
  },
  {
+  "id": "three_foot_sword",
+  "name": "Three Foot Sword Form",
+  "grade": 1,
+  "type": "attack",
+  "sub": "blade",
+  "desc": "Plain, honest swordwork. It cuts nearly as well as arts of the next grade.",
+  "mods": {
+   "power": 10
+  },
+  "price": 160
+ },
+ {
+  "id": "stubborn_weed",
+  "name": "Stubborn Weed Sutra",
+  "grade": 1,
+  "type": "vitality",
+  "sub": "endurance",
+  "desc": "You can trample it, burn it, and it grows back.",
+  "mods": {
+   "regen": 2,
+   "vitality": 0.25
+  },
+  "price": 150
+ },
+ {
+  "id": "village_healer_rhyme",
+  "name": "Village Healer's Rhyme",
+  "grade": 1,
+  "type": "vitality",
+  "sub": "healing",
+  "desc": "A healer's chant passed from grandmother to child.",
+  "mods": {
+   "regen": 2,
+   "safety": 0.02
+  },
+  "price": 140
+ },
+ {
   "id": "blazing_palm",
   "name": "Blazing Palm",
+  "grade": 2,
+  "type": "attack",
+  "sub": "fist",
   "element": "Fire",
   "desc": "Strikes wreathed in true flame.",
   "mods": {
    "power": 14
   },
-  "price": 170,
-  "minRealm": 1
- },
- {
-  "id": "flowing_water_heart",
-  "name": "Flowing Water Heart",
-  "element": "Water",
-  "desc": "Qi that follows the path of least resistance.",
-  "mods": {
-   "qiMult": 0.1,
-   "safety": 0.04
-  },
-  "price": 170,
-  "minRealm": 1
- },
- {
-  "id": "verdant_life_art",
-  "name": "Verdant Life Art",
-  "element": "Wood",
-  "desc": "Draws on the endless renewal of the forest.",
-  "mods": {
-   "regen": 2,
-   "vitality": 0.3
-  },
-  "price": 170,
+  "price": 420,
   "minRealm": 1
  },
  {
   "id": "gleaming_edge",
   "name": "Gleaming Edge Sword Art",
+  "grade": 2,
+  "type": "attack",
+  "sub": "blade",
   "element": "Metal",
   "desc": "A sword intent sharp enough to cut through qi itself.",
   "mods": {
    "power": 8,
    "guard": 0.15
   },
-  "price": 170,
+  "price": 430,
+  "minRealm": 1
+ },
+ {
+  "id": "frost_needle_art",
+  "name": "Frost Needle Art",
+  "grade": 2,
+  "type": "attack",
+  "sub": "spell",
+  "element": "Water",
+  "desc": "Needles of ice, thrown by the dozen.",
+  "mods": {
+   "power": 12,
+   "luck": 2
+  },
+  "price": 430,
+  "minRealm": 1
+ },
+ {
+  "id": "flowing_water_heart",
+  "name": "Flowing Water Heart",
+  "grade": 2,
+  "type": "cultivation",
+  "sub": "absorption",
+  "element": "Water",
+  "desc": "Qi that follows the path of least resistance.",
+  "mods": {
+   "qiMult": 0.14,
+   "safety": 0.04
+  },
+  "price": 420,
+  "minRealm": 1
+ },
+ {
+  "id": "cold_river_sutra",
+  "name": "Cold River Sutra",
+  "grade": 2,
+  "type": "cultivation",
+  "sub": "breathing",
+  "element": "Water",
+  "desc": "A cold, steady breathing method.",
+  "mods": {
+   "qiMult": 0.14,
+   "regen": 1
+  },
+  "price": 450,
+  "minRealm": 2
+ },
+ {
+  "id": "furnace_heart",
+  "name": "Furnace Heart Art",
+  "grade": 2,
+  "type": "cultivation",
+  "sub": "absorption",
+  "element": "Fire",
+  "desc": "The dantian burns like a forge.",
+  "mods": {
+   "qiMult": 0.17,
+   "power": 4
+  },
+  "price": 480,
+  "minRealm": 2
+ },
+ {
+  "id": "verdant_life_art",
+  "name": "Verdant Life Art",
+  "grade": 2,
+  "type": "vitality",
+  "sub": "healing",
+  "element": "Wood",
+  "desc": "Draws on the endless renewal of the forest.",
+  "mods": {
+   "regen": 2,
+   "vitality": 0.3
+  },
+  "price": 420,
   "minRealm": 1
  },
  {
   "id": "mountain_foundation",
-  "name": "Mountain Foundation Art",
+  "name": "Mountain Foundation Stance",
+  "grade": 2,
+  "type": "defense",
+  "sub": "body",
   "element": "Earth",
-  "desc": "Steady as bedrock, it makes each new realm stand firm.",
+  "desc": "A stance as steady as the earth beneath it.",
   "mods": {
    "breakBonus": 0.06,
    "guard": 0.05
   },
-  "price": 170,
+  "price": 430,
   "minRealm": 1
  },
  {
-  "id": "fortune_star",
-  "name": "Fortune Star Chart",
-  "desc": "A star map that bends coincidence your way.",
+  "id": "stone_mountain_stance",
+  "name": "Stone Mountain Stance",
+  "grade": 2,
+  "type": "defense",
+  "sub": "body",
+  "element": "Earth",
+  "desc": "You become a boulder that others break against.",
   "mods": {
-   "luck": 12,
-   "intelligence": 4
-  }
+   "guard": 0.2,
+   "vitality": 0.1
+  },
+  "price": 510,
+  "minRealm": 2
  },
  {
-  "id": "void_meditation",
-  "name": "Void Gazing Meditation",
-  "desc": "Meditation so deep that the self falls away.",
+  "id": "lantern_ward",
+  "name": "Lantern Ward",
+  "grade": 2,
+  "type": "defense",
+  "sub": "barrier",
+  "desc": "A ring of lamplight no malice crosses.",
   "mods": {
-   "meditation": 0.25,
-   "qiMult": 0.05
-  }
+   "guard": 0.18,
+   "safety": 0.03
+  },
+  "price": 480,
+  "minRealm": 2
+ },
+ {
+  "id": "thorn_vine_curse",
+  "name": "Thorn Vine Curse",
+  "grade": 2,
+  "type": "support",
+  "sub": "curse",
+  "element": "Wood",
+  "desc": "A hex that wraps an enemy's limbs in thorns.",
+  "mods": {
+   "power": 8,
+   "luck": 4
+  },
+  "price": 460,
+  "minRealm": 1
+ },
+ {
+  "id": "silent_listening_art",
+  "name": "Silent Listening Art",
+  "grade": 2,
+  "type": "support",
+  "sub": "blessing",
+  "desc": "Hear the world's quiet advice.",
+  "mods": {
+   "intelligence": 8,
+   "luck": 3
+  },
+  "price": 470,
+  "minRealm": 1
+ },
+ {
+  "id": "crimson_lotus_fire",
+  "name": "Crimson Lotus Fire",
+  "grade": 3,
+  "type": "attack",
+  "sub": "spell",
+  "element": "Fire",
+  "desc": "Lotuses of red flame bloom where you point.",
+  "mods": {
+   "power": 22
+  },
+  "price": 1140,
+  "minRealm": 3
+ },
+ {
+  "id": "soul_rending_whisper",
+  "name": "Soul Rending Whisper",
+  "grade": 3,
+  "type": "attack",
+  "sub": "soul",
+  "desc": "A forbidden whisper that shatters the will.",
+  "mods": {
+   "power": 20
+  },
+  "price": 1380,
+  "minRealm": 3
  },
  {
   "id": "nine_heavens_thunder",
-  "name": "Nine Heavens Thunder Art",
-  "desc": "Lightning answers your call.",
+  "name": "Nine Heavens Thunder Palm",
+  "grade": 3,
+  "type": "attack",
+  "sub": "fist",
+  "desc": "Thunder given a fist.",
   "mods": {
    "power": 14,
    "breakBonus": 0.05
   }
  },
  {
+  "id": "ever_spring_art",
+  "name": "Ever Spring Art",
+  "grade": 3,
+  "type": "vitality",
+  "sub": "healing",
+  "element": "Wood",
+  "desc": "Spring that never ends.",
+  "mods": {
+   "regen": 3,
+   "vitality": 0.25
+  },
+  "price": 1200,
+  "minRealm": 3
+ },
+ {
+  "id": "golden_bell_shield",
+  "name": "Golden Bell Shield",
+  "grade": 3,
+  "type": "defense",
+  "sub": "barrier",
+  "element": "Metal",
+  "desc": "A golden bell tolls, and blows ring off it.",
+  "mods": {
+   "guard": 0.3,
+   "power": 6
+  },
+  "price": 1260,
+  "minRealm": 3
+ },
+ {
+  "id": "shadow_step_art",
+  "name": "Shadow Step Art",
+  "grade": 3,
+  "type": "defense",
+  "sub": "evasion",
+  "desc": "Be where the blade is not.",
+  "mods": {
+   "power": 8,
+   "luck": 8,
+   "safety": 0.04
+  },
+  "price": 1320,
+  "minRealm": 3
+ },
+ {
+  "id": "nine_turns_circulation",
+  "name": "Nine Turns Heavenly Circulation",
+  "grade": 3,
+  "type": "cultivation",
+  "sub": "breathing",
+  "desc": "Qi makes nine great loops before it settles.",
+  "mods": {
+   "qiMult": 0.26,
+   "intelligence": 4
+  },
+  "price": 1380,
+  "minRealm": 3
+ },
+ {
+  "id": "earth_vein_drawing",
+  "name": "Earth Vein Drawing",
+  "grade": 3,
+  "type": "cultivation",
+  "sub": "absorption",
+  "element": "Earth",
+  "desc": "Draw qi straight from the vein beneath you.",
+  "mods": {
+   "qiMult": 0.22,
+   "guard": 0.08
+  },
+  "price": 1200,
+  "minRealm": 3
+ },
+ {
+  "id": "void_meditation",
+  "name": "Void Meditation",
+  "grade": 3,
+  "type": "cultivation",
+  "sub": "meditation",
+  "desc": "Empty the mind until the void answers.",
+  "mods": {
+   "meditation": 0.3,
+   "qiMult": 0.14
+  }
+ },
+ {
+  "id": "fortune_star",
+  "name": "Fortune Star Scripture",
+  "grade": 3,
+  "type": "support",
+  "sub": "blessing",
+  "desc": "A star of fortune hangs over you.",
+  "mods": {
+   "luck": 16,
+   "intelligence": 5
+  }
+ },
+ {
+  "id": "seven_stars_formation",
+  "name": "Seven Stars Formation Scroll",
+  "grade": 3,
+  "type": "support",
+  "sub": "formation",
+  "desc": "A small formation you can lay down anywhere.",
+  "mods": {
+   "guard": 0.1,
+   "breakBonus": 0.04,
+   "luck": 4
+  },
+  "price": 1380,
+  "minRealm": 3
+ },
+ {
+  "id": "furnace_alchemy",
+  "name": "Furnace Fire Alchemy",
+  "grade": 3,
+  "type": "support",
+  "sub": "alchemy",
+  "element": "Fire",
+  "desc": "Brew your own medicine and your own luck.",
+  "mods": {
+   "regen": 2,
+   "breakBonus": 0.05
+  },
+  "price": 1320,
+  "minRealm": 3
+ },
+ {
+  "id": "heart_sutra_stillness",
+  "name": "Heart Sutra of Stillness",
+  "grade": 4,
+  "type": "cultivation",
+  "sub": "meditation",
+  "desc": "The calm at the centre of every storm.",
+  "mods": {
+   "meditation": 0.4,
+   "safety": 0.06
+  }
+ },
+ {
+  "id": "sea_of_stars_absorption",
+  "name": "Sea of Stars Absorbing Art",
+  "grade": 4,
+  "type": "cultivation",
+  "sub": "absorption",
+  "desc": "A dantian wide as a night sky.",
+  "mods": {
+   "qiMult": 0.32,
+   "meditation": 0.1
+  }
+ },
+ {
+  "id": "dao_heart",
+  "name": "Dao Heart Sutra",
+  "grade": 4,
+  "type": "cultivation",
+  "sub": "refining",
+  "desc": "Temper the heart and the bottleneck bends.",
+  "mods": {
+   "breakBonus": 0.1,
+   "safety": 0.05
+  }
+ },
+ {
   "id": "phoenix_rebirth",
   "name": "Phoenix Rebirth Art",
-  "desc": "Flame that heals instead of burns. Even age loosens its grip.",
+  "grade": 4,
+  "type": "vitality",
+  "sub": "rebirth",
+  "desc": "Ash, then flame, then you.",
   "mods": {
    "regen": 3,
    "vitality": 0.5,
@@ -134,132 +545,311 @@
   }
  },
  {
-  "id": "dao_heart",
-  "name": "Dao Heart Sutra",
-  "desc": "An unshakable heart makes every breakthrough safer.",
+  "id": "nine_lives_art",
+  "name": "Nine Lives Art",
+  "grade": 4,
+  "type": "vitality",
+  "sub": "rebirth",
+  "desc": "A cat's tenacity, written as scripture.",
   "mods": {
-   "breakBonus": 0.1,
-   "safety": 0.05
+   "regen": 4,
+   "vitality": 0.45,
+   "safety": 0.03
   }
  },
  {
-  "id": "cold_river_sutra",
-  "name": "Cold River Sutra",
-  "element": "Water",
-  "desc": "Qi flows like an icy current through the meridians.",
+  "id": "tribulation_tempered_body",
+  "name": "Tribulation Tempered Body",
+  "grade": 4,
+  "type": "defense",
+  "sub": "body",
+  "desc": "A body forged by lightning.",
   "mods": {
-   "qiMult": 0.1,
-   "regen": 1
-  },
-  "price": 400,
-  "minRealm": 2
+   "guard": 0.35,
+   "vitality": 0.3,
+   "breakBonus": 0.04
+  }
  },
  {
-  "id": "stone_mountain_stance",
-  "name": "Stone Mountain Stance",
-  "element": "Earth",
-  "desc": "A rooted posture that turns blows aside.",
-  "mods": {
-   "guard": 0.2,
-   "vitality": 0.1
-  },
-  "price": 450,
-  "minRealm": 2
- },
- {
-  "id": "crimson_lotus_fire",
-  "name": "Crimson Lotus Fire",
-  "element": "Fire",
-  "desc": "Flames bloom into lotus petals that sear the enemy.",
-  "mods": {
-   "power": 22
-  },
-  "price": 900,
-  "minRealm": 3
- },
- {
-  "id": "ever_spring_art",
-  "name": "Ever-Spring Art",
-  "element": "Wood",
-  "desc": "The vitality of the forest, drawn into the body.",
-  "mods": {
-   "regen": 3,
-   "vitality": 0.25
-  },
-  "price": 1000,
-  "minRealm": 3
- },
- {
-  "id": "golden_bell_shield",
-  "name": "Golden Bell Shield",
+  "id": "thousand_blade_rain",
+  "name": "Thousand Blade Rain",
+  "grade": 4,
+  "type": "attack",
+  "sub": "blade",
   "element": "Metal",
-  "desc": "A resonant barrier that bell-rings against blades.",
+  "desc": "A storm of blades from a single sword.",
   "mods": {
-   "guard": 0.3,
-   "power": 6
-  },
-  "price": 1100,
-  "minRealm": 3
+   "power": 32,
+   "luck": 2
+  }
  },
  {
-  "id": "heart_sutra_stillness",
-  "name": "Heart Sutra of Stillness",
-  "desc": "A quiet mind makes safer and deeper meditation.",
+  "id": "thunder_dragon_roar",
+  "name": "Thunder Dragon Roar",
+  "grade": 4,
+  "type": "attack",
+  "sub": "spell",
+  "element": "Fire",
+  "desc": "The roar of a dragon that remembers thunder.",
   "mods": {
-   "meditation": 0.25,
-   "safety": 0.05
-  },
-  "price": 1500,
-  "minRealm": 4
+   "power": 30,
+   "guard": 0.05
+  }
+ },
+ {
+  "id": "heaven_deceiving_hex",
+  "name": "Heaven Deceiving Hex",
+  "grade": 4,
+  "type": "support",
+  "sub": "curse",
+  "desc": "Fool fate itself, then fool its victim.",
+  "mods": {
+   "power": 18,
+   "luck": 10,
+   "safety": 0.03
+  }
  },
  {
   "id": "heaven_thunder_dao",
   "name": "Heaven Thunder Dao",
-  "desc": "Call down lightning from the nine layers of heaven.",
+  "grade": 5,
+  "type": "attack",
+  "sub": "spell",
+  "desc": "The scripture sits in a dozen vaults, and only the few it likes are able to read it.",
   "mods": {
-   "power": 30,
+   "power": 42,
    "luck": 3
   },
-  "price": 2200,
-  "minRealm": 5
+  "chosen": {
+   "chance": 0.25,
+   "if": [
+    "luck>=45"
+   ]
+  }
+ },
+ {
+  "id": "heart_of_the_sun",
+  "name": "Heart of the Sun",
+  "grade": 5,
+  "type": "attack",
+  "sub": "spell",
+  "element": "Fire",
+  "desc": "A small sun in your chest. It burns those it dislikes.",
+  "mods": {
+   "power": 50,
+   "qiMult": 0.1
+  },
+  "chosen": {
+   "chance": 0.2,
+   "if": [
+    "root:Fire"
+   ]
+  }
  },
  {
   "id": "starlit_dao_scripture",
   "name": "Starlit Dao Scripture",
-  "desc": "An ancient text that draws on the starlight of the Dao.",
+  "grade": 5,
+  "type": "cultivation",
+  "sub": "absorption",
+  "desc": "The stars write it for the minds they like.",
   "mods": {
-   "qiMult": 0.25,
-   "intelligence": 8
+   "qiMult": 0.32,
+   "intelligence": 10
   },
-  "price": 3500,
-  "minRealm": 6
+  "chosen": {
+   "chance": 0.2,
+   "if": [
+    "intelligence>=60"
+   ]
+  }
  },
  {
-  "id": "primordial_chaos_scripture",
-  "name": "Primordial Chaos Scripture",
-  "desc": "A forbidden text from before the heavens were named.",
+  "id": "five_elements_harmony",
+  "name": "Five Elements Harmony",
+  "grade": 5,
+  "type": "cultivation",
+  "sub": "refining",
+  "desc": "All five elements agree for once. They refuse the unworthy.",
   "mods": {
-   "qiMult": 0.35,
-   "meditation": 0.2,
-   "breakBonus": 0.05
+   "qiMult": 0.3,
+   "breakBonus": 0.08,
+   "regen": 2
+  },
+  "chosen": {
+   "chance": 0.18,
+   "if": [
+    "intelligence>=70"
+   ]
   }
  },
  {
   "id": "phoenix_rebirth_art",
-  "name": "Phoenix Rebirth Art",
-  "desc": "The body burns and renews itself, again and again.",
+  "name": "Phoenix Rebirth Scripture",
+  "grade": 5,
+  "type": "vitality",
+  "sub": "rebirth",
+  "desc": "The phoenix chooses whom to rebirth.",
   "mods": {
-   "regen": 4,
-   "vitality": 0.4,
-   "guard": 0.15
+   "regen": 5,
+   "vitality": 0.55,
+   "guard": 0.2
+  },
+  "chosen": {
+   "chance": 0.2,
+   "if": [
+    "luck>=50"
+   ]
+  }
+ },
+ {
+  "id": "unbroken_vajra",
+  "name": "Unbroken Vajra Body",
+  "grade": 5,
+  "type": "defense",
+  "sub": "body",
+  "desc": "Only a body that has already survived much can bear it.",
+  "mods": {
+   "guard": 0.45,
+   "vitality": 0.5
+  },
+  "chosen": {
+   "chance": 0.2,
+   "if": [
+    "health>=60"
+   ]
+  }
+ },
+ {
+  "id": "void_walking_step",
+  "name": "Void Walking Step",
+  "grade": 5,
+  "type": "defense",
+  "sub": "evasion",
+  "desc": "A step that is gone before it lands.",
+  "mods": {
+   "safety": 0.08,
+   "power": 20,
+   "luck": 10
+  },
+  "chosen": {
+   "chance": 0.2,
+   "if": [
+    "luck>=55"
+   ]
+  }
+ },
+ {
+  "id": "dao_of_causality",
+  "name": "Dao of Causality",
+  "grade": 5,
+  "type": "support",
+  "sub": "curse",
+  "desc": "Pull one thread of fate and watch the sleeve unravel.",
+  "mods": {
+   "luck": 20,
+   "power": 24,
+   "breakBonus": 0.05
+  },
+  "chosen": {
+   "chance": 0.18,
+   "if": [
+    "intelligence>=60",
+    "luck>=45"
+   ]
+  }
+ },
+ {
+  "id": "primordial_chaos_scripture",
+  "name": "Primordial Chaos Scripture",
+  "grade": 6,
+  "type": "cultivation",
+  "sub": "refining",
+  "desc": "Written before heaven and earth parted. It reads its reader.",
+  "mods": {
+   "qiMult": 0.5,
+   "meditation": 0.25,
+   "breakBonus": 0.08
+  },
+  "chosen": {
+   "chance": 0.1,
+   "if": [
+    "luck>=60",
+    "intelligence>=60"
+   ]
+  }
+ },
+ {
+  "id": "heaven_swallowing_art",
+  "name": "Heaven Swallowing Art",
+  "grade": 6,
+  "type": "cultivation",
+  "sub": "absorption",
+  "desc": "It swallows qi, and sometimes its student.",
+  "mods": {
+   "qiMult": 0.6,
+   "power": 20
+  },
+  "chosen": {
+   "chance": 0.08,
+   "if": [
+    "intelligence>=65"
+   ]
   }
  },
  {
   "id": "sword_dao_unity",
   "name": "Sword Dao of Unity",
-  "desc": "Man and blade become a single will.",
+  "grade": 6,
+  "type": "attack",
+  "sub": "blade",
+  "desc": "The blade, the hand and the sky become one.",
   "mods": {
-   "power": 45
+   "power": 70
+  },
+  "chosen": {
+   "chance": 0.12,
+   "if": [
+    "intelligence>=55"
+   ]
+  }
+ },
+ {
+  "id": "undying_emperor_body",
+  "name": "Undying Emperor Body",
+  "grade": 6,
+  "type": "defense",
+  "sub": "body",
+  "desc": "A body no era has yet managed to end.",
+  "mods": {
+   "guard": 0.5,
+   "vitality": 0.6,
+   "regen": 5
+  },
+  "chosen": {
+   "chance": 0.1,
+   "if": [
+    "health>=70"
+   ]
+  }
+ },
+ {
+  "id": "creation_scroll",
+  "name": "Scroll of First Creation",
+  "grade": 6,
+  "type": "support",
+  "sub": "blessing",
+  "desc": "The world's first blessing, in the world's first words.",
+  "mods": {
+   "luck": 30,
+   "intelligence": 15,
+   "breakBonus": 0.1
+  },
+  "chosen": {
+   "chance": 0.1,
+   "if": [
+    "luck>=65"
+   ]
   }
  }
 ]

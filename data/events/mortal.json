@@ -1,0 +1,536 @@
+[
+ {
+  "id": "m_wandering_cultivator",
+  "text": "A cultivator in travel-worn robes stops at your village well. His eyes linger on you for a moment longer than on the other children.",
+  "minAge": 8,
+  "maxAge": 40,
+  "maxRealm": 0,
+  "weight": 0.22,
+  "once": true,
+  "if": [
+   "arts<1"
+  ],
+  "choices": [
+   {
+    "label": "Kneel and beg to be taught",
+    "outcomes": [
+     {
+      "chance": 0.45,
+      "scale": {
+       "luck": 0.003,
+       "intelligence": 0.002
+      },
+      "text": "He sighs, then recites a short manual. \"Never say where you learned it.\"",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "\"Not everyone is meant for this road.\" He walks on and you stay on your knees until dusk.",
+      "effects": {
+       "karma": 0
+      }
+     }
+    ]
+   },
+   {
+    "label": "Carry his bags for the month he stays",
+    "outcomes": [
+     {
+      "chance": 0.3,
+      "scale": {
+       "luck": 0.003
+      },
+      "text": "On his last night he tosses you a scroll. \"Payment.\"",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "He thanks you, and leaves a handful of coins.",
+      "effects": {
+       "gold": [
+        8,
+        25
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Ask only for a coin",
+    "outcomes": [
+     {
+      "text": "He laughs and flips you a copper.",
+      "effects": {
+       "gold": [
+        3,
+        10
+       ]
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_dying_traveler",
+  "text": "You find a traveler bleeding beside the road. Someone has clearly hunted him. He clutches a oilcloth bundle.",
+  "minAge": 12,
+  "maxAge": 60,
+  "maxRealm": 0,
+  "weight": 0.15,
+  "once": true,
+  "if": [
+   "arts<1",
+   "karma>=40"
+  ],
+  "choices": [
+   {
+    "label": "Stay with him until the end",
+    "outcomes": [
+     {
+      "chance": 0.85,
+      "scale": {
+       "luck": 0.001
+      },
+      "text": "His last breath is a request: keep the bundle, and keep it hidden. Inside is a cultivation manual.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "karma": 5,
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "He dies before he can say a word. You bury him.",
+      "effects": {
+       "karma": 4
+      }
+     }
+    ]
+   },
+   {
+    "label": "Rifle through his pack and leave",
+    "outcomes": [
+     {
+      "chance": 0.5,
+      "text": "Under the coins is a scroll. You run before the hunters return.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "gold": [
+        10,
+        30
+       ],
+       "karma": -6,
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "Just a few coins.",
+      "effects": {
+       "gold": [
+        5,
+        15
+       ],
+       "karma": -6
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_collapsed_shrine",
+  "text": "Heavy rain has brought down the old hillside shrine. Behind the broken altar there is a hollow in the wall.",
+  "minAge": 10,
+  "maxAge": 50,
+  "maxRealm": 0,
+  "weight": 0.15,
+  "once": true,
+  "if": [
+   "arts<1"
+  ],
+  "choices": [
+   {
+    "label": "Dig through the rubble",
+    "outcomes": [
+     {
+      "chance": 0.4,
+      "scale": {
+       "luck": 0.004
+      },
+      "text": "Behind the altar, wrapped in waxed cloth, is a manual.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         2
+        ]
+       },
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "The wall comes down on your arm.",
+      "effects": {
+       "health": [
+        -18,
+        -8
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Leave it to the gods",
+    "outcomes": [
+     {
+      "text": "You pray, and walk home dry.",
+      "effects": {
+       "karma": 2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_merchant_library",
+  "text": "A merchant house keeps a locked room of old books, and a clerk who is happy to take bribes.",
+  "minAge": 14,
+  "maxAge": 60,
+  "maxRealm": 0,
+  "weight": 0.15,
+  "once": true,
+  "if": [
+   "arts<1",
+   "gold>=80"
+  ],
+  "choices": [
+   {
+    "label": "Pay 80 gold for an hour in the room",
+    "outcomes": [
+     {
+      "chance": 0.6,
+      "scale": {
+       "intelligence": 0.003
+      },
+      "text": "In an hour you copy what you can, and a manual's worth of it is real.",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "gold": -80,
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "The clerk sold you a forgery. You smile, and you leave.",
+      "effects": {
+       "gold": -80
+      }
+     }
+    ]
+   },
+   {
+    "label": "Walk away",
+    "outcomes": [
+     {
+      "text": "A clerk's price is never as low as it looks.",
+      "effects": {}
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_village_hermit",
+  "text": "The village's old hermit says he once walked the immortal road. Nobody believes him but you are curious.",
+  "minAge": 6,
+  "maxAge": 22,
+  "maxRealm": 0,
+  "weight": 0.15,
+  "once": true,
+  "if": [
+   "arts<1"
+  ],
+  "choices": [
+   {
+    "label": "Do his chores for a season and listen",
+    "outcomes": [
+     {
+      "chance": 0.3,
+      "scale": {
+       "intelligence": 0.004
+      },
+      "text": "He teaches you a breathing rhyme. \"Say it to nobody.\"",
+      "effects": {
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "setFlags": [
+        "secret"
+       ]
+      }
+     },
+     {
+      "text": "He is only a lonely old man. You enjoy his stories anyway.",
+      "effects": {
+       "karma": 3
+      }
+     }
+    ]
+   },
+   {
+    "label": "Mock him with the other children",
+    "outcomes": [
+     {
+      "text": "The hermit just watches you go. You feel small.",
+      "effects": {
+       "karma": -3
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_manual_hunters",
+  "text": "Rumours fly: someone talks about the manual you are hiding. Two men in dark robes ask questions about you at the inn.",
+  "minAge": 12,
+  "maxAge": 70,
+  "maxRealm": 2,
+  "weight": 1.1,
+  "once": true,
+  "if": [
+   "flag:secret",
+   "arts>=1"
+  ],
+  "choices": [
+   {
+    "label": "Keep quiet and keep practicing",
+    "outcomes": [
+     {
+      "chance": 0.55,
+      "scale": {
+       "luck": 0.002
+      },
+      "text": "The questions stop. Nobody ever learns what you have.",
+      "effects": {
+       "karma": 0
+      }
+     },
+     {
+      "chance": 0.5,
+      "text": "They find it. You are beaten and robbed, but not killed.",
+      "effects": {
+       "forget": "all",
+       "health": [
+        -30,
+        -15
+       ]
+      }
+     },
+     {
+      "text": "They find it, and they do not leave witnesses.",
+      "effects": {
+       "die": "Killed for a cultivation manual"
+      }
+     }
+    ]
+   },
+   {
+    "label": "Flee to a distant city",
+    "outcomes": [
+     {
+      "chance": 0.6,
+      "scale": {
+       "luck": 0.002
+      },
+      "text": "You make it to a new town and a new name.",
+      "effects": {
+       "gold": -10
+      }
+     },
+     {
+      "text": "They catch you on the road and take it all.",
+      "effects": {
+       "forget": "all",
+       "health": [
+        -35,
+        -20
+       ]
+      }
+     }
+    ]
+   },
+   {
+    "label": "Sell the manual to the local lord",
+    "outcomes": [
+     {
+      "text": "The lord pays well and smiles. You are forgotten, and so is the manual.",
+      "effects": {
+       "forget": "all",
+       "gold": [
+        80,
+        160
+       ],
+       "karma": -2
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "m_recruiters_at_market",
+  "text": "Three robed recruiters have set up tables in the market square, testing children and young villagers for spiritual talent. Most are turned away.",
+  "minAge": 10,
+  "maxAge": 24,
+  "maxRealm": 0,
+  "weight": 0.2,
+  "once": true,
+  "if": [
+   "arts<1"
+  ],
+  "choices": [
+   {
+    "label": "Take the Azure Cloud Sect's test",
+    "outcomes": [
+     {
+      "chance": 0.28,
+      "scale": {
+       "luck": 0.003,
+       "intelligence": 0.003
+      },
+      "text": "The elder's stone glows. \"A little crude, but there is something here.\" You are taken in as an outer disciple and given a basic manual.",
+      "effects": {
+       "sect": "Azure Cloud Sect",
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "karma": 2
+      }
+     },
+     {
+      "text": "\"Come back when you can feel qi.\" The recruiter's eyes were already on the next child.",
+      "effects": {
+       "karma": 0
+      }
+     }
+    ]
+   },
+   {
+    "label": "Take the Blood Moon Sect's test",
+    "outcomes": [
+     {
+      "chance": 0.34,
+      "scale": {
+       "luck": 0.003,
+       "intelligence": 0.002
+      },
+      "text": "The recruiter smiles with too many teeth. \"Strong. Hungry. You will do.\"",
+      "effects": {
+       "sect": "Blood Moon Sect",
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "karma": -8
+      }
+     },
+     {
+      "text": "\"Come back when you can feel qi.\" The recruiter's eyes were already on the next child.",
+      "effects": {
+       "karma": 0
+      }
+     }
+    ]
+   },
+   {
+    "label": "Take the Verdant Pill Pavilion's test",
+    "outcomes": [
+     {
+      "chance": 0.3,
+      "scale": {
+       "intelligence": 0.004
+      },
+      "text": "They check your hands, your eyes, and your patience. \"Clever enough to learn herbs.\" You get a manual and a job.",
+      "effects": {
+       "sect": "Verdant Pill Pavilion",
+       "learnRandom": {
+        "grade": [
+         1,
+         1
+        ]
+       },
+       "intelligence": 3
+      }
+     },
+     {
+      "text": "\"Come back when you can feel qi.\" The recruiter's eyes were already on the next child.",
+      "effects": {
+       "karma": 0
+      }
+     }
+    ]
+   },
+   {
+    "label": "Stay out of it",
+    "outcomes": [
+     {
+      "text": "Your family needs you, and the recruiters leave by sunset.",
+      "effects": {
+       "karma": 0
+      }
+     }
+    ]
+   }
+  ]
+ }
+]

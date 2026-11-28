@@ -1,67 +1,267 @@
 [
-  {
-    "id": "sect_tournament",
-    "text": "The sect holds its yearly tournament. Disciples line up to test their skill before the elders.",
-    "minAge": 16, "weight": 4, "if": ["sect"],
-    "choices": [
-      { "label": "Enter the tournament", "outcomes": [
-        { "chance": 0.35, "scale": { "power": 0.012, "luck": 0.003 }, "text": "You fight your way to the final and take the crown!", "effects": { "merit": { "base": 40, "perRealm": 15 }, "gold": { "base": 30, "perRealm": 15 }, "qi": { "base": 20, "perRealm": 15 } } },
-        { "chance": 0.5, "text": "You win a few rounds before falling to a stronger disciple.", "effects": { "merit": { "base": 12, "perRealm": 5 }, "health": -8 } },
-        { "text": "You are knocked out in the first round, to general laughter.", "effects": { "health": -15, "luck": -1 } }
-      ]},
-      { "label": "Watch and learn from the best", "outcomes": [
-        { "text": "You study the winning techniques closely.", "effects": { "intelligence": 1, "qi": { "base": 6, "perRealm": 4 } } }
-      ]}
+ {
+  "id": "sect_tournament",
+  "text": "The sect holds its yearly tournament. Disciples line up to test their skill before the elders.",
+  "minAge": 16,
+  "weight": 4,
+  "if": [
+   "sect"
+  ],
+  "choices": [
+   {
+    "label": "Enter the tournament",
+    "outcomes": [
+     {
+      "chance": 0.35,
+      "scale": {
+       "power": 0.012,
+       "luck": 0.003
+      },
+      "text": "You fight your way to the final and take the crown!",
+      "effects": {
+       "merit": {
+        "base": 40,
+        "perRealm": 15
+       },
+       "gold": {
+        "base": 30,
+        "perRealm": 15
+       },
+       "qi": {
+        "base": 20,
+        "perRealm": 15
+       }
+      }
+     },
+     {
+      "chance": 0.5,
+      "text": "You win a few rounds before falling to a stronger disciple.",
+      "effects": {
+       "merit": {
+        "base": 12,
+        "perRealm": 5
+       },
+       "health": -8
+      }
+     },
+     {
+      "text": "You are knocked out in the first round, to general laughter.",
+      "effects": {
+       "health": -15,
+       "luck": -1
+      }
+     }
     ]
-  },
-  {
-    "id": "elder_audience",
-    "text": "A senior elder summons you for a private audience and asks what you have learned.",
-    "minAge": 20, "weight": 6, "once": true, "if": ["rank>=2"],
-    "choices": [
-      { "label": "Answer with honesty and humility", "outcomes": [
-        { "text": "The elder smiles and shares a piece of hard-won advice.", "effects": { "merit": { "base": 30, "perRealm": 10 }, "intelligence": 3, "karma": 2 } }
-      ]},
-      { "label": "Boast of your achievements", "outcomes": [
-        { "chance": 0.4, "scale": { "luck": 0.004 }, "text": "The elder is amused by your confidence and rewards it.", "effects": { "merit": { "base": 25, "perRealm": 8 }, "gold": { "base": 30, "perRealm": 12 } } },
-        { "text": "The elder is not amused. You are sent to copy scriptures for a month.", "effects": { "merit": -15, "karma": -1 } }
-      ]}
+   },
+   {
+    "label": "Watch and learn from the best",
+    "outcomes": [
+     {
+      "text": "You study the winning techniques closely.",
+      "effects": {
+       "intelligence": 1,
+       "qi": {
+        "base": 6,
+        "perRealm": 4
+       }
+      }
+     }
     ]
-  },
-  {
-    "id": "sect_war",
-    "text": "War! A rival sect declares open conflict, and every disciple of fighting age is called to the front.",
-    "minAge": 25, "minRealm": 2, "weight": 3, "once": true, "if": ["rank>=1"],
-    "choices": [
-      { "label": "Fight on the front line", "outcomes": [
-        { "chance": 0.5, "scale": { "power": 0.012, "health": 0.002 }, "text": "You earn a name on the battlefield and the sect's gratitude.", "effects": { "merit": { "base": 70, "perRealm": 20 }, "qi": { "base": 30, "perRealm": 20 }, "health": -15 } },
-        { "text": "The line breaks and you barely escape alive.", "effects": { "merit": { "base": 15, "perRealm": 5 }, "health": -40 } }
-      ]},
-      { "label": "Serve in the rear as a healer and supplier", "outcomes": [
-        { "text": "Unglamorous work, but many live because of you.", "effects": { "merit": { "base": 35, "perRealm": 10 }, "karma": 2 } }
-      ]},
-      { "label": "Slip away while the sect is distracted", "outcomes": [
-        { "text": "You vanish into the night. The sect will not forgive a deserter.", "effects": { "karma": -5, "leaveSect": true } }
-      ]}
+   }
+  ]
+ },
+ {
+  "id": "elder_audience",
+  "text": "A senior elder summons you for a private audience and asks what you have learned.",
+  "minAge": 20,
+  "weight": 6,
+  "once": true,
+  "if": [
+   "rank>=2"
+  ],
+  "choices": [
+   {
+    "label": "Answer with honesty and humility",
+    "outcomes": [
+     {
+      "text": "The elder smiles and shares a piece of hard-won advice.",
+      "effects": {
+       "merit": {
+        "base": 30,
+        "perRealm": 10
+       },
+       "intelligence": 3,
+       "karma": 2
+      }
+     }
     ]
-  },
-  {
-    "id": "sect_invitation",
-    "text": "Years of wandering have made your name known. A sect elder arrives at your door with an offer of a place among them.",
-    "minAge": 20, "minRealm": 1, "weight": 5, "once": true, "if": ["!sect"],
-    "choices": [
-      { "label": "Accept a place in the Azure Cloud Sect", "outcomes": [
-        { "text": "The righteous sect welcomes you.", "effects": { "karma": 2, "sect": "Azure Cloud Sect" } }
-      ]},
-      { "label": "Accept a place in the Blood Moon Sect", "outcomes": [
-        { "text": "The Blood Moon Sect welcomes a strong recruit.", "effects": { "qi": 25, "karma": -8, "sect": "Blood Moon Sect" } }
-      ]},
-      { "label": "Accept a place in the Verdant Pill Pavilion", "outcomes": [
-        { "text": "The pavilion values a cultivator with real-world experience.", "effects": { "gold": 15, "intelligence": 2, "sect": "Verdant Pill Pavilion" } }
-      ]},
-      { "label": "Decline politely", "outcomes": [
-        { "text": "The elder bows and leaves. Your independence is respected.", "effects": { "luck": 2 } }
-      ]}
+   },
+   {
+    "label": "Boast of your achievements",
+    "outcomes": [
+     {
+      "chance": 0.4,
+      "scale": {
+       "luck": 0.004
+      },
+      "text": "The elder is amused by your confidence and rewards it.",
+      "effects": {
+       "merit": {
+        "base": 25,
+        "perRealm": 8
+       },
+       "gold": {
+        "base": 30,
+        "perRealm": 12
+       }
+      }
+     },
+     {
+      "text": "The elder is not amused. You are sent to copy scriptures for a month.",
+      "effects": {
+       "merit": -15,
+       "karma": -1
+      }
+     }
     ]
-  }
+   }
+  ]
+ },
+ {
+  "id": "sect_war",
+  "text": "War! A rival sect declares open conflict, and every disciple of fighting age is called to the front.",
+  "minAge": 25,
+  "minRealm": 2,
+  "weight": 3,
+  "once": true,
+  "if": [
+   "rank>=1"
+  ],
+  "choices": [
+   {
+    "label": "Fight on the front line",
+    "outcomes": [
+     {
+      "chance": 0.5,
+      "scale": {
+       "power": 0.012,
+       "health": 0.002
+      },
+      "text": "You earn a name on the battlefield and the sect's gratitude.",
+      "effects": {
+       "merit": {
+        "base": 70,
+        "perRealm": 20
+       },
+       "qi": {
+        "base": 30,
+        "perRealm": 20
+       },
+       "health": -15
+      }
+     },
+     {
+      "text": "The line breaks and you barely escape alive.",
+      "effects": {
+       "merit": {
+        "base": 15,
+        "perRealm": 5
+       },
+       "health": -40
+      }
+     }
+    ]
+   },
+   {
+    "label": "Serve in the rear as a healer and supplier",
+    "outcomes": [
+     {
+      "text": "Unglamorous work, but many live because of you.",
+      "effects": {
+       "merit": {
+        "base": 35,
+        "perRealm": 10
+       },
+       "karma": 2
+      }
+     }
+    ]
+   },
+   {
+    "label": "Slip away while the sect is distracted",
+    "outcomes": [
+     {
+      "text": "You vanish into the night. The sect will not forgive a deserter.",
+      "effects": {
+       "karma": -5,
+       "leaveSect": true
+      }
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "id": "sect_invitation",
+  "text": "Years of wandering have made your name known. A sect elder arrives at your door with an offer of a place among them.",
+  "minAge": 20,
+  "minRealm": 1,
+  "weight": 5,
+  "once": true,
+  "if": [
+   "!sect",
+   "arts>=1"
+  ],
+  "choices": [
+   {
+    "label": "Accept a place in the Azure Cloud Sect",
+    "outcomes": [
+     {
+      "text": "The righteous sect welcomes you.",
+      "effects": {
+       "karma": 2,
+       "sect": "Azure Cloud Sect"
+      }
+     }
+    ]
+   },
+   {
+    "label": "Accept a place in the Blood Moon Sect",
+    "outcomes": [
+     {
+      "text": "The Blood Moon Sect welcomes a strong recruit.",
+      "effects": {
+       "qi": 25,
+       "karma": -8,
+       "sect": "Blood Moon Sect"
+      }
+     }
+    ]
+   },
+   {
+    "label": "Accept a place in the Verdant Pill Pavilion",
+    "outcomes": [
+     {
+      "text": "The pavilion values a cultivator with real-world experience.",
+      "effects": {
+       "gold": 15,
+       "intelligence": 2,
+       "sect": "Verdant Pill Pavilion"
+      }
+     }
+    ]
+   },
+   {
+    "label": "Decline politely",
+    "outcomes": [
+     {
+      "text": "The elder bows and leaves. Your independence is respected.",
+      "effects": {
+       "luck": 2
+      }
+     }
+    ]
+   }
+  ]
+ }
 ]

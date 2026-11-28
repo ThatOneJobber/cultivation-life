@@ -69,7 +69,7 @@
     let art = null, best = -1;
     Object.keys(p.tech).forEach(id => {
       if (D.balance.techniques.starter.includes(id)) return;
-      const lv = G.tech.level(p, id);
+      const lv = G.tech.grade(id) * 10 + G.tech.level(p, id); // finest grade first, then mastery
       if (lv > best) { best = lv; art = id; }
     });
     // A parent who retires on their own hands down their finest piece of equipment too.

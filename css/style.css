@@ -109,3 +109,6 @@ button.gold:hover:not(:disabled){box-shadow:0 0 14px rgba(212,175,55,.35)}
 @media (prefers-reduced-motion:reduce){
   #mist,.entry,.entry.good,.entry.bad,.overlay .card,.row .fill::after{animation:none!important}
 }
+
+.gr{font-size:.78em;letter-spacing:.02em}
+.g1{color:#c9b458}.g2{color:#7fc8a9}.g3{color:#7fa8e0}.g4{color:#b48ae8}.g5{color:#f0a05c}.g6{color:#ff7a7a;text-shadow:0 0 6px rgba(255,122,122,.45)}

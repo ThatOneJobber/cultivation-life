@@ -53,10 +53,29 @@
     return sum;
   }
 
+  const grade = id => (def(id) || {}).grade || 1;
+  const gradeName = id => cfg().grades[grade(id) - 1];
+  const typeName = id => cfg().types[(def(id) || {}).type] || "";
+
+  // Some high-grade manuals choose their reader. Returns true when this person is accepted.
+  function chosenBy(p, id) {
+    const d = def(id);
+    if (!d || !d.chosen) return true;
+    if (!G.cond.testAll(p, d.chosen.if)) return false;
+    return U.random() < d.chosen.chance + G.cond.value(p, "luck") * cfg().chosenLuck;
+  }
+
+  // A random art within the given grades (not yet known, and not already tried this call).
+  function randomArt(p, spec) {
+    const lo = spec.grade ? spec.grade[0] : 1, hi = spec.grade ? spec.grade[1] : 6;
+    const pool = all().filter(d => d.grade >= lo && d.grade <= hi && !known(p, d.id) && (!spec.type || d.type === spec.type));
+    return pool.length ? U.pick(pool).id : null;
+  }
+
   // Learn an art (equips it automatically if a slot is free). Returns false if already known.
   function learn(p, id) {
     if (!def(id) || known(p, id)) return false;
-    p.tech[id] = 0;
+    p.tech[id] = 0; p.everArt = true;
     if (p.techEquip.length < slots(p)) p.techEquip.push(id);
     return true;
   }
@@ -86,5 +105,5 @@
     return ups;
   }
 
-  G.tech = { def, all, known, slots, equipped, level, levelName, scale, mod, learn, equip, unequip, practice };
+  G.tech = { grade, gradeName, typeName, chosenBy, randomArt, def, all, known, slots, equipped, level, levelName, scale, mod, learn, equip, unequip, practice };
 })();

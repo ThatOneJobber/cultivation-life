@@ -16,7 +16,7 @@
 
   /* ---------- derived numbers ---------- */
   function passiveQi(p) {
-    if (p.age < 6) return 0;
+    if (p.age < 6 || !T.equipped(p).length) return 0; // with no method at all, nothing stirs
     return Math.round((3 + p.realm * 6) * D.roots[p.root].mult * (1 + eff(p, "intelligence") / 250) * (1 + I.mod(p, "qiMult")));
   }
 
@@ -30,23 +30,32 @@
     return best;
   }
 
+  // Highest chance any breakthrough can have at this realm: never above 90%, and lower as the realms rise.
+  const breakCap = p => Math.max(B.breakthrough.capMin, B.breakthrough.capBase - p.realm * B.breakthrough.capPerRealm);
+
+  // A pill helps less and less as the realms rise.
+  const pillBonus = (p, pill) => pill ? pill.onBreakthrough * Math.max(B.breakthrough.pillMin, 1 - p.realm * B.breakthrough.pillDecay) : 0;
+
   function breakChance(p) {
-    let c = B.breakthrough.base + eff(p, "intelligence") / 300 + eff(p, "luck") / 400 +
-      D.roots[p.root].brk - p.realm * 0.03 + I.mod(p, "breakBonus");
-    const pill = bestPill(p);
-    if (pill) c += pill.onBreakthrough;
-    return U.clamp(c, 0.1, 0.95);
+    const b = B.breakthrough;
+    const c = b.base + eff(p, "intelligence") / 300 + eff(p, "luck") / 400 +
+      D.roots[p.root].brk - p.realm * b.raw + I.mod(p, "breakBonus") + pillBonus(p, bestPill(p));
+    return U.clamp(c, b.floor, breakCap(p));
   }
+
+  // The worst a failed breakthrough can hurt right now.
+  const failDamageRange = p => [B.breakthrough.failDamageMin + p.realm * B.breakthrough.failDamagePerRealm, B.breakthrough.failDamageMax + p.realm * B.breakthrough.failDamagePerRealm];
 
   function isBreakthroughReady(p) {
     const need = D.realms[p.realm].need;
     return need != null && p.qi >= need;
   }
 
-  const canSeclude = p => p.alive && !p.pending && p.age >= 6 && !isBreakthroughReady(p);
+  const canMeditate = p => p.alive && !p.pending && !p.meditated && p.age >= 3 && T.equipped(p).length > 0;
+  const canSeclude = p => p.alive && !p.pending && p.age >= 6 && !isBreakthroughReady(p) && T.equipped(p).length > 0;
 
   // True when a failed breakthrough could kill the character right now.
-  const breakthroughIsRisky = p => p.stats.health <= B.breakthrough.failDamageMax;
+  const breakthroughIsRisky = p => p.stats.health <= failDamageRange(p)[1];
 
   // Armor: reduces a damage amount (positive number) by the player's guard.
   const guarded = (p, dmg) => { const g = I.mod(p, "guard"); return g ? Math.max(1, Math.round(dmg * (1 - g))) : dmg; };
@@ -124,6 +133,7 @@
       if (fx[k] === undefined || (k === "merit" && !p.sect) || (k === "bond" && !p.partner)) continue;
       let amount = resolveValue(fx[k], p, k);
       if (k === "karma" && amount) amount = G.karma.flow(amount);
+      if (k === "qi" && amount > 0 && !T.equipped(p).length) amount = 0; // no method, nothing to absorb it
       if (k === "health" && amount < 0) amount = -guarded(p, -amount);
       const before = current(p, k);
       setValue(p, k, before + amount);
@@ -138,7 +148,20 @@
       }
     }
     const learned = [];
-    if (fx.learn) for (const id of fx.learn) if (T.learn(p, id)) learned.push({ name: T.def(id).name, worn: p.techEquip.includes(id) });
+    const refused = [];
+    const tryLearn = id => {
+      if (!T.def(id) || T.known(p, id)) return;
+      if (!T.chosenBy(p, id)) { refused.push(T.def(id).name); return; }
+      if (T.learn(p, id)) learned.push({ name: T.def(id).name, worn: p.techEquip.includes(id) });
+    };
+    if (fx.learn) fx.learn.forEach(tryLearn);
+    if (fx.learnRandom) { const id = T.randomArt(p, fx.learnRandom); if (id) tryLearn(id); }
+    const forgot = [];
+    if (fx.forget) {
+      const ids = fx.forget === "all" ? Object.keys(p.tech) : fx.forget.filter(id => T.known(p, id));
+      ids.forEach(id => { forgot.push(T.def(id).name); delete p.tech[id]; });
+      p.techEquip = p.techEquip.filter(id => T.known(p, id));
+    }
     if (fx.setFlags) fx.setFlags.forEach(f => (p.flags[f] = p.age));
     if (fx.sect && fx.sect !== p.sect) X.join(p, fx.sect);
     if (fx.leaveSect) X.leave(p);
@@ -146,13 +169,16 @@
     if (fx.die) p.deathCause = fx.die;
 
     const keys = Object.keys(deltas);
-    const bad = !!fx.die || NEG_IS_BAD.some(k => deltas[k] < 0);
+    const bad = !!fx.die || forgot.length > 0 || NEG_IS_BAD.some(k => deltas[k] < 0);
     const good = keys.some(k => deltas[k] > 0) || gained.some(g => g.n > 0) || learned.length > 0;
+    if (forgot.length && !good) { /* losing an art is a bad outcome */ }
     const cls = fx.die ? "bad" : bad && !good ? "bad" : good && !bad ? "good" : "";
     const parts = keys.map(k => LABEL[k] + " " + (deltas[k] > 0 ? "+" : "") + deltas[k])
       .concat(gained.map(g => (g.n > 0 ? "+" : "") + g.n + " " + g.name))
       .concat(family)
-      .concat(learned.map(l => "Learned " + l.name + (l.worn ? "" : " (no free slot, see Arts)")));
+      .concat(learned.map(l => "Learned " + l.name + (l.worn ? "" : " (no free slot, see Arts)")))
+      .concat(refused.map(n => n + " did not choose you"))
+      .concat(forgot.map(n => "Lost " + n));
     S.addLog(text || "Nothing much happens.", cls, parts.join(", "));
     const promoAfter = X.promotion(p);
     if (promoAfter && promoAfter.ready && !(promoBefore && promoBefore.ready && promoBefore.next === promoAfter.next))
@@ -163,7 +189,7 @@
   // Advances one year. Returns the event that triggered (not yet shown), if any.
   function advanceYear(p, secluded, eventChance) {
     p.age++;
-    p.meditated = false;
+    p.meditated = false; p.duty = false;
     const gain = Math.round(passiveQi(p) * (secluded ? B.seclusion.qiBonus : 1));
     p.qi += gain;
     const stipend = X.stipend(p);
@@ -218,6 +244,7 @@
   function meditate() {
     const p = S.p;
     if (!p.alive || p.pending || p.meditated) return;
+    if (!T.equipped(p).length) { S.addLog("You sit and breathe, but without a method of cultivation nothing stirs.", "dim", "You need a manual first"); S.save(); return; }
     p.meditated = true;
     const gain = Math.round((passiveQi(p) * 2 + U.rand(5, 15)) * (1 + I.mod(p, "meditation")));
     const risk = Math.max(0, B.meditation.riskChance - I.mod(p, "safety"));
@@ -255,6 +282,7 @@
     if (!canSectAct(p) || !X.board(p).some(m => m.id === id)) return;
     const m = X.missionById(id);
     const r = advanceYear(p, false, 0);
+    p.meditated = true; p.duty = true; // the year belongs to the sect: no time left to meditate
     logLevelUps(r.ups);
     S.addLog("Mission: " + m.name + ".", "dim", [r.gain ? "Qi +" + r.gain : "", r.stipend ? "Gold +" + r.stipend + " (stipend)" : ""].filter(Boolean).join(", "));
     const o = resolveOutcome(p, m);
@@ -270,6 +298,7 @@
     if (!pr || !pr.ready) return;
     const chance = X.trialChance(p), bs = B.sect;
     const r = advanceYear(p, false);
+    p.meditated = true; p.duty = true;
     logLevelUps(r.ups);
     S.addLog("You sit the trial for " + pr.next.name + ".", "dim", r.stipend ? "Gold +" + r.stipend + " (stipend)" : "");
     if (U.random() < chance) {
@@ -300,12 +329,22 @@
         "Lifespan +" + bonus + (heal ? ", Health +" + heal : ""));
       if (T.slots(p) > slotsBefore) S.addLog("Your understanding deepens: you can now hold " + T.slots(p) + " arts.", "good", "Open the Arts tab to equip");
     } else {
-      const dmg = guarded(p, U.rand(B.breakthrough.failDamageMin, B.breakthrough.failDamageMax));
-      const lost = Math.floor(p.qi * 0.3), lifeLoss = p.realm >= 2 ? U.rand(2, 8) : 0;
+      const b = B.breakthrough, fr = failDamageRange(p);
+      const dmg = guarded(p, U.rand(fr[0], fr[1]));
+      const qiFrac = Math.min(b.failQiLossMax, b.failQiLoss + p.realm * b.failQiLossPerRealm);
+      const lost = Math.floor(p.qi * qiFrac);
+      const lifeLoss = p.realm >= 2 ? Math.round(U.rand(b.failLifeLoss[0], b.failLifeLoss[1]) * (1 + p.realm * b.failLifePerRealm)) : 0;
       p.stats.health = U.clamp(p.stats.health - dmg, 0, 100);
       p.qi -= lost; p.lifespan -= lifeLoss;
+      let extra = "";
+      const hd = b.heartDemon;
+      if (p.realm >= hd.minRealm && U.random() < hd.chance + (p.realm - hd.minRealm) * hd.perRealm) {
+        const w = U.rand(hd.loss[0], hd.loss[1]);
+        p.stats.intelligence = U.clamp(p.stats.intelligence - w, 0, 100);
+        extra = ", Intelligence -" + w + " (a heart demon takes hold)";
+      }
       S.addLog("The breakthrough fails! Your meridians shudder." + (pill ? " (" + pill.name + " was wasted)" : ""), "bad",
-        "Health -" + dmg + ", Qi -" + lost + (lifeLoss ? ", Lifespan -" + lifeLoss : ""));
+        "Health -" + dmg + ", Qi -" + lost + (lifeLoss ? ", Lifespan -" + lifeLoss : "") + extra);
     }
     checkDeath(); S.save();
   }
@@ -362,7 +401,7 @@
   }
 
   const canBuyTechnique = (p, d) => !!d && p.alive && !p.pending && d.price > 0 && p.gold >= d.price &&
-    !T.known(p, d.id) && p.realm >= (d.minRealm || 0);
+    !T.known(p, d.id) && p.realm >= (d.minRealm || 0) && (p.realm >= 1 || Object.keys(p.tech).length > 0); // nobody sells manuals to a bare mortal
 
   function buyTechnique(id) {
     const p = S.p, d = T.def(id);
@@ -408,7 +447,7 @@
   }
 
   G.engine = {
-    passiveQi, breakChance, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
+    passiveQi, breakChance, breakCap, canMeditate, failDamageRange, bestPill, isBreakthroughReady, breakthroughIsRisky, canSeclude, eventById, eligibleEvents,
     ageUp, seclude, meditate, choose, breakthrough, checkDeath, retire,
     useItem, equipItem, unequipSlot, buyItem, canBuy,
     equipTechnique, unequipTechnique, buyTechnique, canBuyTechnique,

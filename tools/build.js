@@ -131,7 +131,19 @@ const techIds = [];
 if (!Array.isArray(techniques)) err("data/techniques.json", "must be an array");
 else techniques.forEach(t => {
   const w = "technique \"" + (t && t.id) + "\" (data/techniques.json)";
-  checkUnknown(t, ["id", "name", "desc", "element", "mods", "price", "minRealm"], w);
+  checkUnknown(t, ["id", "name", "desc", "grade", "type", "sub", "element", "mods", "price", "minRealm", "chosen"], w);
+  const tcfg = balance.techniques || {};
+  if (!Number.isInteger(t.grade) || t.grade < 1 || t.grade > (tcfg.grades || []).length) err(w, "\"grade\" must be 1 to " + (tcfg.grades || []).length + " (see balance.json techniques.grades)");
+  if (!tcfg.types || !Object.prototype.hasOwnProperty.call(tcfg.types, t.type)) err(w, "\"type\" must be one of: " + Object.keys(tcfg.types || {}).join(", "));
+  if (typeof t.sub !== "string" || !t.sub) err(w, "needs a \"sub\" type, e.g. \"blade\" or \"healing\"");
+  if (t.price !== undefined && t.grade > 3) err(w, "arts above grade 3 cannot be sold (remove \"price\"); they come from rare events");
+  if (t.chosen !== undefined) {
+    if (!t.chosen || !Number.isFinite(t.chosen.chance) || t.chosen.chance <= 0 || t.chosen.chance > 1) err(w, "chosen.chance must be a number above 0 and up to 1");
+    if (!Array.isArray(t.chosen.if) || !t.chosen.if.length) err(w, "chosen.if must be a list of conditions");
+    else t.chosen.if.forEach(c => { const m = cond.validate(c, rootNames, items.map(i => i && i.id), techniques.map(x => x && x.id), null); if (m) err(w, "chosen: " + m); });
+    if (t.price !== undefined) err(w, "an art that chooses its reader cannot be sold");
+  }
+  if (t.grade >= 5 && t.chosen === undefined) err(w, "grade 5 and 6 arts must define \"chosen\" (they pick their owner)");
   if (typeof t.id !== "string" || !/^[a-z0-9_]+$/.test(t.id)) err(w, "\"id\" must be lowercase letters/numbers/underscores");
   else if (techIds.includes(t.id)) err(w, "duplicate id");
   techIds.push(t.id);
@@ -155,6 +167,15 @@ else techniques.forEach(t => {
     if (!Array.isArray(tc.starter) || !tc.starter.every(id => techIds.includes(id))) err(w, "\"starter\" must list technique ids");
     const numArr = (k, len) => { if (!Array.isArray(tc[k]) || !tc[k].every(Number.isFinite)) { err(w, "\"" + k + "\" must be an array of numbers"); return false; } if (len !== undefined && tc[k].length !== len) { err(w, "\"" + k + "\" must have " + len + " entries"); return false; } return true; };
     numArr("slots", realms.length);
+    if (!Array.isArray(tc.grades) || !tc.grades.every(g => typeof g === "string")) err(w, "\"grades\" must list grade names");
+    if (!tc.types || typeof tc.types !== "object") err(w, "\"types\" must map type ids to names");
+    if (!Number.isFinite(tc.chosenLuck)) err(w, "chosenLuck must be a number");
+    const bg = tc.birth && tc.birth.backgrounds;
+    if (!Array.isArray(bg) || !bg.length) err(w, "birth.backgrounds must be a list");
+    else {
+      if (Math.abs(bg.reduce((a, b) => a + b.share, 0) - 1) > 0.001) err(w, "birth.backgrounds shares must add up to 1");
+      bg.forEach(b => { if (!b.id || !b.name || !(b.chance >= 0 && b.chance <= 1) || !(b.maxGrade >= 1)) err(w, "birth background \"" + b.id + "\" needs id, name, chance (0-1) and maxGrade"); });
+    }
     if (numArr("masteryYears") && (tc.masteryYears[0] !== 0 || tc.masteryYears.some((v, i) => i && v <= tc.masteryYears[i - 1]))) err(w, "masteryYears must start at 0 and increase");
     if (numArr("levelMult", Array.isArray(tc.masteryYears) ? tc.masteryYears.length : undefined) === false) { /* reported */ }
     if (!Array.isArray(tc.levelNames) || !tc.levelNames.every(s => typeof s === "string") || (Array.isArray(tc.masteryYears) && tc.levelNames.length !== tc.masteryYears.length)) err(w, "\"levelNames\" needs one name per mastery level");
@@ -167,7 +188,7 @@ else techniques.forEach(t => {
 const EVENT_KEYS = ["id", "text", "minAge", "maxAge", "minRealm", "maxRealm", "weight", "once", "if", "choices"];
 const CHOICE_KEYS = ["label", "if", "outcomes"];
 const OUTCOME_KEYS = ["chance", "scale", "bonus", "if", "text", "effects"];
-const EFFECT_KEYS = EFFECT_NUM.concat(["merit", "bond", "partner", "child", "trainChild", "losePartner", "items", "learn", "setFlags", "sect", "leaveSect", "die"]);
+const EFFECT_KEYS = EFFECT_NUM.concat(["merit", "bond", "partner", "child", "trainChild", "losePartner", "items", "learn", "learnRandom", "forget", "setFlags", "sect", "leaveSect", "die"]);
 const SCALE_KEYS = cond.NUM_NAMES;
 
 const seenIds = new Set();
@@ -203,6 +224,18 @@ function checkEffects(fx, ow) {
   if (fx.learn !== undefined) {
     if (!Array.isArray(fx.learn) || !fx.learn.every(s => typeof s === "string")) err(ow, "learn must be an array of technique ids");
     else fx.learn.forEach(id => { if (!techIds.includes(id)) err(ow, "learn: unknown technique \"" + id + "\" (see data/techniques.json)"); });
+  }
+  if (fx.learnRandom !== undefined) {
+    const lr = fx.learnRandom, n = (balance.techniques.grades || []).length;
+    if (!lr || typeof lr !== "object" || Array.isArray(lr)) err(ow, "learnRandom must be an object like { \"grade\": [1, 2] }");
+    else {
+      checkUnknown(lr, ["grade", "type"], ow + " learnRandom");
+      if (lr.grade !== undefined && !(Array.isArray(lr.grade) && lr.grade.length === 2 && lr.grade[0] >= 1 && lr.grade[1] <= n && lr.grade[0] <= lr.grade[1])) err(ow, "learnRandom.grade must be [min, max] within 1-" + n);
+      if (lr.type !== undefined && !Object.prototype.hasOwnProperty.call(balance.techniques.types, lr.type)) err(ow, "learnRandom.type must be one of: " + Object.keys(balance.techniques.types).join(", "));
+    }
+  }
+  if (fx.forget !== undefined) {
+    if (fx.forget !== "all" && !(Array.isArray(fx.forget) && fx.forget.every(id => techIds.includes(id)))) err(ow, "forget must be \"all\" or a list of technique ids");
   }
   if (fx.setFlags !== undefined) {
     if (!Array.isArray(fx.setFlags) || !fx.setFlags.every(s => typeof s === "string")) err(ow, "setFlags must be an array of strings");
