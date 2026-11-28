@@ -17,6 +17,8 @@ No build step is needed to play. **Open `index.html` in any browser.** Your prog
 - **👪 Family**: you may meet a partner (a mortal, or a fellow cultivator as a dao companion), strengthen your bond, and have up to three children. A strong bond gives a small luck bonus. Mortal partners grow old and pass away. Train your children with events. When you die, you can **continue as one of your children**: they keep their root, get a boost to intelligence and luck from their talent, and inherit some gold and your best art. Or reincarnate as a new soul.
 - **☯ Karma tree:** karma you earn when you die buys permanent upgrades. Take one **vow**: the Righteous path (works while your karma is 60 or higher), the Wicked path (40 or lower) or the Path of Balance (41-59). Each path has real benefits and a real price (for example the wicked gain power but suffer bad luck and fragile bodies, while the righteous heal and are blessed but lose their edge and are held to a higher standard). Roots of Fate upgrades help every path. You can forget your vows later for a partial refund.
 - **🏆 Feats (achievements):** 53 permanent milestones across cultivation, long life, wealth, sects, family, arts and many lives. Each unlocks once and pays a little karma. Some are hidden until you earn them.
+- **? Help** reopens the how-to-play guide (it opens by itself the first time). **🔊 Sound**, **🎵 Music** and **Aa Text size** are in the footer; sound effects and the soft generated music are made in your browser, no audio files. Your name glows brighter as your realm rises. Music mood follows your karma.
+- **Install / offline:** served from GitHub Pages (https), the game can be installed as an app from your browser menu (or the Install button) and keeps working offline.
 - **Export Save / Import Save** let you back up your game or move it between devices.
 
 ## Project layout
@@ -24,8 +26,13 @@ No build step is needed to play. **Open `index.html` in any browser.** Your prog
 ```
 index.html          the page
 css/style.css       look and feel
+manifest.webmanifest  install-as-app info
+sw.js             service worker (offline support)
+icons/            app icons (icon.svg is the source; PNGs are renders of it)
 js/
   util.js           small helpers (random, clamp)
+  settings.js       sound, music, text size and tutorial settings
+  audio.js          generated sound effects and music (WebAudio, no files)
   items.js          inventory and equipment helpers
   techniques.js     learning, equipping and mastering arts
   sects.js          sect ranks, merit, stipends and the mission board
@@ -35,6 +42,7 @@ js/
   conditions.js     the "if" mini-language used by the data files
   state.js          player state, log, save/load
   engine.js         game rules (no DOM, so it can be tested in Node)
+  help.js           the how-to-play guide
   ui.js             drawing the screen, buttons
   main.js           starts the game
 data/
@@ -112,7 +120,7 @@ Requires [Node.js](https://nodejs.org) 16 or newer for the tools. The game itsel
 - [x] Karma upgrade tree with good, wicked and balanced paths
 - [x] Achievements
 - [x] More events (100+ now) and more gear, arts and realms. Still aiming for 150+
-- [ ] Art, music, tutorial, installable web app (PWA)
+- [x] Polish: tutorial, generated sound and music, text size, installable offline app (PWA)
 - [ ] Translations
 
 ## License

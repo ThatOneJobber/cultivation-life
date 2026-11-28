@@ -52,6 +52,8 @@
     const p = S.p, m = S.meta;
     $("name").textContent = p.name;
     $("sub").textContent = "Age " + p.age + " / " + p.lifespan + " · " + realmLabel(p) + " · " + D.roots[p.root].name + " Root";
+    auraFor(p);
+    soundFor(p);
     $("meta").innerHTML = "Life #" + m.lives + "<br>Karma " + m.karma;
 
     // Bars show the effective value (equipment bonuses included).
@@ -107,7 +109,27 @@
     renderActions();
     // The engine knows nothing about the page, so the UI opens the death screen
     // the first time it draws a dead character (including after a reload or import).
-    if (!p.alive && deathShownFor !== p) { deathShownFor = p; showDeath(); }
+    if (!p.alive && deathShownFor !== p) { deathShownFor = p; G.audio.play("death"); showDeath(); }
+  }
+
+  // The character's name glows in a colour that deepens with their realm.
+  const AURA = ["#c9c9c9", "#9fe3c4", "#3ddc97", "#7fd7ff", "#6fa8ff", "#b48ee0", "#e58bd6", "#ff9d6b", "#ffcf5a", "#fff0a8", "#ffffff"];
+  function auraFor(p) {
+    const c = AURA[Math.min(p.realm, AURA.length - 1)], n = $("name");
+    n.style.color = p.realm === 0 ? "var(--gold)" : c;
+    n.style.textShadow = p.realm === 0 ? "none" : "0 0 " + (4 + p.realm * 2) + "px " + c;
+  }
+
+  // Play a sound for what just happened in the log (not for old entries after a reload).
+  let soundLife = null, soundLen = 0;
+  function soundFor(p) {
+    if (soundLife !== p) { soundLife = p; soundLen = p.log.length; return; }
+    const fresh = p.log.slice(soundLen);
+    soundLen = p.log.length;
+    if (!fresh.length) return;
+    const has = f => fresh.some(f);
+    G.audio.play(has(e => e.text.startsWith("BREAKTHROUGH")) ? "breakthrough" : has(e => e.text.startsWith("🏆")) ? "achievement" :
+      has(e => /PROMOTED/.test(e.text)) ? "promote" : has(e => e.cls === "bad") ? "bad" : has(e => e.cls === "good") ? "good" : has(e => e.cls === "event") ? "event" : "");
   }
 
   // "Golden Core (Middle)": how far through the realm your qi is.
@@ -524,6 +546,30 @@
       S.reset();
       render();
     };
+    $("helpBtn").onclick = () => G.help.open();
+    const ST = G.settings;
+    const refresh = () => {
+      $("soundBtn").textContent = "🔊 Sound: " + (ST.get("sound") ? "On" : "Off");
+      $("musicBtn").textContent = "🎵 Music: " + (ST.get("music") ? "On" : "Off");
+      $("textBtn").textContent = "Aa Text: " + ST.TEXT_SIZES[ST.get("textSize")];
+    };
+    $("soundBtn").onclick = () => { ST.set("sound", !ST.get("sound")); refresh(); G.audio.play("good"); };
+    $("musicBtn").onclick = () => { ST.set("music", !ST.get("music")); refresh(); G.audio.syncMusic(); };
+    $("textBtn").onclick = () => { ST.set("textSize", (ST.get("textSize") + 1) % ST.TEXT_SIZES.length); refresh(); };
+    refresh();
+    // Browsers only start audio after a tap, so the first tap also starts the music if it is on.
+    document.addEventListener("click", ev => {
+      if (!ev.target.closest || !ev.target.closest("button")) return;
+      if (ev.target.closest("#soundBtn,#musicBtn")) return;
+      G.audio.play("tap");
+      if (ST.get("music")) G.audio.syncMusic();
+    }, true);
+    // "Install" appears when the browser says this page can be installed as an app.
+    window.addEventListener("beforeinstallprompt", ev => {
+      ev.preventDefault();
+      $("installBtn").hidden = false;
+      $("installBtn").onclick = () => { ev.prompt(); $("installBtn").hidden = true; };
+    });
     $("bag").onclick = ev => { if (ev.target === $("bag")) closeBag(); }; // click outside to close
   }
 
@@ -531,8 +577,10 @@
     init() {
       buildStats();
       wireFooter();
-      if (!S.load()) S.newLife();
+      const fresh = !S.load();
+      if (fresh) S.newLife();
       render();
+      if (!G.settings.get("tutorialDone") && S.meta.lives <= 1 && S.p.age === 0) G.help.open();
     },
     render
   };

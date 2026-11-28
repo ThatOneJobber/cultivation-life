@@ -241,3 +241,5 @@ Give the follow-up a high `weight` and `once: true` so it shows up reasonably so
 ## Art and audio
 
 Only submit assets you made yourself or that are CC0 / CC-BY, and credit the author in `CREDITS.md`.
+
+The game currently ships no audio or image files: sounds and music are generated in `js/audio.js`, and the app icon (`icons/icon.svg`) is plain geometry. If you change the icon, re-render the PNGs from the SVG at 180, 192 and 512 px (plus a maskable 512 with 20% padding). Keep the sound code small and quiet by default.
